@@ -30,26 +30,26 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define PID_MAX 800
+#define PID_MAX 900
 #define PID_MIN 0
-double INTEGRAL = 0, pre_err = 0;
-const double Kp = 40, Ki = 0.2, Kd = 100;
-double goal = 20;
-double pid;
-double PID(double in, double goal) //位移式PID
+double INTEGRAL[4] = {0, 0, 0, 0} , pre_err[4] = {0, 0, 0, 0};
+const double Kp[4] = {40, 40}, Ki[4] = {0.2, 0.2}, Kd[4] = {100, 100};
+double goal = 10;
+double pid[4] = {0, 0, 0, 0};
+double PID(double in, double goal, int i) //位移式PID
 {
   double err = goal - in;
-  INTEGRAL += err * 20;
-  double derr = (err - pre_err) / 20;
-  pre_err = err;
-  pid = (Kp * err) + (Ki * INTEGRAL) + (Kd * derr);
+  INTEGRAL[i] += err * 20;
+  double derr = (err - pre_err[i]) / 20;
+  pre_err[i] = err;
+  pid[i] = (Kp[i] * err) + (Ki[i] * INTEGRAL[i]) + (Kd[i] * derr);
   double output;
-  if (pid < PID_MIN)
+  if (pid[i] < PID_MIN)
     output = PID_MIN;
-  else if (pid > PID_MAX)
+  else if (pid[i] > PID_MAX)
     output = PID_MAX;
   else
-    output = pid;
+    output = pid[i];
   return output;
 }
 /* USER CODE END PTD */
@@ -83,14 +83,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM2)
   {
-    int cnt = __HAL_TIM_GetCounter(&htim3);
-    __HAL_TIM_SetCounter(&htim3, 0);
-    double speed = (double)cnt * 20 / 531 * 20.4;
-    int pwm = (int)PID(speed, goal);
+    int cnt0 = __HAL_TIM_GetCounter(&htim3);
+    int cnt1 = __HAL_TIM_GetCounter(&htim4);
+    int cnt2 = __HAL_TIM_GetCounter(&htim5);
+    int cnt3 = __HAL_TIM_GetCounter(&htim8);
 
-    u3_printf("%lf,%lf\n", speed, goal);
-    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, pwm);
-    HAL_GPIO_WritePin(IN1_GPIO_Port, IN1_Pin, GPIO_PIN_SET);
+    __HAL_TIM_SetCounter(&htim3, 0);
+    __HAL_TIM_SetCounter(&htim4, 0);
+    __HAL_TIM_SetCounter(&htim5, 0);
+    __HAL_TIM_SetCounter(&htim8, 0);
+
+    double speed0 = (double)cnt0 * 20 / 531 * 20.4;
+    double speed1 = (double)cnt1 * 20 / 530 * 20.4;
+    double speed2 = (double)cnt2 * 20;
+    double speed3 = (double)cnt3 * 20;
+
+    int pwm0 = (int)PID(speed0, goal, 0);
+    int pwm1 = (int)PID(speed1, goal, 1);
+    // int pwm2 = (int)PID(speed2, goal, 2);
+    // int pwm3 = (int)PID(speed3, goal, 3);
+
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, pwm0);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, pwm1);
+    //__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, pwm2);
+    //__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, pwm3);
+    
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+    u3_printf("%lf,%lf\n", speed1, goal);
   }
 }
 /* USER CODE END 0 */
@@ -141,7 +161,6 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */

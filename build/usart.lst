@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
   30:Core/Src/usart.c **** 
   31:Core/Src/usart.c **** /* USART3 init function */
   32:Core/Src/usart.c **** 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 2
 
 
   33:Core/Src/usart.c **** void MX_USART3_UART_Init(void)
@@ -86,10 +86,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
   38 0002 0A48     		ldr	r0, .L5
   39 0004 0A4B     		ldr	r3, .L5+4
   40 0006 0360     		str	r3, [r0]
-  44:Core/Src/usart.c ****   huart3.Init.BaudRate = 38400;
+  44:Core/Src/usart.c ****   huart3.Init.BaudRate = 115200;
   41              		.loc 1 44 3 is_stmt 1 view .LVU3
   42              		.loc 1 44 24 is_stmt 0 view .LVU4
-  43 0008 4FF41643 		mov	r3, #38400
+  43 0008 4FF4E133 		mov	r3, #115200
   44 000c 4360     		str	r3, [r0, #4]
   45:Core/Src/usart.c ****   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   45              		.loc 1 45 3 is_stmt 1 view .LVU5
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
   63              		.loc 1 50 28 is_stmt 0 view .LVU16
   64 001c C361     		str	r3, [r0, #28]
   51:Core/Src/usart.c ****   if (HAL_UART_Init(&huart3) != HAL_OK)
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 3
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 3
 
 
   65              		.loc 1 51 3 is_stmt 1 view .LVU17
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  109 0002 86B0     		sub	sp, sp, #24
  110              	.LCFI2:
  111              		.cfi_def_cfa_offset 32
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 4
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 4
 
 
   63:Core/Src/usart.c **** 
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  136              	.L10:
  137              	.LCFI4:
  138              		.cfi_restore_state
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 5
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 5
 
 
   71:Core/Src/usart.c **** 
@@ -298,7 +298,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  177 004a 0393     		str	r3, [sp, #12]
   80:Core/Src/usart.c ****     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
  178              		.loc 1 80 5 is_stmt 1 view .LVU47
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 6
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 6
 
 
   80:Core/Src/usart.c ****     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -358,7 +358,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  225              	.LVL8:
  226              	.LFB70:
   93:Core/Src/usart.c **** 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 7
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 7
 
 
   94:Core/Src/usart.c **** void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
@@ -418,7 +418,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  257 001a 0448     		ldr	r0, .L17+8
  258              	.LVL11:
  109:Core/Src/usart.c **** 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 8
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 8
 
 
  259              		.loc 1 109 5 is_stmt 0 view .LVU67
@@ -478,7 +478,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  122:Core/Src/usart.c ****     uint8_t buf[200];
  309              		.loc 1 122 5 view .LVU74
  123:Core/Src/usart.c ****     vsprintf((char*)buf, fmt, ap);
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 9
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 9
 
 
  310              		.loc 1 123 5 view .LVU75
@@ -538,7 +538,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  360      00000000 
  360      00000000 
  361              		.text
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 10
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 10
 
 
  362              	.Letext0:
@@ -555,25 +555,25 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 1
  373              		.file 12 "Core/Inc/main.h"
  374              		.file 13 "Core/Inc/usart.h"
  375              		.file 14 "<built-in>"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s 			page 11
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 usart.c
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:16     .text.MX_USART3_UART_Init:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:24     .text.MX_USART3_UART_Init:00000000 MX_USART3_UART_Init
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:83     .text.MX_USART3_UART_Init:0000002c $d
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:89     .text.HAL_UART_MspInit:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:96     .text.HAL_UART_MspInit:00000000 HAL_UART_MspInit
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:211    .text.HAL_UART_MspInit:00000070 $d
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:217    .text.HAL_UART_MspDeInit:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:224    .text.HAL_UART_MspDeInit:00000000 HAL_UART_MspDeInit
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:267    .text.HAL_UART_MspDeInit:00000024 $d
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:274    .text.u3_printf:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:281    .text.u3_printf:00000000 u3_printf
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:349    .text.u3_printf:00000034 $d
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:359    .bss.huart3:00000000 huart3
-C:\Users\86183\AppData\Local\Temp\ccjuOdTf.s:355    .bss.huart3:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:16     .text.MX_USART3_UART_Init:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:24     .text.MX_USART3_UART_Init:00000000 MX_USART3_UART_Init
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:83     .text.MX_USART3_UART_Init:0000002c $d
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:89     .text.HAL_UART_MspInit:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:96     .text.HAL_UART_MspInit:00000000 HAL_UART_MspInit
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:211    .text.HAL_UART_MspInit:00000070 $d
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:217    .text.HAL_UART_MspDeInit:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:224    .text.HAL_UART_MspDeInit:00000000 HAL_UART_MspDeInit
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:267    .text.HAL_UART_MspDeInit:00000024 $d
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:274    .text.u3_printf:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:281    .text.u3_printf:00000000 u3_printf
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:349    .text.u3_printf:00000034 $d
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:359    .bss.huart3:00000000 huart3
+C:\Users\86183\AppData\Local\Temp\ccCGRQd0.s:355    .bss.huart3:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_UART_Init
