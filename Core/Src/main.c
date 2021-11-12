@@ -33,16 +33,16 @@
 #define PID_MAX 800
 #define PID_MIN 0
 double INTEGRAL = 0, pre_err = 0;
-const double Kp = 0, Ki = 0, Kd = 0;
-double goal = 0;
-
+const double Kp = 40, Ki = 0.2, Kd = 100;
+double goal = 20;
+double pid;
 double PID(double in, double goal) //位移式PID
 {
   double err = goal - in;
   INTEGRAL += err * 20;
   double derr = (err - pre_err) / 20;
   pre_err = err;
-  double pid = (Kp * err) + (Ki * INTEGRAL) + (Kd * derr);
+  pid = (Kp * err) + (Ki * INTEGRAL) + (Kd * derr);
   double output;
   if (pid < PID_MIN)
     output = PID_MIN;
@@ -85,9 +85,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
     int cnt = __HAL_TIM_GetCounter(&htim3);
     __HAL_TIM_SetCounter(&htim3, 0);
-    double speed = (double)cnt * 20 * 3.14 * 0.65 / 1000;
+    double speed = (double)cnt * 20 / 531 * 20.4;
     int pwm = (int)PID(speed, goal);
 
+    u3_printf("%lf,%lf\n", speed, goal);
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, pwm);
     HAL_GPIO_WritePin(IN1_GPIO_Port, IN1_Pin, GPIO_PIN_SET);
   }
@@ -128,7 +129,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   MX_TIM8_Init();
-  MX_USART2_UART_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start_IT(&htim2);
@@ -207,8 +208,6 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-    u2_printf("1\n");
-    HAL_Delay(500);
   }
   /* USER CODE END Error_Handler_Debug */
 }

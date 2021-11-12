@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
   30:Core/Src/gpio.c **** /* USER CODE BEGIN 1 */
   31:Core/Src/gpio.c **** 
   32:Core/Src/gpio.c **** /* USER CODE END 1 */
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 2
 
 
   33:Core/Src/gpio.c **** 
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
   48:Core/Src/gpio.c ****   __HAL_RCC_GPIOA_CLK_ENABLE();
   66              		.loc 1 48 3 view .LVU9
   67              	.LBB3:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 3
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 3
 
 
   68              		.loc 1 48 3 view .LVU10
@@ -134,33 +134,33 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
   78 0034 019A     		ldr	r2, [sp, #4]
   79              	.LBE3:
   80              		.loc 1 48 3 view .LVU14
-  49:Core/Src/gpio.c ****   __HAL_RCC_GPIOC_CLK_ENABLE();
+  49:Core/Src/gpio.c ****   __HAL_RCC_GPIOB_CLK_ENABLE();
   81              		.loc 1 49 3 view .LVU15
   82              	.LBB4:
   83              		.loc 1 49 3 view .LVU16
   84              		.loc 1 49 3 view .LVU17
   85 0036 9A69     		ldr	r2, [r3, #24]
-  86 0038 42F01002 		orr	r2, r2, #16
+  86 0038 42F00802 		orr	r2, r2, #8
   87 003c 9A61     		str	r2, [r3, #24]
   88              		.loc 1 49 3 view .LVU18
   89 003e 9A69     		ldr	r2, [r3, #24]
-  90 0040 02F01002 		and	r2, r2, #16
+  90 0040 02F00802 		and	r2, r2, #8
   91 0044 0292     		str	r2, [sp, #8]
   92              		.loc 1 49 3 view .LVU19
   93 0046 029A     		ldr	r2, [sp, #8]
   94              	.LBE4:
   95              		.loc 1 49 3 view .LVU20
-  50:Core/Src/gpio.c ****   __HAL_RCC_GPIOB_CLK_ENABLE();
+  50:Core/Src/gpio.c ****   __HAL_RCC_GPIOC_CLK_ENABLE();
   96              		.loc 1 50 3 view .LVU21
   97              	.LBB5:
   98              		.loc 1 50 3 view .LVU22
   99              		.loc 1 50 3 view .LVU23
  100 0048 9A69     		ldr	r2, [r3, #24]
- 101 004a 42F00802 		orr	r2, r2, #8
+ 101 004a 42F01002 		orr	r2, r2, #16
  102 004e 9A61     		str	r2, [r3, #24]
  103              		.loc 1 50 3 view .LVU24
  104 0050 9B69     		ldr	r3, [r3, #24]
- 105 0052 03F00803 		and	r3, r3, #8
+ 105 0052 03F01003 		and	r3, r3, #16
  106 0056 0393     		str	r3, [sp, #12]
  107              		.loc 1 50 3 view .LVU25
  108 0058 039B     		ldr	r3, [sp, #12]
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
  117              	.LVL0:
   54:Core/Src/gpio.c **** 
   55:Core/Src/gpio.c ****   /*Configure GPIO pin Output Level */
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 4
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 4
 
 
   56:Core/Src/gpio.c ****   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
   70:Core/Src/gpio.c ****   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
  158              		.loc 1 70 3 is_stmt 1 view .LVU46
  159 0098 04A9     		add	r1, sp, #16
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 5
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 5
 
 
  160 009a 2846     		mov	r0, r5
@@ -266,14 +266,14 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 1
  181              		.file 3 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\sys\\_stdint.h"
  182              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
  183              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s 			page 6
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cct46hRI.s 			page 6
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio.c
-C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s:16     .text.MX_GPIO_Init:00000000 $t
-C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s:24     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
-C:\Users\86183\AppData\Local\Temp\cc8xYoTe.s:172    .text.MX_GPIO_Init:000000a8 $d
+C:\Users\86183\AppData\Local\Temp\cct46hRI.s:16     .text.MX_GPIO_Init:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cct46hRI.s:24     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
+C:\Users\86183\AppData\Local\Temp\cct46hRI.s:172    .text.MX_GPIO_Init:000000a8 $d
 
 UNDEFINED SYMBOLS
 HAL_GPIO_WritePin
