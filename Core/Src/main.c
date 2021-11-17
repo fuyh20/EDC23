@@ -19,10 +19,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include "jy62.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -32,18 +33,21 @@
 /* USER CODE BEGIN PTD */
 #define PID_MAX 900
 #define PID_MIN 0
-double INTEGRAL[4] = {0, 0, 0, 0} , pre_err[4] = {0, 0, 0, 0};
-const double Kp[4] = {40, 40}, Ki[4] = {0.2, 0.2}, Kd[4] = {100, 100};
-double goal = 10;
-double pid[4] = {0, 0, 0, 0};
-double PID(double in, double goal, int i) //位移式PID
+float INTEGRAL[4] = {0, 0, 0, 0}, pre_err[4] = {0, 0, 0, 0};
+const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100, 100, 100, 100};
+float target[4] = {10, 10, 10, 10};
+float pid[4] = {0, 0, 0, 0};
+
+float PID(float in, float target, int i) //位移式PID
 {
-  double err = goal - in;
+  float err = target - in;
   INTEGRAL[i] += err * 20;
-  double derr = (err - pre_err[i]) / 20;
+  if (INTEGRAL[i] > 8000)
+    INTEGRAL[i] = 8000;
+  float derr = (err - pre_err[i]) / 20;
   pre_err[i] = err;
   pid[i] = (Kp[i] * err) + (Ki[i] * INTEGRAL[i]) + (Kd[i] * derr);
-  double output;
+  float output;
   if (pid[i] < PID_MIN)
     output = PID_MIN;
   else if (pid[i] > PID_MAX)
@@ -79,6 +83,79 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+float angle0 = 0;
+void Calibrate_Angle()
+{
+  float temp = GetYaw();
+  angle0 = temp / 20;
+  if (temp < 60)
+    for (int i = 1; i < 20; i++)
+    {
+      if ((temp = GetYaw()) > 300)
+        temp -= 360;
+      angle0 += temp / 20;
+    }
+  else if (temp > 300)
+    for (int i = 1; i < 20; i++)
+    {
+      if ((temp = GetYaw()) < 60)
+        temp += 360;
+      angle0 += temp / 20;
+    }
+  else
+    for (int i = 1; i < 20; i++)
+      angle0 += GetYaw() / 20;
+}
+
+float getAngle()
+{
+  float temp = GetYaw() - angle0;
+  return temp > 180 ? temp - 360 : temp < -180 ? temp + 360
+                                               : temp;
+}
+
+void Set_Left_Direction(int direction)
+{
+  HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, RESET);
+  HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, RESET);
+  HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, RESET);
+  HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, RESET);
+  if (direction == 1)
+  {
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+  }
+  else if (direction == -1)
+  {
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, SET);
+  }
+}
+
+void Set_Right_Direction(int direction)
+{
+  HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, RESET);
+  HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, RESET);
+  HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, RESET);
+  HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, RESET);
+  if (direction == 1)
+  {
+    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
+  }
+  else if (direction == -1)
+  {
+    HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, SET);
+    HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, SET);
+  }
+}
+
+void Set_Speed(float speed, int i) { target[i] = speed; }
+
+void Turn(float angle)
+{
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM2)
@@ -93,24 +170,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     __HAL_TIM_SetCounter(&htim5, 0);
     __HAL_TIM_SetCounter(&htim8, 0);
 
-    double speed0 = (double)cnt0 * 20 / 531 * 20.4;
-    double speed1 = (double)cnt1 * 20 / 530 * 20.4;
-    double speed2 = (double)cnt2 * 20;
-    double speed3 = (double)cnt3 * 20;
+    float speed0 = (float)cnt0 * 20 / 532 * 20.4;
+    float speed1 = (float)cnt1 * 20 / 531 * 20.4;
+    float speed2 = (float)cnt2 * 20 / 531 * 20.4;
+    float speed3 = (float)cnt3 * 20 / 530 * 20.4;
 
-    int pwm0 = (int)PID(speed0, goal, 0);
-    int pwm1 = (int)PID(speed1, goal, 1);
-    // int pwm2 = (int)PID(speed2, goal, 2);
-    // int pwm3 = (int)PID(speed3, goal, 3);
+    int pwm0 = (int)PID(speed0, target[0], 0);
+    int pwm1 = (int)PID(speed1, target[1], 1);
+    int pwm2 = (int)PID(speed2, target[2], 2);
+    int pwm3 = (int)PID(speed3, target[3], 3);
 
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_1, pwm0);
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, pwm1);
-    //__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, pwm2);
-    //__HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, pwm3);
-    
-    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, pwm2);
+    __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, pwm3);
+
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
     HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
-    u3_printf("%lf,%lf\n", speed1, goal);
+    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
+  }
+}
+
+int flag;
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  flag = 1;
+  if (huart == &huart2)
+  {
+    jy62MessageRecord();
   }
 }
 /* USER CODE END 0 */
@@ -150,8 +238,10 @@ int main(void)
   MX_TIM5_Init();
   MX_TIM8_Init();
   MX_USART3_UART_Init();
+  MX_DMA_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  jy62_Init(&huart2);
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -161,6 +251,8 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
+  HAL_Delay(100);
+  Calibrate_Angle();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -170,6 +262,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    float angle = getAngle();
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    u3_printf("%d,%f,%f\n",flag, angle, angle0);
+    HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
@@ -199,8 +295,7 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -231,7 +326,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
