@@ -18,12 +18,14 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <math.h>
 #include "main.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 #include "jy62.h"
+#include "zigbee.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -31,14 +33,47 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+#define Turn_Angle_Bias 10
 #define PID_MAX 900
 #define PID_MIN 0
+#define GET_PACKAGE 0
+#define PUT_PACKAGE 1
+/*PID参数----------------------------------------------------------------------*/
 float INTEGRAL[4] = {0, 0, 0, 0}, pre_err[4] = {0, 0, 0, 0};
 const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100, 100, 100, 100};
-float target[4] = {10, 10, 10, 10};
 float pid[4] = {0, 0, 0, 0};
+float target[4] = {20, 20, 20, 20};
 
-float PID(float in, float target, int i) //位移式PID
+uint8_t STATE;
+
+float angle0;
+float absoluteAngle;
+
+float PID(float in, float target, int i)
 {
   float err = target - in;
   INTEGRAL[i] += err * 20;
@@ -56,34 +91,7 @@ float PID(float in, float target, int i) //位移式PID
     output = pid[i];
   return output;
 }
-/* USER CODE END PTD */
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-uint8_t u2_RX_Buf[MAX_LEN];
-uint8_t u2_RX_ReceiveBit;
-int rx_len = 0;
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-float angle0 = 0;
 void Calibrate_Angle()
 {
   float temp = GetYaw();
@@ -105,6 +113,7 @@ void Calibrate_Angle()
   else
     for (int i = 1; i < 20; i++)
       angle0 += GetYaw() / 20;
+  absoluteAngle = angle0;
 }
 
 float getAngle()
@@ -152,18 +161,63 @@ void Set_Right_Direction(int direction)
 
 void Set_Speed(float speed, int i) { target[i] = speed; }
 
+float Add_Angle(float angleA, float angleB)
+{
+  float result = angleA + angleB;
+  return result < -180 ? result + 360 : result > 180 ? result - 360
+                                                     : result;
+}
+
 void Turn(float angle)
 {
+  Set_Right_Direction(0);
+  Set_Left_Direction(0);
+  HAL_Delay(500);
+  angle0 = Add_Angle(angle0, angle);
+  if (angle > 0)
+  {
+    Set_Left_Direction(-1);
+    Set_Right_Direction(1);
+    for (int i = 0; i < 4; i++)
+      Set_Speed(15, i);
+    while (getAngle() < -Turn_Angle_Bias)
+      ;
+  }
+  else
+  {
+    Set_Left_Direction(1);
+    Set_Right_Direction(-1);
+    for (int i = 0; i < 4; i++)
+      Set_Speed(15, i);
+    while (getAngle() > Turn_Angle_Bias)
+      ;
+  }
+  Set_Right_Direction(0);
+  Set_Left_Direction(0);
+  HAL_Delay(500);
+  Set_Left_Direction(1);
+  Set_Right_Direction(1);
+  for (int i = 0; i < 4; i++)
+    Set_Speed(20, i);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM2)
   {
-    int cnt0 = __HAL_TIM_GetCounter(&htim3);
-    int cnt1 = __HAL_TIM_GetCounter(&htim4);
-    int cnt2 = __HAL_TIM_GetCounter(&htim5);
-    int cnt3 = __HAL_TIM_GetCounter(&htim8);
+    unsigned int cnt0 = __HAL_TIM_GetCounter(&htim3);
+    unsigned int cnt1 = __HAL_TIM_GetCounter(&htim4);
+    unsigned int cnt2 = __HAL_TIM_GetCounter(&htim5);
+    unsigned int cnt3 = __HAL_TIM_GetCounter(&htim8);
+
+    if (cnt0 > 32676)
+      cnt0 = 65535 - cnt0;
+    if (cnt1 > 32676)
+      cnt1 = 65535 - cnt1;
+    if (cnt2 > 32676)
+      cnt2 = 65535 - cnt2;
+    if (cnt3 > 32676)
+      cnt3 = 65535 - cnt3;
 
     __HAL_TIM_SetCounter(&htim3, 0);
     __HAL_TIM_SetCounter(&htim4, 0);
@@ -184,23 +238,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_2, pwm1);
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_3, pwm2);
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, pwm3);
-
-    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
-    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
-    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
-    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
   }
 }
 
-int flag;
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void MoveTo(uint16_t x, uint16_t y)
 {
-  flag = 1;
-  if (huart == &huart2)
+  while (1)
   {
-    jy62MessageRecord();
+    uint16_t CurX = getCarPosX();
+    uint16_t CurY = getCarPosY();
+    float targetAngle = (float)atan2(y - CurY, x - CurX) * 57.296;
+    targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
+
+    Turn(targetAngle);
+    HAL_Delay(500);
   }
 }
+
+void Init()
+{
+  while (getGameState() == 0)
+    ;
+  HAL_Delay(100);
+  MoveTo(127, 127);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -242,6 +304,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   jy62_Init(&huart2);
+  zigbee_Init(&huart3);
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -252,20 +315,31 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
   HAL_Delay(100);
+  HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
+  HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+  HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+  HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
   Calibrate_Angle();
+  HAL_Delay(100);
+  Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  // Turn(60);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    float angle = getAngle();
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    u3_printf("%d,%f,%f\n",flag, angle, angle0);
-    HAL_Delay(100);
+    // switch (STATE)
+    // {
+    // case 
+    //   break;
+
+    //     default:
+    //   break;
+    // }
   }
   /* USER CODE END 3 */
 }
@@ -295,7 +369,8 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -326,7 +401,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

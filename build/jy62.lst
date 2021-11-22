@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -29,51 +29,53 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
   27              		.file 1 "Core/Src/jy62.c"
    1:Core/Src/jy62.c **** #include "jy62.h"
    2:Core/Src/jy62.c **** 
-   3:Core/Src/jy62.c **** volatile uint8_t jy62Receive[JY62_MESSAGE_LENGTH]; //实时记录收到的信息
-   4:Core/Src/jy62.c **** volatile uint8_t jy62Message[JY62_MESSAGE_LENGTH]; //确认无误后用于解码的信息
-   5:Core/Src/jy62.c **** uint8_t initAngle[3] = {0xFF, 0xAA, 0x52};
-   6:Core/Src/jy62.c **** uint8_t calibrateAcce[3] = {0xFF, 0xAA, 0x67};
-   7:Core/Src/jy62.c **** uint8_t setBaud115200[3] = {0xFF, 0xAA, 0x63};
-   8:Core/Src/jy62.c **** uint8_t setBaud9600[3] = {0xFF, 0xAA, 0x64};
-   9:Core/Src/jy62.c **** uint8_t setHorizontal[3] = {0xFF, 0xAA, 0x65};
-  10:Core/Src/jy62.c **** uint8_t setVertical[3] = {0xFF, 0xAA, 0x66};
-  11:Core/Src/jy62.c **** uint8_t sleepAndAwake[3] = {0xFF, 0xAA, 0x60};
-  12:Core/Src/jy62.c **** UART_HandleTypeDef *jy62_huart;
-  13:Core/Src/jy62.c **** 
-  14:Core/Src/jy62.c **** struct Acce Accelerate;	 //储存加速度
-  15:Core/Src/jy62.c **** struct Velo Velocity;	 //储存角速度
-  16:Core/Src/jy62.c **** struct Angl Angle;		 //储存角度值
-  17:Core/Src/jy62.c **** struct Temp Temperature; //储存温度值
-  18:Core/Src/jy62.c **** /***********************接口****************************/
-  19:Core/Src/jy62.c **** 
-  20:Core/Src/jy62.c **** void jy62_Init(UART_HandleTypeDef *huart)
-  21:Core/Src/jy62.c **** {
-  28              		.loc 1 21 1 view -0
+   3:Core/Src/jy62.c **** uint8_t jy62Receive[JY62_MESSAGE_LENGTH]; //实时记录收到的信息
+   4:Core/Src/jy62.c **** uint8_t jy62Message[JY62_MESSAGE_LENGTH]; //确认无误后用于解码的信息
+   5:Core/Src/jy62.c **** uint8_t PrevLen, SuccLen;
+   6:Core/Src/jy62.c **** uint8_t jy62PrevInfoHolder[11];
+   7:Core/Src/jy62.c **** uint8_t initAngle[3] = {0xFF, 0xAA, 0x52};
+   8:Core/Src/jy62.c **** uint8_t calibrateAcce[3] = {0xFF, 0xAA, 0x67};
+   9:Core/Src/jy62.c **** uint8_t setBaud115200[3] = {0xFF, 0xAA, 0x63};
+  10:Core/Src/jy62.c **** uint8_t setBaud9600[3] = {0xFF, 0xAA, 0x64};
+  11:Core/Src/jy62.c **** uint8_t setHorizontal[3] = {0xFF, 0xAA, 0x65};
+  12:Core/Src/jy62.c **** uint8_t setVertical[3] = {0xFF, 0xAA, 0x66};
+  13:Core/Src/jy62.c **** uint8_t sleepAndAwake[3] = {0xFF, 0xAA, 0x60};
+  14:Core/Src/jy62.c **** UART_HandleTypeDef *jy62_huart;
+  15:Core/Src/jy62.c **** 
+  16:Core/Src/jy62.c **** struct Acce Accelerate;	 //储存加速度
+  17:Core/Src/jy62.c **** struct Velo Velocity;	 //储存角速度
+  18:Core/Src/jy62.c **** struct Angl Angle;		 //储存角度值
+  19:Core/Src/jy62.c **** struct Temp Temperature; //储存温度值
+  20:Core/Src/jy62.c **** /***********************接口****************************/
+  21:Core/Src/jy62.c **** 
+  22:Core/Src/jy62.c **** void jy62_Init(UART_HandleTypeDef *huart)
+  23:Core/Src/jy62.c **** {
+  28              		.loc 1 23 1 view -0
   29              		.cfi_startproc
   30              		@ args = 0, pretend = 0, frame = 0
   31              		@ frame_needed = 0, uses_anonymous_args = 0
-  32              		.loc 1 21 1 is_stmt 0 view .LVU1
+  32              		.loc 1 23 1 is_stmt 0 view .LVU1
   33 0000 08B5     		push	{r3, lr}
   34              	.LCFI0:
   35              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 2
+
+
   36              		.cfi_offset 3, -8
   37              		.cfi_offset 14, -4
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 2
-
-
-  22:Core/Src/jy62.c **** 	jy62_huart = huart;
-  38              		.loc 1 22 2 is_stmt 1 view .LVU2
-  39              		.loc 1 22 13 is_stmt 0 view .LVU3
+  24:Core/Src/jy62.c **** 	jy62_huart = huart;
+  38              		.loc 1 24 2 is_stmt 1 view .LVU2
+  39              		.loc 1 24 13 is_stmt 0 view .LVU3
   40 0002 034B     		ldr	r3, .L3
   41 0004 1860     		str	r0, [r3]
-  23:Core/Src/jy62.c **** 	HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
-  42              		.loc 1 23 2 is_stmt 1 view .LVU4
+  25:Core/Src/jy62.c **** 	HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
+  42              		.loc 1 25 2 is_stmt 1 view .LVU4
   43 0006 0B22     		movs	r2, #11
   44 0008 0249     		ldr	r1, .L3+4
   45 000a FFF7FEFF 		bl	HAL_UART_Receive_DMA
   46              	.LVL1:
-  24:Core/Src/jy62.c **** }
-  47              		.loc 1 24 1 is_stmt 0 view .LVU5
+  26:Core/Src/jy62.c **** }
+  47              		.loc 1 26 1 is_stmt 0 view .LVU5
   48 000e 08BD     		pop	{r3, pc}
   49              	.L4:
   50              		.align	2
@@ -92,101 +94,153 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
   65              	SetBaud:
   66              	.LVL2:
   67              	.LFB67:
-  25:Core/Src/jy62.c **** 
-  26:Core/Src/jy62.c **** void jy62MessageRecord(void)
-  27:Core/Src/jy62.c **** {
-  28:Core/Src/jy62.c **** 	if (jy62Receive[0] == 0x55)
-  29:Core/Src/jy62.c **** 	{
-  30:Core/Src/jy62.c **** 		uint8_t sum = 0x00;
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
-  32:Core/Src/jy62.c **** 		{
-  33:Core/Src/jy62.c **** 			sum += jy62Receive[i];
-  34:Core/Src/jy62.c **** 		}
-  35:Core/Src/jy62.c **** 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
-  36:Core/Src/jy62.c **** 		{
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
-  38:Core/Src/jy62.c **** 			{
-  39:Core/Src/jy62.c **** 				jy62Message[i] = jy62Receive[i];
-  40:Core/Src/jy62.c **** 			}
-  41:Core/Src/jy62.c **** 			Decode();
-  42:Core/Src/jy62.c **** 		}
-  43:Core/Src/jy62.c **** 	}
-  44:Core/Src/jy62.c **** 	HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
-  45:Core/Src/jy62.c **** }
-  46:Core/Src/jy62.c **** 
-  47:Core/Src/jy62.c **** void SetBaud(int Baud)
-  48:Core/Src/jy62.c **** {
-  68              		.loc 1 48 1 is_stmt 1 view -0
+  27:Core/Src/jy62.c **** 
+  28:Core/Src/jy62.c **** // void jy62MessageRecord(void)
+  29:Core/Src/jy62.c **** // {
+  30:Core/Src/jy62.c **** // 	if (jy62Receive[0] == 0x55)
+  31:Core/Src/jy62.c **** // 	{
+  32:Core/Src/jy62.c **** // 		uint8_t sum = 0x00;
+  33:Core/Src/jy62.c **** // 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+  34:Core/Src/jy62.c **** // 		{
+  35:Core/Src/jy62.c **** // 			sum += jy62Receive[i];
+  36:Core/Src/jy62.c **** // 		}
+  37:Core/Src/jy62.c **** // 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
+  38:Core/Src/jy62.c **** // 		{
+  39:Core/Src/jy62.c **** // 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+  40:Core/Src/jy62.c **** // 			{
+  41:Core/Src/jy62.c **** // 				jy62Message[i] = jy62Receive[i];
+  42:Core/Src/jy62.c **** // 			}
+  43:Core/Src/jy62.c **** // 			Decode();
+  44:Core/Src/jy62.c **** // 		}
+  45:Core/Src/jy62.c **** // 	}
+  46:Core/Src/jy62.c **** // 	HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
+  47:Core/Src/jy62.c **** // }
+  48:Core/Src/jy62.c **** 
+  49:Core/Src/jy62.c **** void jy62MessageRecord(void)
+  50:Core/Src/jy62.c **** {
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 3
+
+
+  51:Core/Src/jy62.c ****     // PrevLen = 累计丢位数 % 11 = 本条信息被上次接收操作接收的位数（头部�
+  52:Core/Src/jy62.c ****     // SuccLen = 11 - PrevLen = 本条信息中被本次接收操作接收的位数（尾部分）
+  53:Core/Src/jy62.c ****     //特别的，如果丢位不发生，那么PrevLen始终为0，SuccLen始终为11，此即triv
+  54:Core/Src/jy62.c ****     //仅当丢位再次发生时才需要更新PrevLen和SuccLen
+  55:Core/Src/jy62.c ****     //首先进行校验：按照SuccLen检查理论上剩余部分的后一位是否为0x55，即�
+  56:Core/Src/jy62.c ****     if (jy62Receive[SuccLen % JY62_MESSAGE_LENGTH] == 0x55)
+  57:Core/Src/jy62.c ****     {
+  58:Core/Src/jy62.c ****         //如果是，将本次接收到信息属于上一条的部分录入Holder中，接在已�
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+  60:Core/Src/jy62.c ****         {
+  61:Core/Src/jy62.c ****             jy62PrevInfoHolder[PrevLen + i] = jy62Receive[i];
+  62:Core/Src/jy62.c ****         }
+  63:Core/Src/jy62.c ****         //求和，对校验和进行检查
+  64:Core/Src/jy62.c ****         uint8_t sum = 0x00;
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+  66:Core/Src/jy62.c ****         {
+  67:Core/Src/jy62.c ****             sum += jy62PrevInfoHolder[i];
+  68:Core/Src/jy62.c ****         }
+  69:Core/Src/jy62.c ****         //如果符合就输入到Message中，然后解码
+  70:Core/Src/jy62.c ****         if (sum == jy62PrevInfoHolder[JY62_MESSAGE_LENGTH - 1])
+  71:Core/Src/jy62.c ****         {
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+  73:Core/Src/jy62.c ****             {
+  74:Core/Src/jy62.c ****                 jy62Message[i] = jy62PrevInfoHolder[i];
+  75:Core/Src/jy62.c ****             }
+  76:Core/Src/jy62.c ****             Decode();
+  77:Core/Src/jy62.c ****         }
+  78:Core/Src/jy62.c ****     }
+  79:Core/Src/jy62.c ****     else
+  80:Core/Src/jy62.c ****     {
+  81:Core/Src/jy62.c ****         //否则需要更新SuccLen和PrevLen。由于不能确定丢位多少（可能超过11）�
+  82:Core/Src/jy62.c ****         SuccLen = 0;
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+  84:Core/Src/jy62.c ****         {
+  85:Core/Src/jy62.c ****             SuccLen++;
+  86:Core/Src/jy62.c ****         }
+  87:Core/Src/jy62.c ****         PrevLen = JY62_MESSAGE_LENGTH - SuccLen;
+  88:Core/Src/jy62.c ****     }
+  89:Core/Src/jy62.c ****     //然后统一进入Holder的覆盖，将本次接收操作中收到的下一次信息的头部
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+  91:Core/Src/jy62.c ****     {
+  92:Core/Src/jy62.c ****         jy62PrevInfoHolder[i - SuccLen % JY62_MESSAGE_LENGTH] = jy62Receive[i];
+  93:Core/Src/jy62.c ****     }
+  94:Core/Src/jy62.c ****     //重新开始接收
+  95:Core/Src/jy62.c ****     HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
+  96:Core/Src/jy62.c **** }
+  97:Core/Src/jy62.c **** 
+  98:Core/Src/jy62.c **** void SetBaud(int Baud)
+  99:Core/Src/jy62.c **** {
+  68              		.loc 1 99 1 is_stmt 1 view -0
   69              		.cfi_startproc
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 3
-
-
   70              		@ args = 0, pretend = 0, frame = 0
   71              		@ frame_needed = 0, uses_anonymous_args = 0
-  72              		.loc 1 48 1 is_stmt 0 view .LVU7
+  72              		.loc 1 99 1 is_stmt 0 view .LVU7
   73 0000 08B5     		push	{r3, lr}
   74              	.LCFI1:
   75              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 4
+
+
   76              		.cfi_offset 3, -8
   77              		.cfi_offset 14, -4
-  49:Core/Src/jy62.c **** 	if (Baud == 115200)
-  78              		.loc 1 49 2 is_stmt 1 view .LVU8
-  79              		.loc 1 49 5 is_stmt 0 view .LVU9
+ 100:Core/Src/jy62.c **** 	if (Baud == 115200)
+  78              		.loc 1 100 2 is_stmt 1 view .LVU8
+  79              		.loc 1 100 5 is_stmt 0 view .LVU9
   80 0002 B0F5E13F 		cmp	r0, #115200
   81 0006 03D0     		beq	.L9
-  50:Core/Src/jy62.c **** 	{
-  51:Core/Src/jy62.c **** 		HAL_UART_Transmit(jy62_huart, setBaud115200, 3, HAL_MAX_DELAY);
-  52:Core/Src/jy62.c **** 	}
-  53:Core/Src/jy62.c **** 	else if (Baud == 9600)
-  82              		.loc 1 53 7 is_stmt 1 view .LVU10
-  83              		.loc 1 53 10 is_stmt 0 view .LVU11
+ 101:Core/Src/jy62.c **** 	{
+ 102:Core/Src/jy62.c **** 		HAL_UART_Transmit(jy62_huart, setBaud115200, 3, HAL_MAX_DELAY);
+ 103:Core/Src/jy62.c **** 	}
+ 104:Core/Src/jy62.c **** 	else if (Baud == 9600)
+  82              		.loc 1 104 7 is_stmt 1 view .LVU10
+  83              		.loc 1 104 10 is_stmt 0 view .LVU11
   84 0008 B0F5165F 		cmp	r0, #9600
   85 000c 09D0     		beq	.L10
   86              	.LVL3:
   87              	.L5:
-  54:Core/Src/jy62.c **** 	{
-  55:Core/Src/jy62.c **** 		HAL_UART_Transmit(jy62_huart, setBaud115200, 3, HAL_MAX_DELAY);
-  56:Core/Src/jy62.c **** 	}
-  57:Core/Src/jy62.c **** }
-  88              		.loc 1 57 1 view .LVU12
+ 105:Core/Src/jy62.c **** 	{
+ 106:Core/Src/jy62.c **** 		HAL_UART_Transmit(jy62_huart, setBaud115200, 3, HAL_MAX_DELAY);
+ 107:Core/Src/jy62.c **** 	}
+ 108:Core/Src/jy62.c **** }
+  88              		.loc 1 108 1 view .LVU12
   89 000e 08BD     		pop	{r3, pc}
   90              	.LVL4:
   91              	.L9:
-  51:Core/Src/jy62.c **** 	}
-  92              		.loc 1 51 3 is_stmt 1 view .LVU13
+ 102:Core/Src/jy62.c **** 	}
+  92              		.loc 1 102 3 is_stmt 1 view .LVU13
   93 0010 4FF0FF33 		mov	r3, #-1
   94 0014 0322     		movs	r2, #3
   95 0016 0749     		ldr	r1, .L11
   96 0018 0748     		ldr	r0, .L11+4
   97              	.LVL5:
-  51:Core/Src/jy62.c **** 	}
-  98              		.loc 1 51 3 is_stmt 0 view .LVU14
+ 102:Core/Src/jy62.c **** 	}
+  98              		.loc 1 102 3 is_stmt 0 view .LVU14
   99 001a 0068     		ldr	r0, [r0]
  100 001c FFF7FEFF 		bl	HAL_UART_Transmit
  101              	.LVL6:
  102 0020 F5E7     		b	.L5
  103              	.LVL7:
  104              	.L10:
-  55:Core/Src/jy62.c **** 	}
- 105              		.loc 1 55 3 is_stmt 1 view .LVU15
+ 106:Core/Src/jy62.c **** 	}
+ 105              		.loc 1 106 3 is_stmt 1 view .LVU15
  106 0022 4FF0FF33 		mov	r3, #-1
  107 0026 0322     		movs	r2, #3
  108 0028 0249     		ldr	r1, .L11
  109 002a 0348     		ldr	r0, .L11+4
  110              	.LVL8:
-  55:Core/Src/jy62.c **** 	}
- 111              		.loc 1 55 3 is_stmt 0 view .LVU16
+ 106:Core/Src/jy62.c **** 	}
+ 111              		.loc 1 106 3 is_stmt 0 view .LVU16
  112 002c 0068     		ldr	r0, [r0]
  113 002e FFF7FEFF 		bl	HAL_UART_Transmit
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 4
-
-
  114              	.LVL9:
- 115              		.loc 1 57 1 view .LVU17
+ 115              		.loc 1 108 1 view .LVU17
  116 0032 ECE7     		b	.L5
  117              	.L12:
  118              		.align	2
  119              	.L11:
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 5
+
+
  120 0034 00000000 		.word	.LANCHOR2
  121 0038 00000000 		.word	.LANCHOR0
  122              		.cfi_endproc
@@ -200,10 +254,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  131              		.fpu softvfp
  133              	SetHorizontal:
  134              	.LFB68:
-  58:Core/Src/jy62.c **** 
-  59:Core/Src/jy62.c **** void SetHorizontal()
-  60:Core/Src/jy62.c **** {
- 135              		.loc 1 60 1 is_stmt 1 view -0
+ 109:Core/Src/jy62.c **** 
+ 110:Core/Src/jy62.c **** void SetHorizontal()
+ 111:Core/Src/jy62.c **** {
+ 135              		.loc 1 111 1 is_stmt 1 view -0
  136              		.cfi_startproc
  137              		@ args = 0, pretend = 0, frame = 0
  138              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -212,8 +266,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  141              		.cfi_def_cfa_offset 8
  142              		.cfi_offset 3, -8
  143              		.cfi_offset 14, -4
-  61:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, setHorizontal, 3, HAL_MAX_DELAY);
- 144              		.loc 1 61 2 view .LVU19
+ 112:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, setHorizontal, 3, HAL_MAX_DELAY);
+ 144              		.loc 1 112 2 view .LVU19
  145 0002 4FF0FF33 		mov	r3, #-1
  146 0006 0322     		movs	r2, #3
  147 0008 0249     		ldr	r1, .L15
@@ -221,8 +275,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  149 000c 0068     		ldr	r0, [r0]
  150 000e FFF7FEFF 		bl	HAL_UART_Transmit
  151              	.LVL10:
-  62:Core/Src/jy62.c **** }
- 152              		.loc 1 62 1 is_stmt 0 view .LVU20
+ 113:Core/Src/jy62.c **** }
+ 152              		.loc 1 113 1 is_stmt 0 view .LVU20
  153 0012 08BD     		pop	{r3, pc}
  154              	.L16:
  155              		.align	2
@@ -238,15 +292,15 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  166              		.thumb
  167              		.thumb_func
  168              		.fpu softvfp
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 5
-
-
  170              	SetVertical:
  171              	.LFB69:
-  63:Core/Src/jy62.c **** 
-  64:Core/Src/jy62.c **** void SetVertical()
-  65:Core/Src/jy62.c **** {
- 172              		.loc 1 65 1 is_stmt 1 view -0
+ 114:Core/Src/jy62.c **** 
+ 115:Core/Src/jy62.c **** void SetVertical()
+ 116:Core/Src/jy62.c **** {
+ 172              		.loc 1 116 1 is_stmt 1 view -0
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 6
+
+
  173              		.cfi_startproc
  174              		@ args = 0, pretend = 0, frame = 0
  175              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -255,8 +309,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  178              		.cfi_def_cfa_offset 8
  179              		.cfi_offset 3, -8
  180              		.cfi_offset 14, -4
-  66:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, setVertical, 3, HAL_MAX_DELAY);
- 181              		.loc 1 66 2 view .LVU22
+ 117:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, setVertical, 3, HAL_MAX_DELAY);
+ 181              		.loc 1 117 2 view .LVU22
  182 0002 4FF0FF33 		mov	r3, #-1
  183 0006 0322     		movs	r2, #3
  184 0008 0249     		ldr	r1, .L19
@@ -264,8 +318,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  186 000c 0068     		ldr	r0, [r0]
  187 000e FFF7FEFF 		bl	HAL_UART_Transmit
  188              	.LVL11:
-  67:Core/Src/jy62.c **** }
- 189              		.loc 1 67 1 is_stmt 0 view .LVU23
+ 118:Core/Src/jy62.c **** }
+ 189              		.loc 1 118 1 is_stmt 0 view .LVU23
  190 0012 08BD     		pop	{r3, pc}
  191              	.L20:
  192              		.align	2
@@ -283,10 +337,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  205              		.fpu softvfp
  207              	InitAngle:
  208              	.LFB70:
-  68:Core/Src/jy62.c **** 
-  69:Core/Src/jy62.c **** void InitAngle()
-  70:Core/Src/jy62.c **** {
- 209              		.loc 1 70 1 is_stmt 1 view -0
+ 119:Core/Src/jy62.c **** 
+ 120:Core/Src/jy62.c **** void InitAngle()
+ 121:Core/Src/jy62.c **** {
+ 209              		.loc 1 121 1 is_stmt 1 view -0
  210              		.cfi_startproc
  211              		@ args = 0, pretend = 0, frame = 0
  212              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -295,20 +349,20 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  215              		.cfi_def_cfa_offset 8
  216              		.cfi_offset 3, -8
  217              		.cfi_offset 14, -4
-  71:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, initAngle, 3, HAL_MAX_DELAY);
- 218              		.loc 1 71 2 view .LVU25
+ 122:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, initAngle, 3, HAL_MAX_DELAY);
+ 218              		.loc 1 122 2 view .LVU25
  219 0002 4FF0FF33 		mov	r3, #-1
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 6
-
-
  220 0006 0322     		movs	r2, #3
  221 0008 0249     		ldr	r1, .L23
  222 000a 0348     		ldr	r0, .L23+4
  223 000c 0068     		ldr	r0, [r0]
  224 000e FFF7FEFF 		bl	HAL_UART_Transmit
  225              	.LVL12:
-  72:Core/Src/jy62.c **** }
- 226              		.loc 1 72 1 is_stmt 0 view .LVU26
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 7
+
+
+ 123:Core/Src/jy62.c **** }
+ 226              		.loc 1 123 1 is_stmt 0 view .LVU26
  227 0012 08BD     		pop	{r3, pc}
  228              	.L24:
  229              		.align	2
@@ -326,10 +380,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  242              		.fpu softvfp
  244              	Calibrate:
  245              	.LFB71:
-  73:Core/Src/jy62.c **** 
-  74:Core/Src/jy62.c **** void Calibrate()
-  75:Core/Src/jy62.c **** {
- 246              		.loc 1 75 1 is_stmt 1 view -0
+ 124:Core/Src/jy62.c **** 
+ 125:Core/Src/jy62.c **** void Calibrate()
+ 126:Core/Src/jy62.c **** {
+ 246              		.loc 1 126 1 is_stmt 1 view -0
  247              		.cfi_startproc
  248              		@ args = 0, pretend = 0, frame = 0
  249              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -338,8 +392,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  252              		.cfi_def_cfa_offset 8
  253              		.cfi_offset 3, -8
  254              		.cfi_offset 14, -4
-  76:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, calibrateAcce, 3, HAL_MAX_DELAY);
- 255              		.loc 1 76 2 view .LVU28
+ 127:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, calibrateAcce, 3, HAL_MAX_DELAY);
+ 255              		.loc 1 127 2 view .LVU28
  256 0002 4FF0FF33 		mov	r3, #-1
  257 0006 0322     		movs	r2, #3
  258 0008 0249     		ldr	r1, .L27
@@ -347,8 +401,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  260 000c 0068     		ldr	r0, [r0]
  261 000e FFF7FEFF 		bl	HAL_UART_Transmit
  262              	.LVL13:
-  77:Core/Src/jy62.c **** }
- 263              		.loc 1 77 1 is_stmt 0 view .LVU29
+ 128:Core/Src/jy62.c **** }
+ 263              		.loc 1 128 1 is_stmt 0 view .LVU29
  264 0012 08BD     		pop	{r3, pc}
  265              	.L28:
  266              		.align	2
@@ -358,21 +412,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  270              		.cfi_endproc
  271              	.LFE71:
  273              		.section	.text.SleepOrAwake,"ax",%progbits
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 7
-
-
  274              		.align	1
  275              		.global	SleepOrAwake
  276              		.syntax unified
  277              		.thumb
  278              		.thumb_func
  279              		.fpu softvfp
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 8
+
+
  281              	SleepOrAwake:
  282              	.LFB72:
-  78:Core/Src/jy62.c **** 
-  79:Core/Src/jy62.c **** void SleepOrAwake()
-  80:Core/Src/jy62.c **** {
- 283              		.loc 1 80 1 is_stmt 1 view -0
+ 129:Core/Src/jy62.c **** 
+ 130:Core/Src/jy62.c **** void SleepOrAwake()
+ 131:Core/Src/jy62.c **** {
+ 283              		.loc 1 131 1 is_stmt 1 view -0
  284              		.cfi_startproc
  285              		@ args = 0, pretend = 0, frame = 0
  286              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -381,8 +435,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  289              		.cfi_def_cfa_offset 8
  290              		.cfi_offset 3, -8
  291              		.cfi_offset 14, -4
-  81:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, sleepAndAwake, 3, HAL_MAX_DELAY);
- 292              		.loc 1 81 2 view .LVU31
+ 132:Core/Src/jy62.c **** 	HAL_UART_Transmit(jy62_huart, sleepAndAwake, 3, HAL_MAX_DELAY);
+ 292              		.loc 1 132 2 view .LVU31
  293 0002 4FF0FF33 		mov	r3, #-1
  294 0006 0322     		movs	r2, #3
  295 0008 0249     		ldr	r1, .L31
@@ -390,8 +444,8 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  297 000c 0068     		ldr	r0, [r0]
  298 000e FFF7FEFF 		bl	HAL_UART_Transmit
  299              	.LVL14:
-  82:Core/Src/jy62.c **** }
- 300              		.loc 1 82 1 is_stmt 0 view .LVU32
+ 133:Core/Src/jy62.c **** }
+ 300              		.loc 1 133 1 is_stmt 0 view .LVU32
  301 0012 08BD     		pop	{r3, pc}
  302              	.L32:
  303              		.align	2
@@ -409,24 +463,24 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  316              		.fpu softvfp
  318              	GetRoll:
  319              	.LFB73:
-  83:Core/Src/jy62.c **** 
-  84:Core/Src/jy62.c **** float GetRoll()
-  85:Core/Src/jy62.c **** {
- 320              		.loc 1 85 1 is_stmt 1 view -0
+ 134:Core/Src/jy62.c **** 
+ 135:Core/Src/jy62.c **** float GetRoll()
+ 136:Core/Src/jy62.c **** {
+ 320              		.loc 1 136 1 is_stmt 1 view -0
  321              		.cfi_startproc
  322              		@ args = 0, pretend = 0, frame = 0
  323              		@ frame_needed = 0, uses_anonymous_args = 0
  324              		@ link register save eliminated.
-  86:Core/Src/jy62.c **** 	return Angle.roll;
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 8
-
-
- 325              		.loc 1 86 2 view .LVU34
-  87:Core/Src/jy62.c **** }
- 326              		.loc 1 87 1 is_stmt 0 view .LVU35
+ 137:Core/Src/jy62.c **** 	return Angle.roll;
+ 325              		.loc 1 137 2 view .LVU34
+ 138:Core/Src/jy62.c **** }
+ 326              		.loc 1 138 1 is_stmt 0 view .LVU35
  327 0000 014B     		ldr	r3, .L34
  328 0002 1868     		ldr	r0, [r3]	@ float
  329 0004 7047     		bx	lr
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 9
+
+
  330              	.L35:
  331 0006 00BF     		.align	2
  332              	.L34:
@@ -442,17 +496,17 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  343              		.fpu softvfp
  345              	GetPitch:
  346              	.LFB74:
-  88:Core/Src/jy62.c **** float GetPitch()
-  89:Core/Src/jy62.c **** {
- 347              		.loc 1 89 1 is_stmt 1 view -0
+ 139:Core/Src/jy62.c **** float GetPitch()
+ 140:Core/Src/jy62.c **** {
+ 347              		.loc 1 140 1 is_stmt 1 view -0
  348              		.cfi_startproc
  349              		@ args = 0, pretend = 0, frame = 0
  350              		@ frame_needed = 0, uses_anonymous_args = 0
  351              		@ link register save eliminated.
-  90:Core/Src/jy62.c **** 	return Angle.pitch;
- 352              		.loc 1 90 2 view .LVU37
-  91:Core/Src/jy62.c **** }
- 353              		.loc 1 91 1 is_stmt 0 view .LVU38
+ 141:Core/Src/jy62.c **** 	return Angle.pitch;
+ 352              		.loc 1 141 2 view .LVU37
+ 142:Core/Src/jy62.c **** }
+ 353              		.loc 1 142 1 is_stmt 0 view .LVU38
  354 0000 014B     		ldr	r3, .L37
  355 0002 5868     		ldr	r0, [r3, #4]	@ float
  356 0004 7047     		bx	lr
@@ -471,22 +525,22 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  370              		.fpu softvfp
  372              	GetYaw:
  373              	.LFB75:
-  92:Core/Src/jy62.c **** float GetYaw()
-  93:Core/Src/jy62.c **** {
- 374              		.loc 1 93 1 is_stmt 1 view -0
+ 143:Core/Src/jy62.c **** float GetYaw()
+ 144:Core/Src/jy62.c **** {
+ 374              		.loc 1 144 1 is_stmt 1 view -0
  375              		.cfi_startproc
  376              		@ args = 0, pretend = 0, frame = 0
  377              		@ frame_needed = 0, uses_anonymous_args = 0
  378              		@ link register save eliminated.
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 9
-
-
-  94:Core/Src/jy62.c **** 	return Angle.yaw;
- 379              		.loc 1 94 2 view .LVU40
-  95:Core/Src/jy62.c **** }
- 380              		.loc 1 95 1 is_stmt 0 view .LVU41
+ 145:Core/Src/jy62.c **** 	return Angle.yaw;
+ 379              		.loc 1 145 2 view .LVU40
+ 146:Core/Src/jy62.c **** }
+ 380              		.loc 1 146 1 is_stmt 0 view .LVU41
  381 0000 014B     		ldr	r3, .L40
  382 0002 9868     		ldr	r0, [r3, #8]	@ float
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 10
+
+
  383 0004 7047     		bx	lr
  384              	.L41:
  385 0006 00BF     		.align	2
@@ -503,18 +557,18 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  397              		.fpu softvfp
  399              	GetTemperature:
  400              	.LFB76:
-  96:Core/Src/jy62.c **** 
-  97:Core/Src/jy62.c **** float GetTemperature()
-  98:Core/Src/jy62.c **** {
- 401              		.loc 1 98 1 is_stmt 1 view -0
+ 147:Core/Src/jy62.c **** 
+ 148:Core/Src/jy62.c **** float GetTemperature()
+ 149:Core/Src/jy62.c **** {
+ 401              		.loc 1 149 1 is_stmt 1 view -0
  402              		.cfi_startproc
  403              		@ args = 0, pretend = 0, frame = 0
  404              		@ frame_needed = 0, uses_anonymous_args = 0
  405              		@ link register save eliminated.
-  99:Core/Src/jy62.c **** 	return Temperature.temperature;
- 406              		.loc 1 99 2 view .LVU43
- 100:Core/Src/jy62.c **** }
- 407              		.loc 1 100 1 is_stmt 0 view .LVU44
+ 150:Core/Src/jy62.c **** 	return Temperature.temperature;
+ 406              		.loc 1 150 2 view .LVU43
+ 151:Core/Src/jy62.c **** }
+ 407              		.loc 1 151 1 is_stmt 0 view .LVU44
  408 0000 014B     		ldr	r3, .L43
  409 0002 1868     		ldr	r0, [r3]	@ float
  410 0004 7047     		bx	lr
@@ -533,21 +587,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  424              		.fpu softvfp
  426              	GetAccX:
  427              	.LFB77:
- 101:Core/Src/jy62.c **** 
- 102:Core/Src/jy62.c **** float GetAccX()
- 103:Core/Src/jy62.c **** {
- 428              		.loc 1 103 1 is_stmt 1 view -0
+ 152:Core/Src/jy62.c **** 
+ 153:Core/Src/jy62.c **** float GetAccX()
+ 154:Core/Src/jy62.c **** {
+ 428              		.loc 1 154 1 is_stmt 1 view -0
  429              		.cfi_startproc
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 10
-
-
  430              		@ args = 0, pretend = 0, frame = 0
  431              		@ frame_needed = 0, uses_anonymous_args = 0
  432              		@ link register save eliminated.
- 104:Core/Src/jy62.c **** 	return Accelerate.accelerate_x;
- 433              		.loc 1 104 2 view .LVU46
- 105:Core/Src/jy62.c **** }
- 434              		.loc 1 105 1 is_stmt 0 view .LVU47
+ 155:Core/Src/jy62.c **** 	return Accelerate.accelerate_x;
+ 433              		.loc 1 155 2 view .LVU46
+ 156:Core/Src/jy62.c **** }
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 11
+
+
+ 434              		.loc 1 156 1 is_stmt 0 view .LVU47
  435 0000 014B     		ldr	r3, .L46
  436 0002 1868     		ldr	r0, [r3]	@ float
  437 0004 7047     		bx	lr
@@ -566,17 +620,17 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  451              		.fpu softvfp
  453              	GetAccY:
  454              	.LFB78:
- 106:Core/Src/jy62.c **** float GetAccY()
- 107:Core/Src/jy62.c **** {
- 455              		.loc 1 107 1 is_stmt 1 view -0
+ 157:Core/Src/jy62.c **** float GetAccY()
+ 158:Core/Src/jy62.c **** {
+ 455              		.loc 1 158 1 is_stmt 1 view -0
  456              		.cfi_startproc
  457              		@ args = 0, pretend = 0, frame = 0
  458              		@ frame_needed = 0, uses_anonymous_args = 0
  459              		@ link register save eliminated.
- 108:Core/Src/jy62.c **** 	return Accelerate.accelerate_y;
- 460              		.loc 1 108 2 view .LVU49
- 109:Core/Src/jy62.c **** }
- 461              		.loc 1 109 1 is_stmt 0 view .LVU50
+ 159:Core/Src/jy62.c **** 	return Accelerate.accelerate_y;
+ 460              		.loc 1 159 2 view .LVU49
+ 160:Core/Src/jy62.c **** }
+ 461              		.loc 1 160 1 is_stmt 0 view .LVU50
  462 0000 014B     		ldr	r3, .L49
  463 0002 5868     		ldr	r0, [r3, #4]	@ float
  464 0004 7047     		bx	lr
@@ -595,20 +649,20 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  478              		.fpu softvfp
  480              	GetAccZ:
  481              	.LFB79:
- 110:Core/Src/jy62.c **** float GetAccZ()
- 111:Core/Src/jy62.c **** {
- 482              		.loc 1 111 1 is_stmt 1 view -0
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 11
-
-
+ 161:Core/Src/jy62.c **** float GetAccZ()
+ 162:Core/Src/jy62.c **** {
+ 482              		.loc 1 162 1 is_stmt 1 view -0
  483              		.cfi_startproc
  484              		@ args = 0, pretend = 0, frame = 0
  485              		@ frame_needed = 0, uses_anonymous_args = 0
  486              		@ link register save eliminated.
- 112:Core/Src/jy62.c **** 	return Accelerate.accelerate_z;
- 487              		.loc 1 112 2 view .LVU52
- 113:Core/Src/jy62.c **** }
- 488              		.loc 1 113 1 is_stmt 0 view .LVU53
+ 163:Core/Src/jy62.c **** 	return Accelerate.accelerate_z;
+ 487              		.loc 1 163 2 view .LVU52
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 12
+
+
+ 164:Core/Src/jy62.c **** }
+ 488              		.loc 1 164 1 is_stmt 0 view .LVU53
  489 0000 014B     		ldr	r3, .L52
  490 0002 9868     		ldr	r0, [r3, #8]	@ float
  491 0004 7047     		bx	lr
@@ -627,18 +681,18 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  505              		.fpu softvfp
  507              	GetVeloX:
  508              	.LFB80:
- 114:Core/Src/jy62.c **** 
- 115:Core/Src/jy62.c **** float GetVeloX()
- 116:Core/Src/jy62.c **** {
- 509              		.loc 1 116 1 is_stmt 1 view -0
+ 165:Core/Src/jy62.c **** 
+ 166:Core/Src/jy62.c **** float GetVeloX()
+ 167:Core/Src/jy62.c **** {
+ 509              		.loc 1 167 1 is_stmt 1 view -0
  510              		.cfi_startproc
  511              		@ args = 0, pretend = 0, frame = 0
  512              		@ frame_needed = 0, uses_anonymous_args = 0
  513              		@ link register save eliminated.
- 117:Core/Src/jy62.c **** 	return Velocity.velocity_x;
- 514              		.loc 1 117 2 view .LVU55
- 118:Core/Src/jy62.c **** }
- 515              		.loc 1 118 1 is_stmt 0 view .LVU56
+ 168:Core/Src/jy62.c **** 	return Velocity.velocity_x;
+ 514              		.loc 1 168 2 view .LVU55
+ 169:Core/Src/jy62.c **** }
+ 515              		.loc 1 169 1 is_stmt 0 view .LVU56
  516 0000 014B     		ldr	r3, .L55
  517 0002 1868     		ldr	r0, [r3]	@ float
  518 0004 7047     		bx	lr
@@ -657,20 +711,20 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  532              		.fpu softvfp
  534              	GetVeloY:
  535              	.LFB81:
- 119:Core/Src/jy62.c **** float GetVeloY()
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 12
-
-
- 120:Core/Src/jy62.c **** {
- 536              		.loc 1 120 1 is_stmt 1 view -0
+ 170:Core/Src/jy62.c **** float GetVeloY()
+ 171:Core/Src/jy62.c **** {
+ 536              		.loc 1 171 1 is_stmt 1 view -0
  537              		.cfi_startproc
  538              		@ args = 0, pretend = 0, frame = 0
  539              		@ frame_needed = 0, uses_anonymous_args = 0
  540              		@ link register save eliminated.
- 121:Core/Src/jy62.c **** 	return Velocity.velocity_y;
- 541              		.loc 1 121 2 view .LVU58
- 122:Core/Src/jy62.c **** }
- 542              		.loc 1 122 1 is_stmt 0 view .LVU59
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 13
+
+
+ 172:Core/Src/jy62.c **** 	return Velocity.velocity_y;
+ 541              		.loc 1 172 2 view .LVU58
+ 173:Core/Src/jy62.c **** }
+ 542              		.loc 1 173 1 is_stmt 0 view .LVU59
  543 0000 014B     		ldr	r3, .L58
  544 0002 5868     		ldr	r0, [r3, #4]	@ float
  545 0004 7047     		bx	lr
@@ -689,17 +743,17 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  559              		.fpu softvfp
  561              	GetVeloZ:
  562              	.LFB82:
- 123:Core/Src/jy62.c **** float GetVeloZ()
- 124:Core/Src/jy62.c **** {
- 563              		.loc 1 124 1 is_stmt 1 view -0
+ 174:Core/Src/jy62.c **** float GetVeloZ()
+ 175:Core/Src/jy62.c **** {
+ 563              		.loc 1 175 1 is_stmt 1 view -0
  564              		.cfi_startproc
  565              		@ args = 0, pretend = 0, frame = 0
  566              		@ frame_needed = 0, uses_anonymous_args = 0
  567              		@ link register save eliminated.
- 125:Core/Src/jy62.c **** 	return Velocity.velocity_z;
- 568              		.loc 1 125 2 view .LVU61
- 126:Core/Src/jy62.c **** }
- 569              		.loc 1 126 1 is_stmt 0 view .LVU62
+ 176:Core/Src/jy62.c **** 	return Velocity.velocity_z;
+ 568              		.loc 1 176 2 view .LVU61
+ 177:Core/Src/jy62.c **** }
+ 569              		.loc 1 177 1 is_stmt 0 view .LVU62
  570 0000 014B     		ldr	r3, .L61
  571 0002 9868     		ldr	r0, [r3, #8]	@ float
  572 0004 7047     		bx	lr
@@ -718,17 +772,17 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  586              		.thumb
  587              		.thumb_func
  588              		.fpu softvfp
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 13
-
-
  590              	DecodeAngle:
  591              	.LFB83:
- 127:Core/Src/jy62.c **** 
- 128:Core/Src/jy62.c **** /***************************************************/
- 129:Core/Src/jy62.c **** 
- 130:Core/Src/jy62.c **** void DecodeAngle()
- 131:Core/Src/jy62.c **** {
- 592              		.loc 1 131 1 is_stmt 1 view -0
+ 178:Core/Src/jy62.c **** 
+ 179:Core/Src/jy62.c **** /***************************************************/
+ 180:Core/Src/jy62.c **** 
+ 181:Core/Src/jy62.c **** void DecodeAngle()
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 14
+
+
+ 182:Core/Src/jy62.c **** {
+ 592              		.loc 1 182 1 is_stmt 1 view -0
  593              		.cfi_startproc
  594              		@ args = 0, pretend = 0, frame = 0
  595              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -739,73 +793,73 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  600              		.cfi_offset 4, -12
  601              		.cfi_offset 5, -8
  602              		.cfi_offset 14, -4
- 132:Core/Src/jy62.c **** 	Angle.roll = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 180;
- 603              		.loc 1 132 2 view .LVU64
- 604              		.loc 1 132 35 is_stmt 0 view .LVU65
+ 183:Core/Src/jy62.c **** 	Angle.roll = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 180;
+ 603              		.loc 1 183 2 view .LVU64
+ 604              		.loc 1 183 35 is_stmt 0 view .LVU65
  605 0002 164C     		ldr	r4, .L65
  606 0004 E078     		ldrb	r0, [r4, #3]	@ zero_extendqisi2
- 607              		.loc 1 132 58 view .LVU66
+ 607              		.loc 1 183 58 view .LVU66
  608 0006 A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
- 609              		.loc 1 132 15 view .LVU67
+ 609              		.loc 1 183 15 view .LVU67
  610 0008 43EA0020 		orr	r0, r3, r0, lsl #8
  611 000c FFF7FEFF 		bl	__aeabi_i2f
  612              	.LVL15:
- 613              		.loc 1 132 63 view .LVU68
+ 613              		.loc 1 183 63 view .LVU68
  614 0010 4FF06051 		mov	r1, #939524096
  615 0014 FFF7FEFF 		bl	__aeabi_fmul
  616              	.LVL16:
- 617              		.loc 1 132 71 view .LVU69
+ 617              		.loc 1 183 71 view .LVU69
  618 0018 1149     		ldr	r1, .L65+4
  619 001a FFF7FEFF 		bl	__aeabi_fmul
  620              	.LVL17:
- 621              		.loc 1 132 13 view .LVU70
+ 621              		.loc 1 183 13 view .LVU70
  622 001e 114D     		ldr	r5, .L65+8
  623 0020 2860     		str	r0, [r5]	@ float
- 133:Core/Src/jy62.c **** 	Angle.pitch = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 180;
- 624              		.loc 1 133 2 is_stmt 1 view .LVU71
- 625              		.loc 1 133 36 is_stmt 0 view .LVU72
+ 184:Core/Src/jy62.c **** 	Angle.pitch = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 180;
+ 624              		.loc 1 184 2 is_stmt 1 view .LVU71
+ 625              		.loc 1 184 36 is_stmt 0 view .LVU72
  626 0022 6079     		ldrb	r0, [r4, #5]	@ zero_extendqisi2
- 627              		.loc 1 133 59 view .LVU73
+ 627              		.loc 1 184 59 view .LVU73
  628 0024 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
- 629              		.loc 1 133 16 view .LVU74
+ 629              		.loc 1 184 16 view .LVU74
  630 0026 43EA0020 		orr	r0, r3, r0, lsl #8
  631 002a FFF7FEFF 		bl	__aeabi_i2f
  632              	.LVL18:
- 633              		.loc 1 133 64 view .LVU75
+ 633              		.loc 1 184 64 view .LVU75
  634 002e 4FF06051 		mov	r1, #939524096
  635 0032 FFF7FEFF 		bl	__aeabi_fmul
  636              	.LVL19:
- 637              		.loc 1 133 72 view .LVU76
+ 637              		.loc 1 184 72 view .LVU76
  638 0036 0A49     		ldr	r1, .L65+4
  639 0038 FFF7FEFF 		bl	__aeabi_fmul
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 14
-
-
  640              	.LVL20:
- 641              		.loc 1 133 14 view .LVU77
+ 641              		.loc 1 184 14 view .LVU77
  642 003c 6860     		str	r0, [r5, #4]	@ float
- 134:Core/Src/jy62.c **** 	Angle.yaw = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 180;
- 643              		.loc 1 134 2 is_stmt 1 view .LVU78
- 644              		.loc 1 134 34 is_stmt 0 view .LVU79
+ 185:Core/Src/jy62.c **** 	Angle.yaw = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 180;
+ 643              		.loc 1 185 2 is_stmt 1 view .LVU78
+ 644              		.loc 1 185 34 is_stmt 0 view .LVU79
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 15
+
+
  645 003e E079     		ldrb	r0, [r4, #7]	@ zero_extendqisi2
- 646              		.loc 1 134 57 view .LVU80
+ 646              		.loc 1 185 57 view .LVU80
  647 0040 A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
- 648              		.loc 1 134 14 view .LVU81
+ 648              		.loc 1 185 14 view .LVU81
  649 0042 43EA0020 		orr	r0, r3, r0, lsl #8
  650 0046 FFF7FEFF 		bl	__aeabi_i2f
  651              	.LVL21:
- 652              		.loc 1 134 62 view .LVU82
+ 652              		.loc 1 185 62 view .LVU82
  653 004a 4FF06051 		mov	r1, #939524096
  654 004e FFF7FEFF 		bl	__aeabi_fmul
  655              	.LVL22:
- 656              		.loc 1 134 70 view .LVU83
+ 656              		.loc 1 185 70 view .LVU83
  657 0052 0349     		ldr	r1, .L65+4
  658 0054 FFF7FEFF 		bl	__aeabi_fmul
  659              	.LVL23:
- 660              		.loc 1 134 12 view .LVU84
+ 660              		.loc 1 185 12 view .LVU84
  661 0058 A860     		str	r0, [r5, #8]	@ float
- 135:Core/Src/jy62.c **** }
- 662              		.loc 1 135 1 view .LVU85
+ 186:Core/Src/jy62.c **** }
+ 662              		.loc 1 186 1 view .LVU85
  663 005a 38BD     		pop	{r3, r4, r5, pc}
  664              	.L66:
  665              		.align	2
@@ -827,10 +881,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  682              		.fpu softvfp
  684              	DecodeAccelerate:
  685              	.LFB84:
- 136:Core/Src/jy62.c **** 
- 137:Core/Src/jy62.c **** void DecodeAccelerate()
- 138:Core/Src/jy62.c **** {
- 686              		.loc 1 138 1 is_stmt 1 view -0
+ 187:Core/Src/jy62.c **** 
+ 188:Core/Src/jy62.c **** void DecodeAccelerate()
+ 189:Core/Src/jy62.c **** {
+ 686              		.loc 1 189 1 is_stmt 1 view -0
  687              		.cfi_startproc
  688              		@ args = 0, pretend = 0, frame = 0
  689              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -838,106 +892,106 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  691              	.LCFI8:
  692              		.cfi_def_cfa_offset 16
  693              		.cfi_offset 3, -16
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 15
-
-
  694              		.cfi_offset 4, -12
  695              		.cfi_offset 5, -8
  696              		.cfi_offset 14, -4
- 139:Core/Src/jy62.c **** 	Accelerate.accelerate_x = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 16 * g;
- 697              		.loc 1 139 2 view .LVU87
- 698              		.loc 1 139 48 is_stmt 0 view .LVU88
+ 190:Core/Src/jy62.c **** 	Accelerate.accelerate_x = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 16 * g;
+ 697              		.loc 1 190 2 view .LVU87
+ 698              		.loc 1 190 48 is_stmt 0 view .LVU88
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 16
+
+
  699 0002 274C     		ldr	r4, .L69+8
  700 0004 E078     		ldrb	r0, [r4, #3]	@ zero_extendqisi2
- 701              		.loc 1 139 71 view .LVU89
+ 701              		.loc 1 190 71 view .LVU89
  702 0006 A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
- 703              		.loc 1 139 28 view .LVU90
+ 703              		.loc 1 190 28 view .LVU90
  704 0008 43EA0020 		orr	r0, r3, r0, lsl #8
  705 000c FFF7FEFF 		bl	__aeabi_i2f
  706              	.LVL24:
- 707              		.loc 1 139 76 view .LVU91
+ 707              		.loc 1 190 76 view .LVU91
  708 0010 4FF06051 		mov	r1, #939524096
  709 0014 FFF7FEFF 		bl	__aeabi_fmul
  710              	.LVL25:
- 711              		.loc 1 139 84 view .LVU92
+ 711              		.loc 1 190 84 view .LVU92
  712 0018 4FF08341 		mov	r1, #1098907648
  713 001c FFF7FEFF 		bl	__aeabi_fmul
  714              	.LVL26:
  715 0020 FFF7FEFF 		bl	__aeabi_f2d
  716              	.LVL27:
- 717              		.loc 1 139 89 view .LVU93
+ 717              		.loc 1 190 89 view .LVU93
  718 0024 1CA3     		adr	r3, .L69
  719 0026 D3E90023 		ldrd	r2, [r3]
  720 002a FFF7FEFF 		bl	__aeabi_dmul
  721              	.LVL28:
  722 002e FFF7FEFF 		bl	__aeabi_d2f
  723              	.LVL29:
- 724              		.loc 1 139 26 view .LVU94
+ 724              		.loc 1 190 26 view .LVU94
  725 0032 1C4D     		ldr	r5, .L69+12
  726 0034 2860     		str	r0, [r5]	@ float
- 140:Core/Src/jy62.c **** 	Accelerate.accelerate_y = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 16 * g;
- 727              		.loc 1 140 2 is_stmt 1 view .LVU95
- 728              		.loc 1 140 48 is_stmt 0 view .LVU96
+ 191:Core/Src/jy62.c **** 	Accelerate.accelerate_y = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 16 * g;
+ 727              		.loc 1 191 2 is_stmt 1 view .LVU95
+ 728              		.loc 1 191 48 is_stmt 0 view .LVU96
  729 0036 6079     		ldrb	r0, [r4, #5]	@ zero_extendqisi2
- 730              		.loc 1 140 71 view .LVU97
+ 730              		.loc 1 191 71 view .LVU97
  731 0038 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
- 732              		.loc 1 140 28 view .LVU98
+ 732              		.loc 1 191 28 view .LVU98
  733 003a 43EA0020 		orr	r0, r3, r0, lsl #8
  734 003e FFF7FEFF 		bl	__aeabi_i2f
  735              	.LVL30:
- 736              		.loc 1 140 76 view .LVU99
+ 736              		.loc 1 191 76 view .LVU99
  737 0042 4FF06051 		mov	r1, #939524096
  738 0046 FFF7FEFF 		bl	__aeabi_fmul
  739              	.LVL31:
- 740              		.loc 1 140 84 view .LVU100
+ 740              		.loc 1 191 84 view .LVU100
  741 004a 4FF08341 		mov	r1, #1098907648
  742 004e FFF7FEFF 		bl	__aeabi_fmul
  743              	.LVL32:
  744 0052 FFF7FEFF 		bl	__aeabi_f2d
  745              	.LVL33:
- 746              		.loc 1 140 89 view .LVU101
+ 746              		.loc 1 191 89 view .LVU101
  747 0056 10A3     		adr	r3, .L69
  748 0058 D3E90023 		ldrd	r2, [r3]
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 16
-
-
  749 005c FFF7FEFF 		bl	__aeabi_dmul
  750              	.LVL34:
  751 0060 FFF7FEFF 		bl	__aeabi_d2f
  752              	.LVL35:
- 753              		.loc 1 140 26 view .LVU102
+ 753              		.loc 1 191 26 view .LVU102
  754 0064 6860     		str	r0, [r5, #4]	@ float
- 141:Core/Src/jy62.c **** 	Accelerate.accelerate_z = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 16 * g;
- 755              		.loc 1 141 2 is_stmt 1 view .LVU103
- 756              		.loc 1 141 48 is_stmt 0 view .LVU104
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 17
+
+
+ 192:Core/Src/jy62.c **** 	Accelerate.accelerate_z = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 16 * g;
+ 755              		.loc 1 192 2 is_stmt 1 view .LVU103
+ 756              		.loc 1 192 48 is_stmt 0 view .LVU104
  757 0066 E079     		ldrb	r0, [r4, #7]	@ zero_extendqisi2
- 758              		.loc 1 141 71 view .LVU105
+ 758              		.loc 1 192 71 view .LVU105
  759 0068 A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
- 760              		.loc 1 141 28 view .LVU106
+ 760              		.loc 1 192 28 view .LVU106
  761 006a 43EA0020 		orr	r0, r3, r0, lsl #8
  762 006e FFF7FEFF 		bl	__aeabi_i2f
  763              	.LVL36:
- 764              		.loc 1 141 76 view .LVU107
+ 764              		.loc 1 192 76 view .LVU107
  765 0072 4FF06051 		mov	r1, #939524096
  766 0076 FFF7FEFF 		bl	__aeabi_fmul
  767              	.LVL37:
- 768              		.loc 1 141 84 view .LVU108
+ 768              		.loc 1 192 84 view .LVU108
  769 007a 4FF08341 		mov	r1, #1098907648
  770 007e FFF7FEFF 		bl	__aeabi_fmul
  771              	.LVL38:
  772 0082 FFF7FEFF 		bl	__aeabi_f2d
  773              	.LVL39:
- 774              		.loc 1 141 89 view .LVU109
+ 774              		.loc 1 192 89 view .LVU109
  775 0086 04A3     		adr	r3, .L69
  776 0088 D3E90023 		ldrd	r2, [r3]
  777 008c FFF7FEFF 		bl	__aeabi_dmul
  778              	.LVL40:
  779 0090 FFF7FEFF 		bl	__aeabi_d2f
  780              	.LVL41:
- 781              		.loc 1 141 26 view .LVU110
+ 781              		.loc 1 192 26 view .LVU110
  782 0094 A860     		str	r0, [r5, #8]	@ float
- 142:Core/Src/jy62.c **** }
- 783              		.loc 1 142 1 view .LVU111
+ 193:Core/Src/jy62.c **** }
+ 783              		.loc 1 193 1 view .LVU111
  784 0096 38BD     		pop	{r3, r4, r5, pc}
  785              	.L70:
  786              		.align	3
@@ -957,16 +1011,16 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  801              		.fpu softvfp
  803              	DecodeVelocity:
  804              	.LFB85:
- 143:Core/Src/jy62.c **** 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 17
-
-
- 144:Core/Src/jy62.c **** void DecodeVelocity()
- 145:Core/Src/jy62.c **** {
- 805              		.loc 1 145 1 is_stmt 1 view -0
+ 194:Core/Src/jy62.c **** 
+ 195:Core/Src/jy62.c **** void DecodeVelocity()
+ 196:Core/Src/jy62.c **** {
+ 805              		.loc 1 196 1 is_stmt 1 view -0
  806              		.cfi_startproc
  807              		@ args = 0, pretend = 0, frame = 0
  808              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 18
+
+
  809 0000 38B5     		push	{r3, r4, r5, lr}
  810              	.LCFI9:
  811              		.cfi_def_cfa_offset 16
@@ -974,73 +1028,73 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  813              		.cfi_offset 4, -12
  814              		.cfi_offset 5, -8
  815              		.cfi_offset 14, -4
- 146:Core/Src/jy62.c **** 	Velocity.velocity_x = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 2000;
- 816              		.loc 1 146 2 view .LVU113
- 817              		.loc 1 146 44 is_stmt 0 view .LVU114
+ 197:Core/Src/jy62.c **** 	Velocity.velocity_x = (float)((jy62Message[3] << 8) | jy62Message[2]) / 32768 * 2000;
+ 816              		.loc 1 197 2 view .LVU113
+ 817              		.loc 1 197 44 is_stmt 0 view .LVU114
  818 0002 164C     		ldr	r4, .L73
  819 0004 E078     		ldrb	r0, [r4, #3]	@ zero_extendqisi2
- 820              		.loc 1 146 67 view .LVU115
+ 820              		.loc 1 197 67 view .LVU115
  821 0006 A378     		ldrb	r3, [r4, #2]	@ zero_extendqisi2
- 822              		.loc 1 146 24 view .LVU116
+ 822              		.loc 1 197 24 view .LVU116
  823 0008 43EA0020 		orr	r0, r3, r0, lsl #8
  824 000c FFF7FEFF 		bl	__aeabi_i2f
  825              	.LVL42:
- 826              		.loc 1 146 72 view .LVU117
+ 826              		.loc 1 197 72 view .LVU117
  827 0010 4FF06051 		mov	r1, #939524096
  828 0014 FFF7FEFF 		bl	__aeabi_fmul
  829              	.LVL43:
- 830              		.loc 1 146 80 view .LVU118
+ 830              		.loc 1 197 80 view .LVU118
  831 0018 1149     		ldr	r1, .L73+4
  832 001a FFF7FEFF 		bl	__aeabi_fmul
  833              	.LVL44:
- 834              		.loc 1 146 22 view .LVU119
+ 834              		.loc 1 197 22 view .LVU119
  835 001e 114D     		ldr	r5, .L73+8
  836 0020 2860     		str	r0, [r5]	@ float
- 147:Core/Src/jy62.c **** 	Velocity.velocity_y = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 2000;
- 837              		.loc 1 147 2 is_stmt 1 view .LVU120
- 838              		.loc 1 147 44 is_stmt 0 view .LVU121
+ 198:Core/Src/jy62.c **** 	Velocity.velocity_y = (float)((jy62Message[5] << 8) | jy62Message[4]) / 32768 * 2000;
+ 837              		.loc 1 198 2 is_stmt 1 view .LVU120
+ 838              		.loc 1 198 44 is_stmt 0 view .LVU121
  839 0022 6079     		ldrb	r0, [r4, #5]	@ zero_extendqisi2
- 840              		.loc 1 147 67 view .LVU122
+ 840              		.loc 1 198 67 view .LVU122
  841 0024 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
- 842              		.loc 1 147 24 view .LVU123
+ 842              		.loc 1 198 24 view .LVU123
  843 0026 43EA0020 		orr	r0, r3, r0, lsl #8
  844 002a FFF7FEFF 		bl	__aeabi_i2f
  845              	.LVL45:
- 846              		.loc 1 147 72 view .LVU124
+ 846              		.loc 1 198 72 view .LVU124
  847 002e 4FF06051 		mov	r1, #939524096
  848 0032 FFF7FEFF 		bl	__aeabi_fmul
  849              	.LVL46:
- 850              		.loc 1 147 80 view .LVU125
+ 850              		.loc 1 198 80 view .LVU125
  851 0036 0A49     		ldr	r1, .L73+4
  852 0038 FFF7FEFF 		bl	__aeabi_fmul
  853              	.LVL47:
- 854              		.loc 1 147 22 view .LVU126
+ 854              		.loc 1 198 22 view .LVU126
  855 003c 6860     		str	r0, [r5, #4]	@ float
- 148:Core/Src/jy62.c **** 	Velocity.velocity_z = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 2000;
- 856              		.loc 1 148 2 is_stmt 1 view .LVU127
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 18
-
-
- 857              		.loc 1 148 44 is_stmt 0 view .LVU128
+ 199:Core/Src/jy62.c **** 	Velocity.velocity_z = (float)((jy62Message[7] << 8) | jy62Message[6]) / 32768 * 2000;
+ 856              		.loc 1 199 2 is_stmt 1 view .LVU127
+ 857              		.loc 1 199 44 is_stmt 0 view .LVU128
  858 003e E079     		ldrb	r0, [r4, #7]	@ zero_extendqisi2
- 859              		.loc 1 148 67 view .LVU129
+ 859              		.loc 1 199 67 view .LVU129
  860 0040 A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
- 861              		.loc 1 148 24 view .LVU130
+ 861              		.loc 1 199 24 view .LVU130
  862 0042 43EA0020 		orr	r0, r3, r0, lsl #8
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 19
+
+
  863 0046 FFF7FEFF 		bl	__aeabi_i2f
  864              	.LVL48:
- 865              		.loc 1 148 72 view .LVU131
+ 865              		.loc 1 199 72 view .LVU131
  866 004a 4FF06051 		mov	r1, #939524096
  867 004e FFF7FEFF 		bl	__aeabi_fmul
  868              	.LVL49:
- 869              		.loc 1 148 80 view .LVU132
+ 869              		.loc 1 199 80 view .LVU132
  870 0052 0349     		ldr	r1, .L73+4
  871 0054 FFF7FEFF 		bl	__aeabi_fmul
  872              	.LVL50:
- 873              		.loc 1 148 22 view .LVU133
+ 873              		.loc 1 199 22 view .LVU133
  874 0058 A860     		str	r0, [r5, #8]	@ float
- 149:Core/Src/jy62.c **** }
- 875              		.loc 1 149 1 view .LVU134
+ 200:Core/Src/jy62.c **** }
+ 875              		.loc 1 200 1 view .LVU134
  876 005a 38BD     		pop	{r3, r4, r5, pc}
  877              	.L74:
  878              		.align	2
@@ -1061,10 +1115,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  894              		.fpu softvfp
  896              	DecodeTemperature:
  897              	.LFB86:
- 150:Core/Src/jy62.c **** 
- 151:Core/Src/jy62.c **** void DecodeTemperature()
- 152:Core/Src/jy62.c **** {
- 898              		.loc 1 152 1 is_stmt 1 view -0
+ 201:Core/Src/jy62.c **** 
+ 202:Core/Src/jy62.c **** void DecodeTemperature()
+ 203:Core/Src/jy62.c **** {
+ 898              		.loc 1 203 1 is_stmt 1 view -0
  899              		.cfi_startproc
  900              		@ args = 0, pretend = 0, frame = 0
  901              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -1073,22 +1127,22 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  904              		.cfi_def_cfa_offset 8
  905              		.cfi_offset 3, -8
  906              		.cfi_offset 14, -4
- 153:Core/Src/jy62.c **** 	Temperature.temperature = ((short)(jy62Message[9]) << 8 | jy62Message[8]) / 340 + 36.53;
- 907              		.loc 1 153 2 view .LVU136
- 908              		.loc 1 153 48 is_stmt 0 view .LVU137
+ 204:Core/Src/jy62.c **** 	Temperature.temperature = ((short)(jy62Message[9]) << 8 | jy62Message[8]) / 340 + 36.53;
+ 907              		.loc 1 204 2 view .LVU136
+ 908              		.loc 1 204 48 is_stmt 0 view .LVU137
  909 0002 0D4B     		ldr	r3, .L77+8
  910 0004 5A7A     		ldrb	r2, [r3, #9]	@ zero_extendqisi2
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 19
-
-
- 911              		.loc 1 153 71 view .LVU138
+ 911              		.loc 1 204 71 view .LVU138
  912 0006 187A     		ldrb	r0, [r3, #8]	@ zero_extendqisi2
- 913              		.loc 1 153 58 view .LVU139
+ 913              		.loc 1 204 58 view .LVU139
  914 0008 40EA0220 		orr	r0, r0, r2, lsl #8
- 915              		.loc 1 153 76 view .LVU140
+ 915              		.loc 1 204 76 view .LVU140
  916 000c 0B4B     		ldr	r3, .L77+12
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 20
+
+
  917 000e 83FB0030 		smull	r3, r0, r3, r0
- 918              		.loc 1 153 82 view .LVU141
+ 918              		.loc 1 204 82 view .LVU141
  919 0012 C011     		asrs	r0, r0, #7
  920 0014 FFF7FEFF 		bl	__aeabi_i2d
  921              	.LVL51:
@@ -1098,11 +1152,11 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  925              	.LVL52:
  926 0022 FFF7FEFF 		bl	__aeabi_d2f
  927              	.LVL53:
- 928              		.loc 1 153 26 view .LVU142
+ 928              		.loc 1 204 26 view .LVU142
  929 0026 064B     		ldr	r3, .L77+16
  930 0028 1860     		str	r0, [r3]	@ float
- 154:Core/Src/jy62.c **** }
- 931              		.loc 1 154 1 view .LVU143
+ 205:Core/Src/jy62.c **** }
+ 931              		.loc 1 205 1 view .LVU143
  932 002a 08BD     		pop	{r3, pc}
  933              	.L78:
  934 002c AFF30080 		.align	3
@@ -1123,10 +1177,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  950              		.fpu softvfp
  952              	Decode:
  953              	.LFB87:
- 155:Core/Src/jy62.c **** 
- 156:Core/Src/jy62.c **** void Decode()
- 157:Core/Src/jy62.c **** {
- 954              		.loc 1 157 1 is_stmt 1 view -0
+ 206:Core/Src/jy62.c **** 
+ 207:Core/Src/jy62.c **** void Decode()
+ 208:Core/Src/jy62.c **** {
+ 954              		.loc 1 208 1 is_stmt 1 view -0
  955              		.cfi_startproc
  956              		@ args = 0, pretend = 0, frame = 0
  957              		@ frame_needed = 0, uses_anonymous_args = 0
@@ -1135,444 +1189,637 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 1
  960              		.cfi_def_cfa_offset 8
  961              		.cfi_offset 3, -8
  962              		.cfi_offset 14, -4
- 158:Core/Src/jy62.c **** 	switch (jy62Message[1])
- 963              		.loc 1 158 2 view .LVU145
- 964              		.loc 1 158 21 is_stmt 0 view .LVU146
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 20
-
-
+ 209:Core/Src/jy62.c **** 	switch (jy62Message[1])
+ 963              		.loc 1 209 2 view .LVU145
+ 964              		.loc 1 209 21 is_stmt 0 view .LVU146
  965 0002 0A4B     		ldr	r3, .L85
  966 0004 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
- 967 0006 DBB2     		uxtb	r3, r3
- 968              		.loc 1 158 2 view .LVU147
- 969 0008 522B     		cmp	r3, #82
- 970 000a 09D0     		beq	.L80
- 971 000c 532B     		cmp	r3, #83
- 972 000e 0AD0     		beq	.L81
- 973 0010 512B     		cmp	r3, #81
- 974 0012 02D0     		beq	.L84
- 975              	.L82:
- 159:Core/Src/jy62.c **** 	{
- 160:Core/Src/jy62.c **** 	case 0x51:
- 161:Core/Src/jy62.c **** 		DecodeAccelerate();
- 162:Core/Src/jy62.c **** 		break;
- 163:Core/Src/jy62.c **** 	case 0x52:
- 164:Core/Src/jy62.c **** 		DecodeVelocity();
- 165:Core/Src/jy62.c **** 		break;
- 166:Core/Src/jy62.c **** 	case 0x53:
- 167:Core/Src/jy62.c **** 		DecodeAngle();
- 168:Core/Src/jy62.c **** 		break;
- 169:Core/Src/jy62.c **** 	}
- 170:Core/Src/jy62.c **** 	DecodeTemperature();
- 976              		.loc 1 170 2 is_stmt 1 view .LVU148
- 977 0014 FFF7FEFF 		bl	DecodeTemperature
- 978              	.LVL54:
- 171:Core/Src/jy62.c **** }...
- 979              		.loc 1 171 1 is_stmt 0 view .LVU149
- 980 0018 08BD     		pop	{r3, pc}
- 981              	.L84:
- 161:Core/Src/jy62.c **** 		DecodeAccelerate();
- 982              		.loc 1 161 3 is_stmt 1 view .LVU150
- 983 001a FFF7FEFF 		bl	DecodeAccelerate
- 984              	.LVL55:
- 162:Core/Src/jy62.c **** 		break;
- 985              		.loc 1 162 3 view .LVU151
- 986 001e F9E7     		b	.L82
- 987              	.L80:
- 164:Core/Src/jy62.c **** 		DecodeVelocity();
- 988              		.loc 1 164 3 view .LVU152
- 989 0020 FFF7FEFF 		bl	DecodeVelocity
- 990              	.LVL56:
- 165:Core/Src/jy62.c **** 		break;
- 991              		.loc 1 165 3 view .LVU153
- 992 0024 F6E7     		b	.L82
- 993              	.L81:
- 167:Core/Src/jy62.c **** 		DecodeAngle();
- 994              		.loc 1 167 3 view .LVU154
- 995 0026 FFF7FEFF 		bl	DecodeAngle
- 996              	.LVL57:
- 168:Core/Src/jy62.c **** 		break;
- 997              		.loc 1 168 3 view .LVU155
- 998 002a F3E7     		b	.L82
- 999              	.L86:
- 1000              		.align	2
- 1001              	.L85:
- 1002 002c 00000000 		.word	.LANCHOR12
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 21
+ 967              		.loc 1 209 2 view .LVU147
+ 968 0006 522B     		cmp	r3, #82
+ 969 0008 09D0     		beq	.L80
+ 970 000a 532B     		cmp	r3, #83
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 21
 
 
- 1003              		.cfi_endproc
- 1004              	.LFE87:
- 1006              		.section	.text.jy62MessageRecord,"ax",%progbits
- 1007              		.align	1
- 1008              		.global	jy62MessageRecord
- 1009              		.syntax unified
- 1010              		.thumb
- 1011              		.thumb_func
- 1012              		.fpu softvfp
- 1014              	jy62MessageRecord:
- 1015              	.LFB66:
-  27:Core/Src/jy62.c **** {
- 1016              		.loc 1 27 1 view -0
- 1017              		.cfi_startproc
- 1018              		@ args = 0, pretend = 0, frame = 0
- 1019              		@ frame_needed = 0, uses_anonymous_args = 0
- 1020 0000 08B5     		push	{r3, lr}
- 1021              	.LCFI12:
- 1022              		.cfi_def_cfa_offset 8
- 1023              		.cfi_offset 3, -8
- 1024              		.cfi_offset 14, -4
-  28:Core/Src/jy62.c **** 	if (jy62Receive[0] == 0x55)
- 1025              		.loc 1 28 2 view .LVU157
-  28:Core/Src/jy62.c **** 	if (jy62Receive[0] == 0x55)
- 1026              		.loc 1 28 17 is_stmt 0 view .LVU158
- 1027 0002 144B     		ldr	r3, .L97
- 1028 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
- 1029 0006 DBB2     		uxtb	r3, r3
-  28:Core/Src/jy62.c **** 	if (jy62Receive[0] == 0x55)
- 1030              		.loc 1 28 5 view .LVU159
- 1031 0008 552B     		cmp	r3, #85
- 1032 000a 14D0     		beq	.L96
- 1033              	.L89:
-  44:Core/Src/jy62.c **** 	HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
- 1034              		.loc 1 44 2 is_stmt 1 view .LVU160
- 1035 000c 0B22     		movs	r2, #11
- 1036 000e 1149     		ldr	r1, .L97
- 1037 0010 114B     		ldr	r3, .L97+4
- 1038 0012 1868     		ldr	r0, [r3]
- 1039 0014 FFF7FEFF 		bl	HAL_UART_Receive_DMA
- 1040              	.LVL58:
-  45:Core/Src/jy62.c **** }
- 1041              		.loc 1 45 1 is_stmt 0 view .LVU161
- 1042 0018 08BD     		pop	{r3, pc}
- 1043              	.LVL59:
- 1044              	.L90:
- 1045              	.LBB2:
- 1046              	.LBB3:
-  33:Core/Src/jy62.c **** 			sum += jy62Receive[i];
- 1047              		.loc 1 33 4 is_stmt 1 discriminator 3 view .LVU162
-  33:Core/Src/jy62.c **** 			sum += jy62Receive[i];
- 1048              		.loc 1 33 22 is_stmt 0 discriminator 3 view .LVU163
- 1049 001a 0E49     		ldr	r1, .L97
- 1050 001c C95C     		ldrb	r1, [r1, r3]	@ zero_extendqisi2
-  33:Core/Src/jy62.c **** 			sum += jy62Receive[i];
- 1051              		.loc 1 33 8 discriminator 3 view .LVU164
- 1052 001e 0A44     		add	r2, r2, r1
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 22
+ 971 000c 0AD0     		beq	.L81
+ 972 000e 512B     		cmp	r3, #81
+ 973 0010 02D0     		beq	.L84
+ 974              	.L82:
+ 210:Core/Src/jy62.c **** 	{
+ 211:Core/Src/jy62.c **** 	case 0x51:
+ 212:Core/Src/jy62.c **** 		DecodeAccelerate();
+ 213:Core/Src/jy62.c **** 		break;
+ 214:Core/Src/jy62.c **** 	case 0x52:
+ 215:Core/Src/jy62.c **** 		DecodeVelocity();
+ 216:Core/Src/jy62.c **** 		break;
+ 217:Core/Src/jy62.c **** 	case 0x53:
+ 218:Core/Src/jy62.c **** 		DecodeAngle();
+ 219:Core/Src/jy62.c **** 		break;
+ 220:Core/Src/jy62.c **** 	}
+ 221:Core/Src/jy62.c **** 	DecodeTemperature();
+ 975              		.loc 1 221 2 is_stmt 1 view .LVU148
+ 976 0012 FFF7FEFF 		bl	DecodeTemperature
+ 977              	.LVL54:
+ 222:Core/Src/jy62.c **** }...
+ 978              		.loc 1 222 1 is_stmt 0 view .LVU149
+ 979 0016 08BD     		pop	{r3, pc}
+ 980              	.L84:
+ 212:Core/Src/jy62.c **** 		DecodeAccelerate();
+ 981              		.loc 1 212 3 is_stmt 1 view .LVU150
+ 982 0018 FFF7FEFF 		bl	DecodeAccelerate
+ 983              	.LVL55:
+ 213:Core/Src/jy62.c **** 		break;
+ 984              		.loc 1 213 3 view .LVU151
+ 985 001c F9E7     		b	.L82
+ 986              	.L80:
+ 215:Core/Src/jy62.c **** 		DecodeVelocity();
+ 987              		.loc 1 215 3 view .LVU152
+ 988 001e FFF7FEFF 		bl	DecodeVelocity
+ 989              	.LVL56:
+ 216:Core/Src/jy62.c **** 		break;
+ 990              		.loc 1 216 3 view .LVU153
+ 991 0022 F6E7     		b	.L82
+ 992              	.L81:
+ 218:Core/Src/jy62.c **** 		DecodeAngle();
+ 993              		.loc 1 218 3 view .LVU154
+ 994 0024 FFF7FEFF 		bl	DecodeAngle
+ 995              	.LVL57:
+ 219:Core/Src/jy62.c **** 		break;
+ 996              		.loc 1 219 3 view .LVU155
+ 997 0028 F3E7     		b	.L82
+ 998              	.L86:
+ 999 002a 00BF     		.align	2
+ 1000              	.L85:
+ 1001 002c 00000000 		.word	.LANCHOR12
+ 1002              		.cfi_endproc
+ 1003              	.LFE87:
+ 1005              		.section	.text.jy62MessageRecord,"ax",%progbits
+ 1006              		.align	1
+ 1007              		.global	jy62MessageRecord
+ 1008              		.syntax unified
+ 1009              		.thumb
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 22
 
 
- 1053              	.LVL60:
-  33:Core/Src/jy62.c **** 			sum += jy62Receive[i];
- 1054              		.loc 1 33 8 discriminator 3 view .LVU165
- 1055 0020 D2B2     		uxtb	r2, r2
- 1056              	.LVL61:
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
- 1057              		.loc 1 31 48 is_stmt 1 discriminator 3 view .LVU166
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
- 1058              		.loc 1 31 49 is_stmt 0 discriminator 3 view .LVU167
- 1059 0022 0133     		adds	r3, r3, #1
- 1060              	.LVL62:
- 1061              	.L88:
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
- 1062              		.loc 1 31 19 is_stmt 1 discriminator 1 view .LVU168
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
- 1063              		.loc 1 31 3 is_stmt 0 discriminator 1 view .LVU169
- 1064 0024 092B     		cmp	r3, #9
- 1065 0026 F8DD     		ble	.L90
- 1066              	.LBE3:
-  35:Core/Src/jy62.c **** 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
- 1067              		.loc 1 35 3 is_stmt 1 view .LVU170
-  35:Core/Src/jy62.c **** 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
- 1068              		.loc 1 35 25 is_stmt 0 view .LVU171
- 1069 0028 0A4B     		ldr	r3, .L97
- 1070              	.LVL63:
-  35:Core/Src/jy62.c **** 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
- 1071              		.loc 1 35 25 view .LVU172
- 1072 002a 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
- 1073 002c DBB2     		uxtb	r3, r3
-  35:Core/Src/jy62.c **** 		if (sum == jy62Receive[JY62_MESSAGE_LENGTH - 1])
- 1074              		.loc 1 35 6 view .LVU173
- 1075 002e 9342     		cmp	r3, r2
- 1076 0030 ECD1     		bne	.L89
- 1077              	.LBB4:
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1078              		.loc 1 37 13 view .LVU174
- 1079 0032 0023     		movs	r3, #0
- 1080 0034 08E0     		b	.L91
- 1081              	.LVL64:
- 1082              	.L96:
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1083              		.loc 1 37 13 view .LVU175
- 1084              	.LBE4:
- 1085              	.LBB5:
-  31:Core/Src/jy62.c **** 		for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
- 1086              		.loc 1 31 12 view .LVU176
- 1087 0036 0023     		movs	r3, #0
- 1088              	.LBE5:
-  30:Core/Src/jy62.c **** 		uint8_t sum = 0x00;
- 1089              		.loc 1 30 11 view .LVU177
- 1090 0038 1A46     		mov	r2, r3
- 1091 003a F3E7     		b	.L88
- 1092              	.LVL65:
- 1093              	.L92:
- 1094              	.LBB6:
-  39:Core/Src/jy62.c **** 				jy62Message[i] = jy62Receive[i];
- 1095              		.loc 1 39 5 is_stmt 1 discriminator 3 view .LVU178
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 23
+ 1010              		.thumb_func
+ 1011              		.fpu softvfp
+ 1013              	jy62MessageRecord:
+ 1014              	.LFB66:
+  50:Core/Src/jy62.c **** {
+ 1015              		.loc 1 50 1 view -0
+ 1016              		.cfi_startproc
+ 1017              		@ args = 0, pretend = 0, frame = 0
+ 1018              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1019 0000 08B5     		push	{r3, lr}
+ 1020              	.LCFI12:
+ 1021              		.cfi_def_cfa_offset 8
+ 1022              		.cfi_offset 3, -8
+ 1023              		.cfi_offset 14, -4
+  56:Core/Src/jy62.c ****     if (jy62Receive[SuccLen % JY62_MESSAGE_LENGTH] == 0x55)
+ 1024              		.loc 1 56 5 view .LVU157
+  56:Core/Src/jy62.c ****     if (jy62Receive[SuccLen % JY62_MESSAGE_LENGTH] == 0x55)
+ 1025              		.loc 1 56 29 is_stmt 0 view .LVU158
+ 1026 0002 364B     		ldr	r3, .L107
+ 1027 0004 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1028 0006 364B     		ldr	r3, .L107+4
+ 1029 0008 A3FB0123 		umull	r2, r3, r3, r1
+ 1030 000c DB08     		lsrs	r3, r3, #3
+ 1031 000e 03EB8302 		add	r2, r3, r3, lsl #2
+ 1032 0012 03EB4203 		add	r3, r3, r2, lsl #1
+ 1033 0016 C91A     		subs	r1, r1, r3
+ 1034 0018 C9B2     		uxtb	r1, r1
+  56:Core/Src/jy62.c ****     if (jy62Receive[SuccLen % JY62_MESSAGE_LENGTH] == 0x55)
+ 1035              		.loc 1 56 20 view .LVU159
+ 1036 001a 324B     		ldr	r3, .L107+8
+ 1037 001c 5B5C     		ldrb	r3, [r3, r1]	@ zero_extendqisi2
+  56:Core/Src/jy62.c ****     if (jy62Receive[SuccLen % JY62_MESSAGE_LENGTH] == 0x55)
+ 1038              		.loc 1 56 8 view .LVU160
+ 1039 001e 552B     		cmp	r3, #85
+ 1040 0020 24D0     		beq	.L105
+  82:Core/Src/jy62.c ****         SuccLen = 0;
+ 1041              		.loc 1 82 9 is_stmt 1 view .LVU161
+  82:Core/Src/jy62.c ****         SuccLen = 0;
+ 1042              		.loc 1 82 17 is_stmt 0 view .LVU162
+ 1043 0022 2E4B     		ldr	r3, .L107
+ 1044 0024 0022     		movs	r2, #0
+ 1045 0026 1A70     		strb	r2, [r3]
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1046              		.loc 1 83 9 is_stmt 1 view .LVU163
+ 1047              	.L96:
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1048              		.loc 1 83 15 view .LVU164
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1049              		.loc 1 83 24 is_stmt 0 view .LVU165
+ 1050 0028 2C4B     		ldr	r3, .L107
+ 1051 002a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1052              		.loc 1 83 15 view .LVU166
+ 1053 002c 0A2B     		cmp	r3, #10
+ 1054 002e 2FD8     		bhi	.L97
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1055              		.loc 1 83 60 discriminator 1 view .LVU167
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 23
 
 
-  39:Core/Src/jy62.c **** 				jy62Message[i] = jy62Receive[i];
- 1096              		.loc 1 39 33 is_stmt 0 discriminator 3 view .LVU179
- 1097 003c 054A     		ldr	r2, .L97
- 1098 003e D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
- 1099 0040 D2B2     		uxtb	r2, r2
-  39:Core/Src/jy62.c **** 				jy62Message[i] = jy62Receive[i];
- 1100              		.loc 1 39 20 discriminator 3 view .LVU180
- 1101 0042 0649     		ldr	r1, .L97+8
- 1102 0044 CA54     		strb	r2, [r1, r3]
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1103              		.loc 1 37 45 is_stmt 1 discriminator 3 view .LVU181
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1104              		.loc 1 37 46 is_stmt 0 discriminator 3 view .LVU182
- 1105 0046 0133     		adds	r3, r3, #1
- 1106              	.LVL66:
- 1107              	.L91:
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1108              		.loc 1 37 20 is_stmt 1 discriminator 1 view .LVU183
-  37:Core/Src/jy62.c **** 			for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
- 1109              		.loc 1 37 4 is_stmt 0 discriminator 1 view .LVU184
- 1110 0048 0A2B     		cmp	r3, #10
- 1111 004a F7DD     		ble	.L92
- 1112              	.LBE6:
-  41:Core/Src/jy62.c **** 			Decode();
- 1113              		.loc 1 41 4 is_stmt 1 view .LVU185
- 1114 004c FFF7FEFF 		bl	Decode
- 1115              	.LVL67:
-  41:Core/Src/jy62.c **** 			Decode();
- 1116              		.loc 1 41 4 is_stmt 0 view .LVU186
- 1117 0050 DCE7     		b	.L89
- 1118              	.L98:
- 1119 0052 00BF     		.align	2
- 1120              	.L97:
- 1121 0054 00000000 		.word	.LANCHOR1
- 1122 0058 00000000 		.word	.LANCHOR0
- 1123 005c 00000000 		.word	.LANCHOR12
- 1124              	.LBE2:
- 1125              		.cfi_endproc
- 1126              	.LFE66:
- 1128              		.global	Temperature
- 1129              		.global	Angle
- 1130              		.global	Velocity
- 1131              		.global	Accelerate
- 1132              		.global	jy62_huart
- 1133              		.global	sleepAndAwake
- 1134              		.global	setVertical
- 1135              		.global	setHorizontal
- 1136              		.global	setBaud9600
- 1137              		.global	setBaud115200
- 1138              		.global	calibrateAcce
- 1139              		.global	initAngle
- 1140              		.global	jy62Message
- 1141              		.global	jy62Receive
- 1142              		.section	.bss.Accelerate,"aw",%nobits
- 1143              		.align	2
- 1144              		.set	.LANCHOR10,. + 0
- 1147              	Accelerate:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 24
+ 1056 0030 2C4A     		ldr	r2, .L107+8
+ 1057 0032 D25C     		ldrb	r2, [r2, r3]	@ zero_extendqisi2
+  83:Core/Src/jy62.c ****         while (SuccLen < JY62_MESSAGE_LENGTH && jy62Receive[SuccLen] != 0x55)
+ 1058              		.loc 1 83 46 discriminator 1 view .LVU168
+ 1059 0034 552A     		cmp	r2, #85
+ 1060 0036 2BD0     		beq	.L97
+  85:Core/Src/jy62.c ****             SuccLen++;
+ 1061              		.loc 1 85 13 is_stmt 1 view .LVU169
+  85:Core/Src/jy62.c ****             SuccLen++;
+ 1062              		.loc 1 85 20 is_stmt 0 view .LVU170
+ 1063 0038 0133     		adds	r3, r3, #1
+ 1064 003a 284A     		ldr	r2, .L107
+ 1065 003c 1370     		strb	r3, [r2]
+ 1066 003e F3E7     		b	.L96
+ 1067              	.LVL58:
+ 1068              	.L90:
+ 1069              	.LBB2:
+ 1070              	.LBB3:
+  61:Core/Src/jy62.c ****             jy62PrevInfoHolder[PrevLen + i] = jy62Receive[i];
+ 1071              		.loc 1 61 13 is_stmt 1 discriminator 3 view .LVU171
+  61:Core/Src/jy62.c ****             jy62PrevInfoHolder[PrevLen + i] = jy62Receive[i];
+ 1072              		.loc 1 61 40 is_stmt 0 discriminator 3 view .LVU172
+ 1073 0040 294A     		ldr	r2, .L107+12
+ 1074 0042 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 1075 0044 1A44     		add	r2, r2, r3
+  61:Core/Src/jy62.c ****             jy62PrevInfoHolder[PrevLen + i] = jy62Receive[i];
+ 1076              		.loc 1 61 58 discriminator 3 view .LVU173
+ 1077 0046 2748     		ldr	r0, .L107+8
+ 1078 0048 10F803C0 		ldrb	ip, [r0, r3]	@ zero_extendqisi2
+  61:Core/Src/jy62.c ****             jy62PrevInfoHolder[PrevLen + i] = jy62Receive[i];
+ 1079              		.loc 1 61 45 discriminator 3 view .LVU174
+ 1080 004c 2748     		ldr	r0, .L107+16
+ 1081 004e 00F802C0 		strb	ip, [r0, r2]
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1082              		.loc 1 59 60 is_stmt 1 discriminator 3 view .LVU175
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1083              		.loc 1 59 61 is_stmt 0 discriminator 3 view .LVU176
+ 1084 0052 0133     		adds	r3, r3, #1
+ 1085              	.LVL59:
+ 1086              	.L88:
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1087              		.loc 1 59 25 is_stmt 1 discriminator 1 view .LVU177
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1088              		.loc 1 59 9 is_stmt 0 discriminator 1 view .LVU178
+ 1089 0054 9942     		cmp	r1, r3
+ 1090 0056 F3DC     		bgt	.L90
+ 1091              	.LBE3:
+ 1092              	.LBB4:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1093              		.loc 1 65 18 view .LVU179
+ 1094 0058 0023     		movs	r3, #0
+ 1095              	.LVL60:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1096              		.loc 1 65 18 view .LVU180
+ 1097              	.LBE4:
+  64:Core/Src/jy62.c ****         uint8_t sum = 0x00;
+ 1098              		.loc 1 64 17 view .LVU181
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 24
 
 
- 1148 0000 00000000 		.space	12
- 1148      00000000 
- 1148      00000000 
- 1149              		.section	.bss.Angle,"aw",%nobits
- 1150              		.align	2
- 1151              		.set	.LANCHOR8,. + 0
- 1154              	Angle:
- 1155 0000 00000000 		.space	12
- 1155      00000000 
- 1155      00000000 
- 1156              		.section	.bss.Temperature,"aw",%nobits
- 1157              		.align	2
- 1158              		.set	.LANCHOR9,. + 0
- 1161              	Temperature:
- 1162 0000 00000000 		.space	4
- 1163              		.section	.bss.Velocity,"aw",%nobits
- 1164              		.align	2
- 1165              		.set	.LANCHOR11,. + 0
- 1168              	Velocity:
- 1169 0000 00000000 		.space	12
- 1169      00000000 
- 1169      00000000 
- 1170              		.section	.bss.jy62Message,"aw",%nobits
- 1171              		.align	2
- 1172              		.set	.LANCHOR12,. + 0
- 1175              	jy62Message:
- 1176 0000 00000000 		.space	11
- 1176      00000000 
- 1176      000000
- 1177              		.section	.bss.jy62Receive,"aw",%nobits
- 1178              		.align	2
- 1179              		.set	.LANCHOR1,. + 0
- 1182              	jy62Receive:
- 1183 0000 00000000 		.space	11
- 1183      00000000 
- 1183      000000
- 1184              		.section	.bss.jy62_huart,"aw",%nobits
- 1185              		.align	2
- 1186              		.set	.LANCHOR0,. + 0
- 1189              	jy62_huart:
- 1190 0000 00000000 		.space	4
- 1191              		.section	.data.calibrateAcce,"aw"
- 1192              		.align	2
- 1193              		.set	.LANCHOR6,. + 0
- 1196              	calibrateAcce:
- 1197 0000 FFAA67   		.ascii	"\377\252g"
- 1198              		.section	.data.initAngle,"aw"
- 1199              		.align	2
- 1200              		.set	.LANCHOR5,. + 0
- 1203              	initAngle:
- 1204 0000 FFAA52   		.ascii	"\377\252R"
- 1205              		.section	.data.setBaud115200,"aw"
- 1206              		.align	2
- 1207              		.set	.LANCHOR2,. + 0
- 1210              	setBaud115200:
- 1211 0000 FFAA63   		.ascii	"\377\252c"
- 1212              		.section	.data.setBaud9600,"aw"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 25
+ 1099 005a 1A46     		mov	r2, r3
+ 1100              	.L91:
+ 1101              	.LVL61:
+ 1102              	.LBB5:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1103              		.loc 1 65 25 is_stmt 1 discriminator 1 view .LVU182
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1104              		.loc 1 65 9 is_stmt 0 discriminator 1 view .LVU183
+ 1105 005c 092B     		cmp	r3, #9
+ 1106 005e 07DC     		bgt	.L106
+  67:Core/Src/jy62.c ****             sum += jy62PrevInfoHolder[i];
+ 1107              		.loc 1 67 13 is_stmt 1 discriminator 3 view .LVU184
+  67:Core/Src/jy62.c ****             sum += jy62PrevInfoHolder[i];
+ 1108              		.loc 1 67 38 is_stmt 0 discriminator 3 view .LVU185
+ 1109 0060 2249     		ldr	r1, .L107+16
+ 1110 0062 C95C     		ldrb	r1, [r1, r3]	@ zero_extendqisi2
+  67:Core/Src/jy62.c ****             sum += jy62PrevInfoHolder[i];
+ 1111              		.loc 1 67 17 discriminator 3 view .LVU186
+ 1112 0064 0A44     		add	r2, r2, r1
+ 1113              	.LVL62:
+  67:Core/Src/jy62.c ****             sum += jy62PrevInfoHolder[i];
+ 1114              		.loc 1 67 17 discriminator 3 view .LVU187
+ 1115 0066 D2B2     		uxtb	r2, r2
+ 1116              	.LVL63:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1117              		.loc 1 65 54 is_stmt 1 discriminator 3 view .LVU188
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1118              		.loc 1 65 55 is_stmt 0 discriminator 3 view .LVU189
+ 1119 0068 0133     		adds	r3, r3, #1
+ 1120              	.LVL64:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1121              		.loc 1 65 55 discriminator 3 view .LVU190
+ 1122 006a F7E7     		b	.L91
+ 1123              	.LVL65:
+ 1124              	.L105:
+  65:Core/Src/jy62.c ****         for (int i = 0; i < JY62_MESSAGE_LENGTH - 1; i++)
+ 1125              		.loc 1 65 55 discriminator 3 view .LVU191
+ 1126              	.LBE5:
+ 1127              	.LBB6:
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1128              		.loc 1 59 18 view .LVU192
+ 1129 006c 0023     		movs	r3, #0
+ 1130 006e F1E7     		b	.L88
+ 1131              	.LVL66:
+ 1132              	.L106:
+  59:Core/Src/jy62.c ****         for (int i = 0; i < SuccLen % JY62_MESSAGE_LENGTH; i++)
+ 1133              		.loc 1 59 18 view .LVU193
+ 1134              	.LBE6:
+  70:Core/Src/jy62.c ****         if (sum == jy62PrevInfoHolder[JY62_MESSAGE_LENGTH - 1])
+ 1135              		.loc 1 70 9 is_stmt 1 view .LVU194
+  70:Core/Src/jy62.c ****         if (sum == jy62PrevInfoHolder[JY62_MESSAGE_LENGTH - 1])
+ 1136              		.loc 1 70 38 is_stmt 0 view .LVU195
+ 1137 0070 1E4B     		ldr	r3, .L107+16
+ 1138              	.LVL67:
+  70:Core/Src/jy62.c ****         if (sum == jy62PrevInfoHolder[JY62_MESSAGE_LENGTH - 1])
+ 1139              		.loc 1 70 38 view .LVU196
+ 1140 0072 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 25
 
 
- 1213              		.align	2
- 1216              	setBaud9600:
- 1217 0000 FFAA64   		.ascii	"\377\252d"
- 1218              		.section	.data.setHorizontal,"aw"
- 1219              		.align	2
- 1220              		.set	.LANCHOR3,. + 0
- 1223              	setHorizontal:
- 1224 0000 FFAA65   		.ascii	"\377\252e"
- 1225              		.section	.data.setVertical,"aw"
- 1226              		.align	2
- 1227              		.set	.LANCHOR4,. + 0
- 1230              	setVertical:
- 1231 0000 FFAA66   		.ascii	"\377\252f"
- 1232              		.section	.data.sleepAndAwake,"aw"
- 1233              		.align	2
- 1234              		.set	.LANCHOR7,. + 0
- 1237              	sleepAndAwake:
- 1238 0000 FFAA60   		.ascii	"\377\252`"
- 1239              		.text
- 1240              	.Letext0:
- 1241              		.file 2 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\machine\\_default_t
- 1242              		.file 3 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\sys\\_stdint.h"
- 1243              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
- 1244              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
- 1245              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
- 1246              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
- 1247              		.file 8 "Core/Inc/jy62.h"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 26
+  70:Core/Src/jy62.c ****         if (sum == jy62PrevInfoHolder[JY62_MESSAGE_LENGTH - 1])
+ 1141              		.loc 1 70 12 view .LVU197
+ 1142 0074 9342     		cmp	r3, r2
+ 1143 0076 0FD1     		bne	.L94
+ 1144              	.LBB7:
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+ 1145              		.loc 1 72 22 view .LVU198
+ 1146 0078 0023     		movs	r3, #0
+ 1147 007a 04E0     		b	.L93
+ 1148              	.LVL68:
+ 1149              	.L95:
+  74:Core/Src/jy62.c ****                 jy62Message[i] = jy62PrevInfoHolder[i];
+ 1150              		.loc 1 74 17 is_stmt 1 discriminator 3 view .LVU199
+  74:Core/Src/jy62.c ****                 jy62Message[i] = jy62PrevInfoHolder[i];
+ 1151              		.loc 1 74 52 is_stmt 0 discriminator 3 view .LVU200
+ 1152 007c 1B4A     		ldr	r2, .L107+16
+ 1153 007e D15C     		ldrb	r1, [r2, r3]	@ zero_extendqisi2
+  74:Core/Src/jy62.c ****                 jy62Message[i] = jy62PrevInfoHolder[i];
+ 1154              		.loc 1 74 32 discriminator 3 view .LVU201
+ 1155 0080 1B4A     		ldr	r2, .L107+20
+ 1156 0082 D154     		strb	r1, [r2, r3]
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+ 1157              		.loc 1 72 54 is_stmt 1 discriminator 3 view .LVU202
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+ 1158              		.loc 1 72 55 is_stmt 0 discriminator 3 view .LVU203
+ 1159 0084 0133     		adds	r3, r3, #1
+ 1160              	.LVL69:
+ 1161              	.L93:
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+ 1162              		.loc 1 72 29 is_stmt 1 discriminator 1 view .LVU204
+  72:Core/Src/jy62.c ****             for (int i = 0; i < JY62_MESSAGE_LENGTH; i++)
+ 1163              		.loc 1 72 13 is_stmt 0 discriminator 1 view .LVU205
+ 1164 0086 0A2B     		cmp	r3, #10
+ 1165 0088 F8DD     		ble	.L95
+ 1166              	.LBE7:
+  76:Core/Src/jy62.c ****             Decode();
+ 1167              		.loc 1 76 13 is_stmt 1 view .LVU206
+ 1168 008a FFF7FEFF 		bl	Decode
+ 1169              	.LVL70:
+  76:Core/Src/jy62.c ****             Decode();
+ 1170              		.loc 1 76 13 is_stmt 0 view .LVU207
+ 1171 008e 03E0     		b	.L94
+ 1172              	.L97:
+  76:Core/Src/jy62.c ****             Decode();
+ 1173              		.loc 1 76 13 view .LVU208
+ 1174              	.LBE2:
+  87:Core/Src/jy62.c ****         PrevLen = JY62_MESSAGE_LENGTH - SuccLen;
+ 1175              		.loc 1 87 9 is_stmt 1 view .LVU209
+  87:Core/Src/jy62.c ****         PrevLen = JY62_MESSAGE_LENGTH - SuccLen;
+ 1176              		.loc 1 87 39 is_stmt 0 view .LVU210
+ 1177 0090 C3F10B03 		rsb	r3, r3, #11
+  87:Core/Src/jy62.c ****         PrevLen = JY62_MESSAGE_LENGTH - SuccLen;
+ 1178              		.loc 1 87 17 view .LVU211
+ 1179 0094 144A     		ldr	r2, .L107+12
+ 1180 0096 1370     		strb	r3, [r2]
+ 1181              	.L94:
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 26
+
+
+ 1182              		.loc 1 90 5 is_stmt 1 view .LVU212
+ 1183              	.LBB8:
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1184              		.loc 1 90 10 view .LVU213
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1185              		.loc 1 90 26 is_stmt 0 view .LVU214
+ 1186 0098 104B     		ldr	r3, .L107
+ 1187 009a 93F800C0 		ldrb	ip, [r3]	@ zero_extendqisi2
+ 1188 009e 104B     		ldr	r3, .L107+4
+ 1189 00a0 A3FB0C23 		umull	r2, r3, r3, ip
+ 1190 00a4 DB08     		lsrs	r3, r3, #3
+ 1191 00a6 03EB8302 		add	r2, r3, r3, lsl #2
+ 1192 00aa 03EB4203 		add	r3, r3, r2, lsl #1
+ 1193 00ae ACEB030C 		sub	ip, ip, r3
+ 1194 00b2 5FFA8CFC 		uxtb	ip, ip
+ 1195              	.LVL71:
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1196              		.loc 1 90 14 view .LVU215
+ 1197 00b6 6346     		mov	r3, ip
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1198              		.loc 1 90 5 view .LVU216
+ 1199 00b8 06E0     		b	.L99
+ 1200              	.LVL72:
+ 1201              	.L100:
+  92:Core/Src/jy62.c ****         jy62PrevInfoHolder[i - SuccLen % JY62_MESSAGE_LENGTH] = jy62Receive[i];
+ 1202              		.loc 1 92 9 is_stmt 1 discriminator 3 view .LVU217
+  92:Core/Src/jy62.c ****         jy62PrevInfoHolder[i - SuccLen % JY62_MESSAGE_LENGTH] = jy62Receive[i];
+ 1203              		.loc 1 92 30 is_stmt 0 discriminator 3 view .LVU218
+ 1204 00ba A3EB0C02 		sub	r2, r3, ip
+  92:Core/Src/jy62.c ****         jy62PrevInfoHolder[i - SuccLen % JY62_MESSAGE_LENGTH] = jy62Receive[i];
+ 1205              		.loc 1 92 76 discriminator 3 view .LVU219
+ 1206 00be 0949     		ldr	r1, .L107+8
+ 1207 00c0 C85C     		ldrb	r0, [r1, r3]	@ zero_extendqisi2
+  92:Core/Src/jy62.c ****         jy62PrevInfoHolder[i - SuccLen % JY62_MESSAGE_LENGTH] = jy62Receive[i];
+ 1208              		.loc 1 92 63 discriminator 3 view .LVU220
+ 1209 00c2 0A49     		ldr	r1, .L107+16
+ 1210 00c4 8854     		strb	r0, [r1, r2]
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1211              		.loc 1 90 74 is_stmt 1 discriminator 3 view .LVU221
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1212              		.loc 1 90 75 is_stmt 0 discriminator 3 view .LVU222
+ 1213 00c6 0133     		adds	r3, r3, #1
+ 1214              	.LVL73:
+ 1215              	.L99:
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1216              		.loc 1 90 49 is_stmt 1 discriminator 1 view .LVU223
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1217              		.loc 1 90 5 is_stmt 0 discriminator 1 view .LVU224
+ 1218 00c8 0A2B     		cmp	r3, #10
+ 1219 00ca F6DD     		ble	.L100
+  90:Core/Src/jy62.c ****     for (int i = SuccLen % JY62_MESSAGE_LENGTH; i < JY62_MESSAGE_LENGTH; i++)
+ 1220              		.loc 1 90 5 discriminator 1 view .LVU225
+ 1221              	.LBE8:
+  95:Core/Src/jy62.c ****     HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
+ 1222              		.loc 1 95 5 is_stmt 1 view .LVU226
+ 1223 00cc 0B22     		movs	r2, #11
+ 1224 00ce 0549     		ldr	r1, .L107+8
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 27
+
+
+ 1225 00d0 084B     		ldr	r3, .L107+24
+ 1226              	.LVL74:
+  95:Core/Src/jy62.c ****     HAL_UART_Receive_DMA(jy62_huart, jy62Receive, JY62_MESSAGE_LENGTH);
+ 1227              		.loc 1 95 5 is_stmt 0 view .LVU227
+ 1228 00d2 1868     		ldr	r0, [r3]
+ 1229 00d4 FFF7FEFF 		bl	HAL_UART_Receive_DMA
+ 1230              	.LVL75:
+  96:Core/Src/jy62.c **** }
+ 1231              		.loc 1 96 1 view .LVU228
+ 1232 00d8 08BD     		pop	{r3, pc}
+ 1233              	.L108:
+ 1234 00da 00BF     		.align	2
+ 1235              	.L107:
+ 1236 00dc 00000000 		.word	.LANCHOR13
+ 1237 00e0 A38B2EBA 		.word	-1171354717
+ 1238 00e4 00000000 		.word	.LANCHOR1
+ 1239 00e8 00000000 		.word	.LANCHOR14
+ 1240 00ec 00000000 		.word	.LANCHOR15
+ 1241 00f0 00000000 		.word	.LANCHOR12
+ 1242 00f4 00000000 		.word	.LANCHOR0
+ 1243              		.cfi_endproc
+ 1244              	.LFE66:
+ 1246              		.global	Temperature
+ 1247              		.global	Angle
+ 1248              		.global	Velocity
+ 1249              		.global	Accelerate
+ 1250              		.global	jy62_huart
+ 1251              		.global	sleepAndAwake
+ 1252              		.global	setVertical
+ 1253              		.global	setHorizontal
+ 1254              		.global	setBaud9600
+ 1255              		.global	setBaud115200
+ 1256              		.global	calibrateAcce
+ 1257              		.global	initAngle
+ 1258              		.global	jy62PrevInfoHolder
+ 1259              		.global	SuccLen
+ 1260              		.global	PrevLen
+ 1261              		.global	jy62Message
+ 1262              		.global	jy62Receive
+ 1263              		.section	.bss.Accelerate,"aw",%nobits
+ 1264              		.align	2
+ 1265              		.set	.LANCHOR10,. + 0
+ 1268              	Accelerate:
+ 1269 0000 00000000 		.space	12
+ 1269      00000000 
+ 1269      00000000 
+ 1270              		.section	.bss.Angle,"aw",%nobits
+ 1271              		.align	2
+ 1272              		.set	.LANCHOR8,. + 0
+ 1275              	Angle:
+ 1276 0000 00000000 		.space	12
+ 1276      00000000 
+ 1276      00000000 
+ 1277              		.section	.bss.PrevLen,"aw",%nobits
+ 1278              		.set	.LANCHOR14,. + 0
+ 1281              	PrevLen:
+ 1282 0000 00       		.space	1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 28
+
+
+ 1283              		.section	.bss.SuccLen,"aw",%nobits
+ 1284              		.set	.LANCHOR13,. + 0
+ 1287              	SuccLen:
+ 1288 0000 00       		.space	1
+ 1289              		.section	.bss.Temperature,"aw",%nobits
+ 1290              		.align	2
+ 1291              		.set	.LANCHOR9,. + 0
+ 1294              	Temperature:
+ 1295 0000 00000000 		.space	4
+ 1296              		.section	.bss.Velocity,"aw",%nobits
+ 1297              		.align	2
+ 1298              		.set	.LANCHOR11,. + 0
+ 1301              	Velocity:
+ 1302 0000 00000000 		.space	12
+ 1302      00000000 
+ 1302      00000000 
+ 1303              		.section	.bss.jy62Message,"aw",%nobits
+ 1304              		.align	2
+ 1305              		.set	.LANCHOR12,. + 0
+ 1308              	jy62Message:
+ 1309 0000 00000000 		.space	11
+ 1309      00000000 
+ 1309      000000
+ 1310              		.section	.bss.jy62PrevInfoHolder,"aw",%nobits
+ 1311              		.align	2
+ 1312              		.set	.LANCHOR15,. + 0
+ 1315              	jy62PrevInfoHolder:
+ 1316 0000 00000000 		.space	11
+ 1316      00000000 
+ 1316      000000
+ 1317              		.section	.bss.jy62Receive,"aw",%nobits
+ 1318              		.align	2
+ 1319              		.set	.LANCHOR1,. + 0
+ 1322              	jy62Receive:
+ 1323 0000 00000000 		.space	11
+ 1323      00000000 
+ 1323      000000
+ 1324              		.section	.bss.jy62_huart,"aw",%nobits
+ 1325              		.align	2
+ 1326              		.set	.LANCHOR0,. + 0
+ 1329              	jy62_huart:
+ 1330 0000 00000000 		.space	4
+ 1331              		.section	.data.calibrateAcce,"aw"
+ 1332              		.align	2
+ 1333              		.set	.LANCHOR6,. + 0
+ 1336              	calibrateAcce:
+ 1337 0000 FFAA67   		.ascii	"\377\252g"
+ 1338              		.section	.data.initAngle,"aw"
+ 1339              		.align	2
+ 1340              		.set	.LANCHOR5,. + 0
+ 1343              	initAngle:
+ 1344 0000 FFAA52   		.ascii	"\377\252R"
+ 1345              		.section	.data.setBaud115200,"aw"
+ 1346              		.align	2
+ 1347              		.set	.LANCHOR2,. + 0
+ 1350              	setBaud115200:
+ 1351 0000 FFAA63   		.ascii	"\377\252c"
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 29
+
+
+ 1352              		.section	.data.setBaud9600,"aw"
+ 1353              		.align	2
+ 1356              	setBaud9600:
+ 1357 0000 FFAA64   		.ascii	"\377\252d"
+ 1358              		.section	.data.setHorizontal,"aw"
+ 1359              		.align	2
+ 1360              		.set	.LANCHOR3,. + 0
+ 1363              	setHorizontal:
+ 1364 0000 FFAA65   		.ascii	"\377\252e"
+ 1365              		.section	.data.setVertical,"aw"
+ 1366              		.align	2
+ 1367              		.set	.LANCHOR4,. + 0
+ 1370              	setVertical:
+ 1371 0000 FFAA66   		.ascii	"\377\252f"
+ 1372              		.section	.data.sleepAndAwake,"aw"
+ 1373              		.align	2
+ 1374              		.set	.LANCHOR7,. + 0
+ 1377              	sleepAndAwake:
+ 1378 0000 FFAA60   		.ascii	"\377\252`"
+ 1379              		.text
+ 1380              	.Letext0:
+ 1381              		.file 2 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\machine\\_default_t
+ 1382              		.file 3 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\sys\\_stdint.h"
+ 1383              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 1384              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 1385              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 1386              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
+ 1387              		.file 8 "Core/Inc/jy62.h"
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 30
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 jy62.c
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:16     .text.jy62_Init:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:24     .text.jy62_Init:00000000 jy62_Init
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:52     .text.jy62_Init:00000010 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:58     .text.SetBaud:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:65     .text.SetBaud:00000000 SetBaud
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:120    .text.SetBaud:00000034 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:126    .text.SetHorizontal:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:133    .text.SetHorizontal:00000000 SetHorizontal
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:157    .text.SetHorizontal:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:163    .text.SetVertical:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:170    .text.SetVertical:00000000 SetVertical
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:194    .text.SetVertical:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:200    .text.InitAngle:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:207    .text.InitAngle:00000000 InitAngle
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:231    .text.InitAngle:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:237    .text.Calibrate:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:244    .text.Calibrate:00000000 Calibrate
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:268    .text.Calibrate:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:274    .text.SleepOrAwake:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:281    .text.SleepOrAwake:00000000 SleepOrAwake
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:305    .text.SleepOrAwake:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:311    .text.GetRoll:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:318    .text.GetRoll:00000000 GetRoll
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:333    .text.GetRoll:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:338    .text.GetPitch:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:345    .text.GetPitch:00000000 GetPitch
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:360    .text.GetPitch:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:365    .text.GetYaw:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:372    .text.GetYaw:00000000 GetYaw
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:387    .text.GetYaw:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:392    .text.GetTemperature:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:399    .text.GetTemperature:00000000 GetTemperature
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:414    .text.GetTemperature:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:419    .text.GetAccX:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:426    .text.GetAccX:00000000 GetAccX
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:441    .text.GetAccX:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:446    .text.GetAccY:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:453    .text.GetAccY:00000000 GetAccY
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:468    .text.GetAccY:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:473    .text.GetAccZ:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:480    .text.GetAccZ:00000000 GetAccZ
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:495    .text.GetAccZ:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:500    .text.GetVeloX:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:507    .text.GetVeloX:00000000 GetVeloX
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:522    .text.GetVeloX:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:527    .text.GetVeloY:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:534    .text.GetVeloY:00000000 GetVeloY
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:549    .text.GetVeloY:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:554    .text.GetVeloZ:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:561    .text.GetVeloZ:00000000 GetVeloZ
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:576    .text.GetVeloZ:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:583    .text.DecodeAngle:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:590    .text.DecodeAngle:00000000 DecodeAngle
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:667    .text.DecodeAngle:0000005c $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:677    .text.DecodeAccelerate:00000000 $t
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s 			page 27
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:16     .text.jy62_Init:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:24     .text.jy62_Init:00000000 jy62_Init
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:52     .text.jy62_Init:00000010 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:58     .text.SetBaud:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:65     .text.SetBaud:00000000 SetBaud
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:120    .text.SetBaud:00000034 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:126    .text.SetHorizontal:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:133    .text.SetHorizontal:00000000 SetHorizontal
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:157    .text.SetHorizontal:00000014 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:163    .text.SetVertical:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:170    .text.SetVertical:00000000 SetVertical
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:194    .text.SetVertical:00000014 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:200    .text.InitAngle:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:207    .text.InitAngle:00000000 InitAngle
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:231    .text.InitAngle:00000014 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:237    .text.Calibrate:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:244    .text.Calibrate:00000000 Calibrate
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:268    .text.Calibrate:00000014 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:274    .text.SleepOrAwake:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:281    .text.SleepOrAwake:00000000 SleepOrAwake
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:305    .text.SleepOrAwake:00000014 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:311    .text.GetRoll:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:318    .text.GetRoll:00000000 GetRoll
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:333    .text.GetRoll:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:338    .text.GetPitch:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:345    .text.GetPitch:00000000 GetPitch
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:360    .text.GetPitch:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:365    .text.GetYaw:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:372    .text.GetYaw:00000000 GetYaw
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:387    .text.GetYaw:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:392    .text.GetTemperature:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:399    .text.GetTemperature:00000000 GetTemperature
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:414    .text.GetTemperature:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:419    .text.GetAccX:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:426    .text.GetAccX:00000000 GetAccX
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:441    .text.GetAccX:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:446    .text.GetAccY:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:453    .text.GetAccY:00000000 GetAccY
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:468    .text.GetAccY:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:473    .text.GetAccZ:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:480    .text.GetAccZ:00000000 GetAccZ
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:495    .text.GetAccZ:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:500    .text.GetVeloX:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:507    .text.GetVeloX:00000000 GetVeloX
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:522    .text.GetVeloX:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:527    .text.GetVeloY:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:534    .text.GetVeloY:00000000 GetVeloY
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:549    .text.GetVeloY:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:554    .text.GetVeloZ:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:561    .text.GetVeloZ:00000000 GetVeloZ
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:576    .text.GetVeloZ:00000008 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:583    .text.DecodeAngle:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:590    .text.DecodeAngle:00000000 DecodeAngle
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:667    .text.DecodeAngle:0000005c $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:677    .text.DecodeAccelerate:00000000 $t
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 31
 
 
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:684    .text.DecodeAccelerate:00000000 DecodeAccelerate
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:788    .text.DecodeAccelerate:00000098 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:796    .text.DecodeVelocity:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:803    .text.DecodeVelocity:00000000 DecodeVelocity
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:880    .text.DecodeVelocity:0000005c $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:889    .text.DecodeTemperature:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:896    .text.DecodeTemperature:00000000 DecodeTemperature
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:936    .text.DecodeTemperature:00000030 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:945    .text.Decode:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:952    .text.Decode:00000000 Decode
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1002   .text.Decode:0000002c $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1007   .text.jy62MessageRecord:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1014   .text.jy62MessageRecord:00000000 jy62MessageRecord
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1121   .text.jy62MessageRecord:00000054 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1161   .bss.Temperature:00000000 Temperature
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1154   .bss.Angle:00000000 Angle
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1168   .bss.Velocity:00000000 Velocity
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1147   .bss.Accelerate:00000000 Accelerate
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1189   .bss.jy62_huart:00000000 jy62_huart
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1237   .data.sleepAndAwake:00000000 sleepAndAwake
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1230   .data.setVertical:00000000 setVertical
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1223   .data.setHorizontal:00000000 setHorizontal
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1216   .data.setBaud9600:00000000 setBaud9600
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1210   .data.setBaud115200:00000000 setBaud115200
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1196   .data.calibrateAcce:00000000 calibrateAcce
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1203   .data.initAngle:00000000 initAngle
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1175   .bss.jy62Message:00000000 jy62Message
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1182   .bss.jy62Receive:00000000 jy62Receive
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1143   .bss.Accelerate:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1150   .bss.Angle:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1157   .bss.Temperature:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1164   .bss.Velocity:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1171   .bss.jy62Message:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1178   .bss.jy62Receive:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1185   .bss.jy62_huart:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1192   .data.calibrateAcce:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1199   .data.initAngle:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1206   .data.setBaud115200:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1213   .data.setBaud9600:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1219   .data.setHorizontal:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1226   .data.setVertical:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccxWEPcp.s:1233   .data.sleepAndAwake:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:684    .text.DecodeAccelerate:00000000 DecodeAccelerate
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:788    .text.DecodeAccelerate:00000098 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:796    .text.DecodeVelocity:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:803    .text.DecodeVelocity:00000000 DecodeVelocity
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:880    .text.DecodeVelocity:0000005c $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:889    .text.DecodeTemperature:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:896    .text.DecodeTemperature:00000000 DecodeTemperature
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:936    .text.DecodeTemperature:00000030 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:945    .text.Decode:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:952    .text.Decode:00000000 Decode
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1001   .text.Decode:0000002c $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1006   .text.jy62MessageRecord:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1013   .text.jy62MessageRecord:00000000 jy62MessageRecord
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1236   .text.jy62MessageRecord:000000dc $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1294   .bss.Temperature:00000000 Temperature
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1275   .bss.Angle:00000000 Angle
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1301   .bss.Velocity:00000000 Velocity
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1268   .bss.Accelerate:00000000 Accelerate
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1329   .bss.jy62_huart:00000000 jy62_huart
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1377   .data.sleepAndAwake:00000000 sleepAndAwake
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1370   .data.setVertical:00000000 setVertical
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1363   .data.setHorizontal:00000000 setHorizontal
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1356   .data.setBaud9600:00000000 setBaud9600
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1350   .data.setBaud115200:00000000 setBaud115200
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1336   .data.calibrateAcce:00000000 calibrateAcce
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1343   .data.initAngle:00000000 initAngle
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1315   .bss.jy62PrevInfoHolder:00000000 jy62PrevInfoHolder
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1287   .bss.SuccLen:00000000 SuccLen
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1281   .bss.PrevLen:00000000 PrevLen
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1308   .bss.jy62Message:00000000 jy62Message
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1322   .bss.jy62Receive:00000000 jy62Receive
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1264   .bss.Accelerate:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1271   .bss.Angle:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1282   .bss.PrevLen:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1288   .bss.SuccLen:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1290   .bss.Temperature:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1297   .bss.Velocity:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1304   .bss.jy62Message:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1311   .bss.jy62PrevInfoHolder:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1318   .bss.jy62Receive:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1325   .bss.jy62_huart:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1332   .data.calibrateAcce:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1339   .data.initAngle:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1346   .data.setBaud115200:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1353   .data.setBaud9600:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1359   .data.setHorizontal:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1366   .data.setVertical:00000000 $d
+C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s:1373   .data.sleepAndAwake:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_UART_Receive_DMA
@@ -1582,5 +1829,8 @@ __aeabi_fmul
 __aeabi_f2d
 __aeabi_dmul
 __aeabi_d2f
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccDv3TH4.s 			page 32
+
+
 __aeabi_i2d
 __aeabi_dadd

@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 1
   30:Core/Src/dma.c **** 
   31:Core/Src/dma.c **** /* USER CODE BEGIN 1 */
   32:Core/Src/dma.c **** 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s 			page 2
 
 
   33:Core/Src/dma.c **** /* USER CODE END 1 */
@@ -86,7 +86,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 1
   39              	.LBB2:
   40              		.loc 1 42 3 view .LVU2
   41              		.loc 1 42 3 view .LVU3
-  42 0004 0A4B     		ldr	r3, .L3
+  42 0004 0E4B     		ldr	r3, .L3
   43 0006 5A69     		ldr	r2, [r3, #20]
   44 0008 42F00102 		orr	r2, r2, #1
   45 000c 5A61     		str	r2, [r3, #20]
@@ -100,50 +100,63 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 1
   53              		.loc 1 42 3 view .LVU6
   43:Core/Src/dma.c **** 
   44:Core/Src/dma.c ****   /* DMA interrupt init */
-  45:Core/Src/dma.c ****   /* DMA1_Channel6_IRQn interrupt configuration */
-  46:Core/Src/dma.c ****   HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  45:Core/Src/dma.c ****   /* DMA1_Channel3_IRQn interrupt configuration */
+  46:Core/Src/dma.c ****   HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
   54              		.loc 1 46 3 view .LVU7
   55 0018 0022     		movs	r2, #0
   56 001a 1146     		mov	r1, r2
-  57 001c 1020     		movs	r0, #16
+  57 001c 0D20     		movs	r0, #13
   58 001e FFF7FEFF 		bl	HAL_NVIC_SetPriority
   59              	.LVL0:
-  47:Core/Src/dma.c ****   HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  47:Core/Src/dma.c ****   HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
   60              		.loc 1 47 3 view .LVU8
-  61 0022 1020     		movs	r0, #16
+  61 0022 0D20     		movs	r0, #13
   62 0024 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
   63              	.LVL1:
-  48:Core/Src/dma.c **** 
-  49:Core/Src/dma.c **** }
-  64              		.loc 1 49 1 is_stmt 0 view .LVU9
-  65 0028 03B0     		add	sp, sp, #12
-  66              	.LCFI2:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 3
+  48:Core/Src/dma.c ****   /* DMA1_Channel6_IRQn interrupt configuration */
+  49:Core/Src/dma.c ****   HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  64              		.loc 1 49 3 view .LVU9
+  65 0028 0022     		movs	r2, #0
+  66 002a 1146     		mov	r1, r2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s 			page 3
 
 
-  67              		.cfi_def_cfa_offset 4
-  68              		@ sp needed
-  69 002a 5DF804FB 		ldr	pc, [sp], #4
-  70              	.L4:
-  71 002e 00BF     		.align	2
-  72              	.L3:
-  73 0030 00100240 		.word	1073876992
-  74              		.cfi_endproc
-  75              	.LFE65:
-  77              		.text
-  78              	.Letext0:
-  79              		.file 2 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\machine\\_default_t
-  80              		.file 3 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\sys\\_stdint.h"
-  81              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
-  82              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s 			page 4
+  67 002c 1020     		movs	r0, #16
+  68 002e FFF7FEFF 		bl	HAL_NVIC_SetPriority
+  69              	.LVL2:
+  50:Core/Src/dma.c ****   HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  70              		.loc 1 50 3 view .LVU10
+  71 0032 1020     		movs	r0, #16
+  72 0034 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+  73              	.LVL3:
+  51:Core/Src/dma.c **** 
+  52:Core/Src/dma.c **** }
+  74              		.loc 1 52 1 is_stmt 0 view .LVU11
+  75 0038 03B0     		add	sp, sp, #12
+  76              	.LCFI2:
+  77              		.cfi_def_cfa_offset 4
+  78              		@ sp needed
+  79 003a 5DF804FB 		ldr	pc, [sp], #4
+  80              	.L4:
+  81 003e 00BF     		.align	2
+  82              	.L3:
+  83 0040 00100240 		.word	1073876992
+  84              		.cfi_endproc
+  85              	.LFE65:
+  87              		.text
+  88              	.Letext0:
+  89              		.file 2 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\machine\\_default_t
+  90              		.file 3 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\sys\\_stdint.h"
+  91              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+  92              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h"
+ARM GAS  C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s 			page 4
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 dma.c
-C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s:16     .text.MX_DMA_Init:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s:24     .text.MX_DMA_Init:00000000 MX_DMA_Init
-C:\Users\86183\AppData\Local\Temp\ccfjMz1e.s:73     .text.MX_DMA_Init:00000030 $d
+C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s:16     .text.MX_DMA_Init:00000000 $t
+C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s:24     .text.MX_DMA_Init:00000000 MX_DMA_Init
+C:\Users\86183\AppData\Local\Temp\ccLF4b3L.s:83     .text.MX_DMA_Init:00000040 $d
 
 UNDEFINED SYMBOLS
 HAL_NVIC_SetPriority
