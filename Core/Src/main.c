@@ -18,17 +18,17 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
 #include "main.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "jy62.h"
-#include "zigbee.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <math.h>
+#include "jy62.h"
+#include "zigbee.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +62,8 @@ void SystemClock_Config(void);
 #define PID_MIN 0
 #define GET_PACKAGE 0
 #define PUT_PACKAGE 1
+
+float packageX[2], packageY[2];
 /*PID参数----------------------------------------------------------------------*/
 float INTEGRAL[4] = {0, 0, 0, 0}, pre_err[4] = {0, 0, 0, 0};
 const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100, 100, 100, 100};
@@ -139,6 +141,13 @@ void Set_Left_Direction(int direction)
     HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
     HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, SET);
   }
+  else
+  {
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, SET);
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+  }
 }
 
 void Set_Right_Direction(int direction)
@@ -157,9 +166,16 @@ void Set_Right_Direction(int direction)
     HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, SET);
     HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, SET);
   }
+  else
+  {
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN3B_Pin, SET);
+    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN4A_Pin, SET);
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN4B_Pin, SET);
+  }
 }
 
-void Set_Speed(float speed, int i) { target[i] = speed; }
+void Set_Speed(float speed, int i) { target[i] = speed > 0 ? speed : 0; }
 
 float Add_Angle(float angleA, float angleB)
 {
@@ -172,34 +188,73 @@ void Turn(float angle)
 {
   Set_Right_Direction(0);
   Set_Left_Direction(0);
+  float v;
   HAL_Delay(500);
   angle0 = Add_Angle(angle0, angle);
-  if (angle > 0)
+  if (getAngle() < 0)
   {
     Set_Left_Direction(-1);
     Set_Right_Direction(1);
     for (int i = 0; i < 4; i++)
-      Set_Speed(15, i);
-    while (getAngle() < -Turn_Angle_Bias)
-      ;
+      Set_Speed(6, i);
+    while (getAngle() < -50)
+      u3_printf("%f, %f\n", GetYaw(), getAngle());
+    while (getAngle() < -5)
+    {
+      u3_printf("%f, %f\n", GetYaw(), getAngle());
+      v = 3;
+      for (int i = 0; i < 4; i++)
+        Set_Speed(v, i);
+    }
   }
   else
   {
     Set_Left_Direction(1);
     Set_Right_Direction(-1);
     for (int i = 0; i < 4; i++)
-      Set_Speed(15, i);
-    while (getAngle() > Turn_Angle_Bias)
-      ;
+      Set_Speed(6, i);
+    while (getAngle() > 50)
+      u3_printf("%f, %f\n", GetYaw(), getAngle());;
+    while (getAngle() > 5)
+    {
+      u3_printf("%f, %f\n", GetYaw(), getAngle());
+      v = 3;
+      for (int i = 0; i < 4; i++)
+        Set_Speed(v, i);
+    }
   }
-  Set_Right_Direction(0);
   Set_Left_Direction(0);
+  Set_Right_Direction(0);
   HAL_Delay(500);
-  Set_Left_Direction(1);
-  Set_Right_Direction(1);
-  for (int i = 0; i < 4; i++)
-    Set_Speed(20, i);
 }
+
+// void Turn(float angle)
+// {
+//   Set_Right_Direction(0);
+//   Set_Left_Direction(0);
+//   HAL_Delay(500);
+//   angle0 = Add_Angle(angle0, angle);
+//   if (angle > 0)
+//   {
+//     Set_Left_Direction(-1);
+//     Set_Right_Direction(1);
+//     for (int i = 0; i < 4; i++)
+//       Set_Speed(15, i);
+//     while (getAngle() < -Turn_Angle_Bias)
+//       ;
+//   }
+//   else
+//   {
+//     Set_Left_Direction(1);
+//     Set_Right_Direction(-1);
+//     for (int i = 0; i < 4; i++)
+//       Set_Speed(15, i);
+//     while (getAngle() > Turn_Angle_Bias)
+//       ;
+//   }
+//   Set_Right_Direction(0);
+//   Set_Left_Direction(0);
+// }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -241,18 +296,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
-void MoveTo(uint16_t x, uint16_t y)
+void MoveTo(float x, float y)
 {
+  float TurningCoefficient = 1; //调参
+  uint16_t errX = x - getCarPosX();
+  uint16_t errY = y - getCarPosY();
+  float targetAngle = (float)atan2(errY, errX) * 57.296, errAngle, velosity = 20;
+  targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
+  Turn(targetAngle);
+  Set_Left_Direction(1);
+  Set_Right_Direction(1);
+  for (int i = 0; i < 4; i++)
+    Set_Speed(20, i);
   while (1)
   {
-    uint16_t CurX = getCarPosX();
-    uint16_t CurY = getCarPosY();
-    float targetAngle = (float)atan2(y - CurY, x - CurX) * 57.296;
-    targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
-
-    Turn(targetAngle);
-    HAL_Delay(500);
+    if (x * x + y * y < 25) //调参
+      break;
+    if (x * x + y * y < 200) //调参
+      velosity = 10;         //调参
+    errX = x - getCarPosX();
+    errY = y - getCarPosY();
+    errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
+    Set_Speed(velosity + TurningCoefficient * errAngle, 0);
+    Set_Speed(velosity + TurningCoefficient * errAngle, 1);
+    Set_Speed(velosity - TurningCoefficient * errAngle, 2);
+    Set_Speed(velosity - TurningCoefficient * errAngle, 3);
   }
+  Set_Left_Direction(0);
+  Set_Right_Direction(0);
+  angle0 = GetYaw();
 }
 
 void Init()
@@ -263,6 +335,54 @@ void Init()
   MoveTo(127, 127);
 }
 
+void Get_Survey_Data(uint16_t *x, uint16_t *y, uint32_t *I)
+{
+  *x = getCarPosX();
+  *y = getCarPosY();
+  I[0] = getMineIntensity(0);
+  I[1] = getMineIntensity(1);
+}
+
+void Calculate_Package_Position(void)
+{
+  uint16_t x[3], y[3];
+  uint32_t I[3][2];
+  uint16_t A[2], B[2], C[2][2], invdet;
+  Get_Survey_Data(&x[0], &y[0], I[0]);
+  Set_Speed(10, 0);
+  Set_Speed(10, 1);
+  Set_Speed(15, 2);
+  Set_Speed(15, 3);
+  Set_Left_Direction(-1);
+  Set_Right_Direction(1);
+  do
+  {
+    HAL_Delay(100);
+    Get_Survey_Data(&x[1], &y[1], I[1]);
+    A[0] = x[1] - x[0];
+    B[0] = y[1] - y[0];
+  } while ((x[1] - x[0]) == 0 && (y[1] - y[0]) == 0);
+  do
+  {
+    HAL_Delay(100);
+    Get_Survey_Data(&x[2], &y[2], I[2]);
+    A[1] = x[2] - x[1];
+    B[1] = y[2] - y[1];
+  } while ((x[1] - x[0]) * ((y[2] - y[1])) - (x[2] - x[1]) * (y[1] - y[0]) == 0);
+  for (int i = 0; i < 2; i++)
+  {
+    A[i] = x[i + 1] - x[i];
+    B[i] = y[i + 1] - y[i];
+    for (int j = 0; j < 2; j++)
+      C[i][j] = 2.0e9 * (I[i + 1][j] - I[i][j]) / (I[i + 1][j] + I[i][j]) / (I[i + 1][j] + I[i][j]) + (x[i + 1] + x[i]) / 2.0 * (x[i + 1] - x[i]) - (y[i + 1] + y[i]) / 2.0 * (y[i + 1] - y[i]);
+  }
+  for (int i = 0; i < 2; i++)
+  {
+    invdet = 1 / (A[0] * B[1] - A[1] * B[0]);
+    packageX[i] = (B[1] * C[0][i] - B[0] * C[1][i]) * invdet;
+    packageY[i] = (A[0] * C[1][i] - A[1] * C[0][i]) * invdet;
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -303,8 +423,8 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  jy62_Init(&huart2);
   zigbee_Init(&huart3);
+  jy62_Init(&huart2);
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -314,14 +434,9 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
-  HAL_Delay(100);
-  HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
-  HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
-  HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
-  HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
+  HAL_Delay(3000);
   Calibrate_Angle();
-  HAL_Delay(100);
-  Init();
+  // Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -334,12 +449,22 @@ int main(void)
     /* USER CODE BEGIN 3 */
     // switch (STATE)
     // {
-    // case 
+    // case
     //   break;
 
     //     default:
     //   break;
     // }
+    u3_printf("%f, %f\n", GetYaw(), getAngle());
+    Turn(45);
+    HAL_Delay(500);
+    Turn(90);
+    u3_printf("%f, %f\n", GetYaw(), getAngle());
+    Turn(-45);
+    HAL_Delay(500);
+    u3_printf("%f, %f\n", GetYaw(), getAngle());
+    Turn(-90);
+    HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }

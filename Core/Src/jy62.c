@@ -11,6 +11,7 @@ uint8_t setBaud9600[3] = {0xFF, 0xAA, 0x64};
 uint8_t setHorizontal[3] = {0xFF, 0xAA, 0x65};
 uint8_t setVertical[3] = {0xFF, 0xAA, 0x66};
 uint8_t sleepAndAwake[3] = {0xFF, 0xAA, 0x60};
+uint8_t setReadVelo[5] = {0xFF, 0xAA, 0x03, 0x07, 0x00};
 UART_HandleTypeDef *jy62_huart;
 
 struct Acce Accelerate;	 //储存加速度
@@ -103,7 +104,7 @@ void SetBaud(int Baud)
 	}
 	else if (Baud == 9600)
 	{
-		HAL_UART_Transmit(jy62_huart, setBaud115200, 3, HAL_MAX_DELAY);
+		HAL_UART_Transmit(jy62_huart, setBaud9600, 3, HAL_MAX_DELAY);
 	}
 }
 
