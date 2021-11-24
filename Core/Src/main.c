@@ -214,7 +214,8 @@ void Turn(float angle)
     for (int i = 0; i < 4; i++)
       Set_Speed(6, i);
     while (getAngle() > 50)
-      u3_printf("%f, %f\n", GetYaw(), getAngle());;
+      u3_printf("%f, %f\n", GetYaw(), getAngle());
+    ;
     while (getAngle() > 5)
     {
       u3_printf("%f, %f\n", GetYaw(), getAngle());
@@ -307,13 +308,13 @@ void MoveTo(float x, float y)
   Set_Left_Direction(1);
   Set_Right_Direction(1);
   for (int i = 0; i < 4; i++)
-    Set_Speed(20, i);
+    Set_Speed(10, i);
   while (1)
   {
     if (x * x + y * y < 25) //调参
       break;
     if (x * x + y * y < 200) //调参
-      velosity = 10;         //调参
+      velosity = 5;         //调参
     errX = x - getCarPosX();
     errY = y - getCarPosY();
     errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
@@ -361,6 +362,7 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[1], &y[1], I[1]);
     A[0] = x[1] - x[0];
     B[0] = y[1] - y[0];
+    u3_printf("a %d, %d\n", x[1], y[1]); 
   } while ((x[1] - x[0]) == 0 && (y[1] - y[0]) == 0);
   do
   {
@@ -368,7 +370,8 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[2], &y[2], I[2]);
     A[1] = x[2] - x[1];
     B[1] = y[2] - y[1];
-  } while ((x[1] - x[0]) * ((y[2] - y[1])) - (x[2] - x[1]) * (y[1] - y[0]) == 0);
+    u3_printf("b %d, %d\n", x[2], y[2]); 
+  } while ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]) == 0);
   for (int i = 0; i < 2; i++)
   {
     A[i] = x[i + 1] - x[i];
@@ -382,6 +385,16 @@ void Calculate_Package_Position(void)
     packageX[i] = (B[1] * C[0][i] - B[0] * C[1][i]) * invdet;
     packageY[i] = (A[0] * C[1][i] - A[1] * C[0][i]) * invdet;
   }
+}
+
+void Set_LED()
+{
+  Set_Right_Direction(0);
+  Set_Left_Direction(0);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
 }
 /* USER CODE END 0 */
 
@@ -423,7 +436,6 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  zigbee_Init(&huart3);
   jy62_Init(&huart2);
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -435,6 +447,7 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
   HAL_Delay(3000);
+  zigbee_Init(&huart3);
   Calibrate_Angle();
   // Init();
   /* USER CODE END 2 */
@@ -447,24 +460,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // switch (STATE)
-    // {
-    // case
-    //   break;
-
-    //     default:
-    //   break;
-    // }
-    u3_printf("%f, %f\n", GetYaw(), getAngle());
-    Turn(45);
-    HAL_Delay(500);
-    Turn(90);
-    u3_printf("%f, %f\n", GetYaw(), getAngle());
-    Turn(-45);
-    HAL_Delay(500);
-    u3_printf("%f, %f\n", GetYaw(), getAngle());
-    Turn(-90);
-    HAL_Delay(500);
+    uint16_t x = getCarPosX();
+    uint16_t y = getCarPosY();
+    // Calculate_Package_Position();
+    u3_printf("%f, %f, %d, %d\n", packageX[0], packageY[0], x, y);
   }
   /* USER CODE END 3 */
 }
@@ -494,8 +493,7 @@ void SystemClock_Config(void)
   }
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -526,7 +524,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

@@ -283,15 +283,15 @@ void USER_UART_IDLECallback(UART_HandleTypeDef* huart)
 	HAL_UART_DMAStop(&huart3); //停止DMA接收
 	uint8_t data_length = zigbeeReceiveLength - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);  //计算接收数据长度
 	zigbeeMessageRecord(data_length);  //处理数据
-	memset(zigbeeReceive, 0, zigbeeReceiveLength);        //清空缓冲�??
+	memset(zigbeeReceive, 0, zigbeeReceiveLength);        //清空缓冲�??
 	HAL_UART_Receive_DMA(&huart3, zigbeeReceive, zigbeeReceiveLength);
 }
 
 void USER_UART_IRQHandler(UART_HandleTypeDef* huart)
 {
-	if (USART1 == huart->Instance)
+	if (USART3 == huart->Instance)
 	{
-		if (RESET != __HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) // 确认是否为空闲中�??
+		if (RESET != __HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) // 确认是否为空闲中�??
 		{
 			__HAL_UART_CLEAR_IDLEFLAG(&huart3); // 清除空闲中断标志
 			USER_UART_IDLECallback(huart);      // 调用中断回调函数
