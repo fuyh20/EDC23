@@ -314,7 +314,7 @@ void MoveTo(float x, float y)
     if (x * x + y * y < 25) //调参
       break;
     if (x * x + y * y < 200) //调参
-      velosity = 5;         //调参
+      velosity = 5;          //调参
     errX = x - getCarPosX();
     errY = y - getCarPosY();
     errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
@@ -362,7 +362,7 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[1], &y[1], I[1]);
     A[0] = x[1] - x[0];
     B[0] = y[1] - y[0];
-    u3_printf("a %d, %d\n", x[1], y[1]); 
+    u3_printf("a %d, %d\n", x[1], y[1]);
   } while ((x[1] - x[0]) == 0 && (y[1] - y[0]) == 0);
   do
   {
@@ -370,7 +370,7 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[2], &y[2], I[2]);
     A[1] = x[2] - x[1];
     B[1] = y[2] - y[1];
-    u3_printf("b %d, %d\n", x[2], y[2]); 
+    u3_printf("b %d, %d\n", x[2], y[2]);
   } while ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]) == 0);
   for (int i = 0; i < 2; i++)
   {
@@ -460,10 +460,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    uint16_t x = getCarPosX();
-    uint16_t y = getCarPosY();
-    // Calculate_Package_Position();
-    u3_printf("%f, %f, %d, %d\n", packageX[0], packageY[0], x, y);
+    STATE = getGameState();
+    if (STATE == 1)
+    {
+      uint8_t x = getCarPosX();
+      uint8_t y = getCarPosY();
+      if (x > 150 && y > 150)
+      {
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
+      }
+      else
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
+    }
   }
   /* USER CODE END 3 */
 }

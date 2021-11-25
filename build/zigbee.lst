@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 1
 
 
    1              		.cpu cortex-m3
@@ -29,50 +29,49 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
   27              		.file 1 "Core/Src/zigbee.c"
    1:Core/Src/zigbee.c **** #include "zigbee.h"
    2:Core/Src/zigbee.c **** #include "string.h"
-   3:Core/Src/zigbee.c **** 
-   4:Core/Src/zigbee.c **** uint8_t zigbeeMessage[ZIGBEE_MESSAGE_LENTH];			 //经过校验后确认无误的信息
-   5:Core/Src/zigbee.c **** uint8_t zigbeeReceive[3 * ZIGBEE_MESSAGE_LENTH];		 //实时记录收到的信息
-   6:Core/Src/zigbee.c **** uint8_t zigbeeMessageSend[4] = {0x01, 0x02, 0x03, 0x04}; //小车给上位机发送的信息
+   3:Core/Src/zigbee.c **** #include "usart.h"
+   4:Core/Src/zigbee.c **** uint8_t zigbeeMessage[ZIGBEE_MESSAGE_LENTH]; //经过校验后确认无误的信息
+   5:Core/Src/zigbee.c **** uint8_t zigbeeReceive[3*ZIGBEE_MESSAGE_LENTH];   //实时记录收到的信息
+   6:Core/Src/zigbee.c **** uint8_t zigbeeMessageSend[4] = {0x00, 0x01, 0x02, 0x03}; //小车给上位机发送的信息
    7:Core/Src/zigbee.c **** uint8_t zigbee_halfrecv_buff[ZIGBEE_MESSAGE_LENTH];		 //储存未全部被接收的消息
    8:Core/Src/zigbee.c **** UART_HandleTypeDef *zigbee_huart;
    9:Core/Src/zigbee.c **** uint8_t zigbee_halfrecv_len = 0; //储存未完全接收消息的长度
   10:Core/Src/zigbee.c **** 
   11:Core/Src/zigbee.c **** /***********************接口****************************/
-  12:Core/Src/zigbee.c **** 
-  13:Core/Src/zigbee.c **** void zigbee_Init(UART_HandleTypeDef *huart)
-  14:Core/Src/zigbee.c **** {
-  28              		.loc 1 14 1 view -0
+  12:Core/Src/zigbee.c **** void zigbee_Init(UART_HandleTypeDef *huart)
+  13:Core/Src/zigbee.c **** {
+  28              		.loc 1 13 1 view -0
   29              		.cfi_startproc
   30              		@ args = 0, pretend = 0, frame = 0
   31              		@ frame_needed = 0, uses_anonymous_args = 0
-  32              		.loc 1 14 1 is_stmt 0 view .LVU1
+  32              		.loc 1 13 1 is_stmt 0 view .LVU1
   33 0000 08B5     		push	{r3, lr}
   34              	.LCFI0:
   35              		.cfi_def_cfa_offset 8
   36              		.cfi_offset 3, -8
   37              		.cfi_offset 14, -4
-  15:Core/Src/zigbee.c **** 	zigbee_huart = huart;
-  38              		.loc 1 15 2 is_stmt 1 view .LVU2
-  39              		.loc 1 15 15 is_stmt 0 view .LVU3
+  14:Core/Src/zigbee.c **** 	zigbee_huart = huart;
+  38              		.loc 1 14 2 is_stmt 1 view .LVU2
+  39              		.loc 1 14 15 is_stmt 0 view .LVU3
   40 0002 064A     		ldr	r2, .L3
   41 0004 1060     		str	r0, [r2]
-  16:Core/Src/zigbee.c **** 	__HAL_UART_ENABLE_IT(zigbee_huart, UART_IT_IDLE);						//开启空闲中断
-  42              		.loc 1 16 2 is_stmt 1 view .LVU4
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 2
-
-
+  15:Core/Src/zigbee.c **** 	__HAL_UART_ENABLE_IT(zigbee_huart, UART_IT_IDLE);						//开启空闲中断
+  42              		.loc 1 15 2 is_stmt 1 view .LVU4
   43 0006 0268     		ldr	r2, [r0]
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 2
+
+
   44 0008 D368     		ldr	r3, [r2, #12]
   45 000a 43F01003 		orr	r3, r3, #16
   46 000e D360     		str	r3, [r2, #12]
-  17:Core/Src/zigbee.c **** 	HAL_UART_Receive_DMA(zigbee_huart, zigbeeReceive, zigbeeReceiveLength); //开启DMA中断接收
-  47              		.loc 1 17 2 view .LVU5
+  16:Core/Src/zigbee.c **** 	HAL_UART_Receive_DMA(zigbee_huart, zigbeeReceive, zigbeeReceiveLength); //开启DMA中断接收
+  47              		.loc 1 16 2 view .LVU5
   48 0010 FF22     		movs	r2, #255
   49 0012 0349     		ldr	r1, .L3+4
   50 0014 FFF7FEFF 		bl	HAL_UART_Receive_DMA
   51              	.LVL1:
-  18:Core/Src/zigbee.c **** }
-  52              		.loc 1 18 1 is_stmt 0 view .LVU6
+  17:Core/Src/zigbee.c **** }
+  52              		.loc 1 17 1 is_stmt 0 view .LVU6
   53 0018 08BD     		pop	{r3, pc}
   54              	.L4:
   55 001a 00BF     		.align	2
@@ -91,14 +90,14 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
   70              	zigbeeMessageRecord:
   71              	.LVL2:
   72              	.LFB66:
-  19:Core/Src/zigbee.c **** 
-  20:Core/Src/zigbee.c **** void zigbeeMessageRecord(uint8_t rx_length)
-  21:Core/Src/zigbee.c **** {
-  73              		.loc 1 21 1 is_stmt 1 view -0
+  18:Core/Src/zigbee.c **** 
+  19:Core/Src/zigbee.c **** void zigbeeMessageRecord(uint8_t rx_length)
+  20:Core/Src/zigbee.c **** {
+  73              		.loc 1 20 1 is_stmt 1 view -0
   74              		.cfi_startproc
   75              		@ args = 0, pretend = 0, frame = 0
   76              		@ frame_needed = 0, uses_anonymous_args = 0
-  77              		.loc 1 21 1 is_stmt 0 view .LVU8
+  77              		.loc 1 20 1 is_stmt 0 view .LVU8
   78 0000 70B5     		push	{r4, r5, r6, lr}
   79              	.LCFI1:
   80              		.cfi_def_cfa_offset 16
@@ -107,96 +106,96 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
   83              		.cfi_offset 6, -8
   84              		.cfi_offset 14, -4
   85 0002 0446     		mov	r4, r0
-  22:Core/Src/zigbee.c **** 	if (rx_length == ZIGBEE_MESSAGE_LENTH && zigbeeReceive[ZIGBEE_MESSAGE_LENTH - 2] == 0x0D && zigbee
-  86              		.loc 1 22 2 is_stmt 1 view .LVU9
-  87              		.loc 1 22 5 is_stmt 0 view .LVU10
+  21:Core/Src/zigbee.c **** 	if (rx_length == ZIGBEE_MESSAGE_LENTH && zigbeeReceive[ZIGBEE_MESSAGE_LENTH - 2] == 0x0D && zigbee
+  86              		.loc 1 21 2 is_stmt 1 view .LVU9
+  87              		.loc 1 21 5 is_stmt 0 view .LVU10
   88 0004 3028     		cmp	r0, #48
   89 0006 0BD0     		beq	.L14
   90              	.L6:
-  23:Core/Src/zigbee.c **** 	{
-  24:Core/Src/zigbee.c **** 		memcpy(zigbeeMessage, zigbeeReceive, ZIGBEE_MESSAGE_LENTH);
-  25:Core/Src/zigbee.c **** 	}
-  26:Core/Src/zigbee.c **** 	else if (rx_length < ZIGBEE_MESSAGE_LENTH) //用于处理单条消息分两次发送的情况
-  91              		.loc 1 26 7 is_stmt 1 view .LVU11
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 3
+  22:Core/Src/zigbee.c **** 	{
+  23:Core/Src/zigbee.c **** 		memcpy(zigbeeMessage, zigbeeReceive, ZIGBEE_MESSAGE_LENTH);
+  24:Core/Src/zigbee.c **** 	}
+  25:Core/Src/zigbee.c **** 	else if (rx_length < ZIGBEE_MESSAGE_LENTH) //用于处理单条消息分两次发送的情况
+  91              		.loc 1 25 7 is_stmt 1 view .LVU11
+  92              		.loc 1 25 10 is_stmt 0 view .LVU12
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 3
 
 
-  92              		.loc 1 26 10 is_stmt 0 view .LVU12
   93 0008 2F2C     		cmp	r4, #47
   94 000a 08D8     		bhi	.L5
-  27:Core/Src/zigbee.c **** 	{
-  28:Core/Src/zigbee.c **** 		if (!zigbee_halfrecv_len)
-  95              		.loc 1 28 3 is_stmt 1 view .LVU13
-  96              		.loc 1 28 7 is_stmt 0 view .LVU14
+  26:Core/Src/zigbee.c **** 	{
+  27:Core/Src/zigbee.c **** 		if (!zigbee_halfrecv_len)
+  95              		.loc 1 27 3 is_stmt 1 view .LVU13
+  96              		.loc 1 27 7 is_stmt 0 view .LVU14
   97 000c 254B     		ldr	r3, .L19
   98 000e 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
-  99              		.loc 1 28 6 view .LVU15
+  99              		.loc 1 27 6 view .LVU15
  100 0010 DDB1     		cbz	r5, .L15
-  29:Core/Src/zigbee.c **** 		{
-  30:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = rx_length;
-  31:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
-  32:Core/Src/zigbee.c **** 		}
-  33:Core/Src/zigbee.c **** 		else if (zigbee_halfrecv_len && rx_length + zigbee_halfrecv_len == ZIGBEE_MESSAGE_LENTH)
- 101              		.loc 1 33 8 is_stmt 1 discriminator 1 view .LVU16
- 102              		.loc 1 33 45 is_stmt 0 discriminator 1 view .LVU17
+  28:Core/Src/zigbee.c **** 		{
+  29:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = rx_length;
+  30:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
+  31:Core/Src/zigbee.c **** 		}
+  32:Core/Src/zigbee.c **** 		else if (zigbee_halfrecv_len && rx_length + zigbee_halfrecv_len == ZIGBEE_MESSAGE_LENTH)
+ 101              		.loc 1 32 8 is_stmt 1 discriminator 1 view .LVU16
+ 102              		.loc 1 32 45 is_stmt 0 discriminator 1 view .LVU17
  103 0012 2B19     		adds	r3, r5, r4
- 104              		.loc 1 33 32 discriminator 1 view .LVU18
+ 104              		.loc 1 32 32 discriminator 1 view .LVU18
  105 0014 302B     		cmp	r3, #48
  106 0016 1FD0     		beq	.L16
-  34:Core/Src/zigbee.c **** 		{
-  35:Core/Src/zigbee.c **** 			if ((zigbeeReceive[rx_length - 2] == 0x0D && zigbeeReceive[rx_length - 1] == 0x0A) || (rx_length
-  36:Core/Src/zigbee.c **** 			{
-  37:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage, zigbee_halfrecv_buff, zigbee_halfrecv_len);
-  38:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
-  39:Core/Src/zigbee.c **** 			}
-  40:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = 0;
-  41:Core/Src/zigbee.c **** 		}
-  42:Core/Src/zigbee.c **** 		else
-  43:Core/Src/zigbee.c **** 		{
-  44:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = 0;
- 107              		.loc 1 44 4 is_stmt 1 view .LVU19
- 108              		.loc 1 44 24 is_stmt 0 view .LVU20
+  33:Core/Src/zigbee.c **** 		{
+  34:Core/Src/zigbee.c **** 			if ((zigbeeReceive[rx_length - 2] == 0x0D && zigbeeReceive[rx_length - 1] == 0x0A) || (rx_length
+  35:Core/Src/zigbee.c **** 			{
+  36:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage, zigbee_halfrecv_buff, zigbee_halfrecv_len);
+  37:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
+  38:Core/Src/zigbee.c **** 			}
+  39:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = 0;
+  40:Core/Src/zigbee.c **** 		}
+  41:Core/Src/zigbee.c **** 		else
+  42:Core/Src/zigbee.c **** 		{
+  43:Core/Src/zigbee.c **** 			zigbee_halfrecv_len = 0;
+ 107              		.loc 1 43 4 is_stmt 1 view .LVU19
+ 108              		.loc 1 43 24 is_stmt 0 view .LVU20
  109 0018 224B     		ldr	r3, .L19
  110 001a 0022     		movs	r2, #0
  111 001c 1A70     		strb	r2, [r3]
-  45:Core/Src/zigbee.c **** 		}
-  46:Core/Src/zigbee.c **** 	}
-  47:Core/Src/zigbee.c **** 	return;
- 112              		.loc 1 47 2 is_stmt 1 view .LVU21
+  44:Core/Src/zigbee.c **** 		}
+  45:Core/Src/zigbee.c **** 	}
+  46:Core/Src/zigbee.c **** 	return;
+ 112              		.loc 1 46 2 is_stmt 1 view .LVU21
  113              	.LVL3:
  114              	.L5:
-  48:Core/Src/zigbee.c **** }
- 115              		.loc 1 48 1 is_stmt 0 view .LVU22
+  47:Core/Src/zigbee.c **** }
+ 115              		.loc 1 47 1 is_stmt 0 view .LVU22
  116 001e 70BD     		pop	{r4, r5, r6, pc}
  117              	.LVL4:
  118              	.L14:
-  22:Core/Src/zigbee.c **** 	{
- 119              		.loc 1 22 56 discriminator 1 view .LVU23
+  21:Core/Src/zigbee.c **** 	{
+ 119              		.loc 1 21 56 discriminator 1 view .LVU23
  120 0020 214B     		ldr	r3, .L19+4
  121 0022 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
-  22:Core/Src/zigbee.c **** 	{
- 122              		.loc 1 22 40 discriminator 1 view .LVU24
+  21:Core/Src/zigbee.c **** 	{
+ 122              		.loc 1 21 40 discriminator 1 view .LVU24
  123 0026 0D2B     		cmp	r3, #13
  124 0028 EED1     		bne	.L6
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 4
+  21:Core/Src/zigbee.c **** 	{
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 4
 
 
-  22:Core/Src/zigbee.c **** 	{
- 125              		.loc 1 22 107 discriminator 2 view .LVU25
+ 125              		.loc 1 21 107 discriminator 2 view .LVU25
  126 002a 1F4B     		ldr	r3, .L19+4
  127 002c 93F82F30 		ldrb	r3, [r3, #47]	@ zero_extendqisi2
-  22:Core/Src/zigbee.c **** 	{
- 128              		.loc 1 22 91 discriminator 2 view .LVU26
+  21:Core/Src/zigbee.c **** 	{
+ 128              		.loc 1 21 91 discriminator 2 view .LVU26
  129 0030 0A2B     		cmp	r3, #10
  130 0032 E9D1     		bne	.L6
-  24:Core/Src/zigbee.c **** 	}
- 131              		.loc 1 24 3 is_stmt 1 view .LVU27
+  23:Core/Src/zigbee.c **** 	}
+ 131              		.loc 1 23 3 is_stmt 1 view .LVU27
  132 0034 1D4C     		ldr	r4, .L19+8
  133 0036 1C4D     		ldr	r5, .L19+4
  134 0038 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
  135              	.LVL5:
-  24:Core/Src/zigbee.c **** 	}
- 136              		.loc 1 24 3 is_stmt 0 view .LVU28
+  23:Core/Src/zigbee.c **** 	}
+ 136              		.loc 1 23 3 is_stmt 0 view .LVU28
  137 003a 0FC4     		stmia	r4!, {r0, r1, r2, r3}
  138 003c 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
  139 003e 0FC4     		stmia	r4!, {r0, r1, r2, r3}
@@ -205,81 +204,81 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  142 0048 E9E7     		b	.L5
  143              	.LVL6:
  144              	.L15:
-  30:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
- 145              		.loc 1 30 4 is_stmt 1 view .LVU29
-  30:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
- 146              		.loc 1 30 24 is_stmt 0 view .LVU30
+  29:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
+ 145              		.loc 1 29 4 is_stmt 1 view .LVU29
+  29:Core/Src/zigbee.c **** 			memcpy(zigbee_halfrecv_buff, zigbeeReceive, rx_length);
+ 146              		.loc 1 29 24 is_stmt 0 view .LVU30
  147 004a 1C70     		strb	r4, [r3]
-  31:Core/Src/zigbee.c **** 		}
- 148              		.loc 1 31 4 is_stmt 1 view .LVU31
+  30:Core/Src/zigbee.c **** 		}
+ 148              		.loc 1 30 4 is_stmt 1 view .LVU31
  149 004c 2246     		mov	r2, r4
  150 004e 1649     		ldr	r1, .L19+4
  151 0050 1748     		ldr	r0, .L19+12
  152              	.LVL7:
-  31:Core/Src/zigbee.c **** 		}
- 153              		.loc 1 31 4 is_stmt 0 view .LVU32
+  30:Core/Src/zigbee.c **** 		}
+ 153              		.loc 1 30 4 is_stmt 0 view .LVU32
  154 0052 FFF7FEFF 		bl	memcpy
  155              	.LVL8:
  156 0056 E2E7     		b	.L5
  157              	.LVL9:
  158              	.L16:
-  35:Core/Src/zigbee.c **** 			{
- 159              		.loc 1 35 4 is_stmt 1 view .LVU33
-  35:Core/Src/zigbee.c **** 			{
- 160              		.loc 1 35 33 is_stmt 0 view .LVU34
+  34:Core/Src/zigbee.c **** 			{
+ 159              		.loc 1 34 4 is_stmt 1 view .LVU33
+  34:Core/Src/zigbee.c **** 			{
+ 160              		.loc 1 34 33 is_stmt 0 view .LVU34
  161 0058 A31E     		subs	r3, r4, #2
-  35:Core/Src/zigbee.c **** 			{
- 162              		.loc 1 35 22 view .LVU35
+  34:Core/Src/zigbee.c **** 			{
+ 162              		.loc 1 34 22 view .LVU35
  163 005a 134A     		ldr	r2, .L19+4
  164 005c D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
-  35:Core/Src/zigbee.c **** 			{
- 165              		.loc 1 35 7 view .LVU36
+  34:Core/Src/zigbee.c **** 			{
+ 165              		.loc 1 34 7 view .LVU36
  166 005e 0D2B     		cmp	r3, #13
  167 0060 05D0     		beq	.L17
  168              	.L10:
-  35:Core/Src/zigbee.c **** 			{
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 5
+  34:Core/Src/zigbee.c **** 			{
+ 169              		.loc 1 34 87 discriminator 3 view .LVU37
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 5
 
 
- 169              		.loc 1 35 87 discriminator 3 view .LVU37
  170 0062 012C     		cmp	r4, #1
  171 0064 13D0     		beq	.L18
  172              	.LVL10:
  173              	.L12:
-  40:Core/Src/zigbee.c **** 		}
- 174              		.loc 1 40 4 is_stmt 1 view .LVU38
-  40:Core/Src/zigbee.c **** 		}
- 175              		.loc 1 40 24 is_stmt 0 view .LVU39
+  39:Core/Src/zigbee.c **** 		}
+ 174              		.loc 1 39 4 is_stmt 1 view .LVU38
+  39:Core/Src/zigbee.c **** 		}
+ 175              		.loc 1 39 24 is_stmt 0 view .LVU39
  176 0066 0F4B     		ldr	r3, .L19
  177 0068 0022     		movs	r2, #0
  178 006a 1A70     		strb	r2, [r3]
  179 006c D7E7     		b	.L5
  180              	.LVL11:
  181              	.L17:
-  35:Core/Src/zigbee.c **** 			{
- 182              		.loc 1 35 73 discriminator 1 view .LVU40
+  34:Core/Src/zigbee.c **** 			{
+ 182              		.loc 1 34 73 discriminator 1 view .LVU40
  183 006e 631E     		subs	r3, r4, #1
-  35:Core/Src/zigbee.c **** 			{
- 184              		.loc 1 35 62 discriminator 1 view .LVU41
+  34:Core/Src/zigbee.c **** 			{
+ 184              		.loc 1 34 62 discriminator 1 view .LVU41
  185 0070 D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
-  35:Core/Src/zigbee.c **** 			{
- 186              		.loc 1 35 46 discriminator 1 view .LVU42
+  34:Core/Src/zigbee.c **** 			{
+ 186              		.loc 1 34 46 discriminator 1 view .LVU42
  187 0072 0A2B     		cmp	r3, #10
  188 0074 F5D1     		bne	.L10
  189              	.L11:
-  37:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
- 190              		.loc 1 37 5 is_stmt 1 view .LVU43
+  36:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
+ 190              		.loc 1 36 5 is_stmt 1 view .LVU43
  191 0076 0D4E     		ldr	r6, .L19+8
  192 0078 2A46     		mov	r2, r5
  193 007a 0D49     		ldr	r1, .L19+12
  194 007c 3046     		mov	r0, r6
  195              	.LVL12:
-  37:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
- 196              		.loc 1 37 5 is_stmt 0 view .LVU44
+  36:Core/Src/zigbee.c **** 				memcpy(zigbeeMessage + zigbee_halfrecv_len, zigbeeReceive, rx_length);
+ 196              		.loc 1 36 5 is_stmt 0 view .LVU44
  197 007e FFF7FEFF 		bl	memcpy
  198              	.LVL13:
-  38:Core/Src/zigbee.c **** 			}
- 199              		.loc 1 38 5 is_stmt 1 view .LVU45
+  37:Core/Src/zigbee.c **** 			}
+ 199              		.loc 1 37 5 is_stmt 1 view .LVU45
  200 0082 2246     		mov	r2, r4
  201 0084 0849     		ldr	r1, .L19+4
  202 0086 7019     		adds	r0, r6, r5
@@ -288,23 +287,23 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  205 008c EBE7     		b	.L12
  206              	.LVL15:
  207              	.L18:
-  35:Core/Src/zigbee.c **** 			{
- 208              		.loc 1 35 122 is_stmt 0 discriminator 4 view .LVU46
+  34:Core/Src/zigbee.c **** 			{
+ 208              		.loc 1 34 122 is_stmt 0 discriminator 4 view .LVU46
  209 008e 064B     		ldr	r3, .L19+4
  210 0090 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
-  35:Core/Src/zigbee.c **** 			{
- 211              		.loc 1 35 106 discriminator 4 view .LVU47
+  34:Core/Src/zigbee.c **** 			{
+ 211              		.loc 1 34 106 discriminator 4 view .LVU47
  212 0092 0A2B     		cmp	r3, #10
  213 0094 E7D1     		bne	.L12
-  35:Core/Src/zigbee.c **** 			{
- 214              		.loc 1 35 157 discriminator 5 view .LVU48
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 6
-
-
+  34:Core/Src/zigbee.c **** 			{
+ 214              		.loc 1 34 157 discriminator 5 view .LVU48
  215 0096 064B     		ldr	r3, .L19+12
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 6
+
+
  216 0098 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
-  35:Core/Src/zigbee.c **** 			{
- 217              		.loc 1 35 134 discriminator 5 view .LVU49
+  34:Core/Src/zigbee.c **** 			{
+ 217              		.loc 1 34 134 discriminator 5 view .LVU49
  218 009c 0D2B     		cmp	r3, #13
  219 009e E2D1     		bne	.L12
  220 00a0 E9E7     		b	.L11
@@ -327,41 +326,41 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  239              	zigbeeSend:
  240              	.LVL16:
  241              	.LFB67:
-  49:Core/Src/zigbee.c **** 
-  50:Core/Src/zigbee.c **** void zigbeeSend(int MineType)
-  51:Core/Src/zigbee.c **** {
- 242              		.loc 1 51 1 is_stmt 1 view -0
+  48:Core/Src/zigbee.c **** 
+  49:Core/Src/zigbee.c **** void zigbeeSend(int MineType)
+  50:Core/Src/zigbee.c **** {
+ 242              		.loc 1 50 1 is_stmt 1 view -0
  243              		.cfi_startproc
  244              		@ args = 0, pretend = 0, frame = 0
  245              		@ frame_needed = 0, uses_anonymous_args = 0
- 246              		.loc 1 51 1 is_stmt 0 view .LVU51
+ 246              		.loc 1 50 1 is_stmt 0 view .LVU51
  247 0000 08B5     		push	{r3, lr}
  248              	.LCFI2:
  249              		.cfi_def_cfa_offset 8
  250              		.cfi_offset 3, -8
  251              		.cfi_offset 14, -4
-  52:Core/Src/zigbee.c **** 	HAL_UART_Transmit(zigbee_huart, zigbeeMessageSend + MineType, 1, HAL_MAX_DELAY);
- 252              		.loc 1 52 2 is_stmt 1 view .LVU52
+  51:Core/Src/zigbee.c **** 	HAL_UART_Transmit(zigbee_huart, zigbeeMessageSend + MineType, 1, HAL_MAX_DELAY);
+ 252              		.loc 1 51 2 is_stmt 1 view .LVU52
  253 0002 4FF0FF33 		mov	r3, #-1
  254 0006 0122     		movs	r2, #1
  255 0008 0349     		ldr	r1, .L23
  256 000a 0144     		add	r1, r1, r0
  257 000c 0348     		ldr	r0, .L23+4
  258              	.LVL17:
- 259              		.loc 1 52 2 is_stmt 0 view .LVU53
+ 259              		.loc 1 51 2 is_stmt 0 view .LVU53
  260 000e 0068     		ldr	r0, [r0]
  261 0010 FFF7FEFF 		bl	HAL_UART_Transmit
  262              	.LVL18:
-  53:Core/Src/zigbee.c **** }
- 263              		.loc 1 53 1 view .LVU54
+  52:Core/Src/zigbee.c **** }
+ 263              		.loc 1 52 1 view .LVU54
  264 0014 08BD     		pop	{r3, pc}
  265              	.L24:
  266 0016 00BF     		.align	2
  267              	.L23:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 7
-
-
  268 0018 00000000 		.word	.LANCHOR5
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 7
+
+
  269 001c 00000000 		.word	.LANCHOR0
  270              		.cfi_endproc
  271              	.LFE67:
@@ -374,25 +373,25 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  279              		.fpu softvfp
  281              	getGameTime:
  282              	.LFB68:
-  54:Core/Src/zigbee.c **** 
-  55:Core/Src/zigbee.c **** uint16_t getGameTime(void)
-  56:Core/Src/zigbee.c **** {
- 283              		.loc 1 56 1 is_stmt 1 view -0
+  53:Core/Src/zigbee.c **** 
+  54:Core/Src/zigbee.c **** uint16_t getGameTime(void)
+  55:Core/Src/zigbee.c **** {
+ 283              		.loc 1 55 1 is_stmt 1 view -0
  284              		.cfi_startproc
  285              		@ args = 0, pretend = 0, frame = 0
  286              		@ frame_needed = 0, uses_anonymous_args = 0
  287              		@ link register save eliminated.
-  57:Core/Src/zigbee.c **** 	return (zigbeeMessage[0] << 8) + zigbeeMessage[1];
- 288              		.loc 1 57 2 view .LVU56
- 289              		.loc 1 57 23 is_stmt 0 view .LVU57
+  56:Core/Src/zigbee.c **** 	return (zigbeeMessage[0] << 8) + zigbeeMessage[1];
+ 288              		.loc 1 56 2 view .LVU56
+ 289              		.loc 1 56 23 is_stmt 0 view .LVU57
  290 0000 034B     		ldr	r3, .L26
  291 0002 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
- 292              		.loc 1 57 48 view .LVU58
+ 292              		.loc 1 56 48 view .LVU58
  293 0004 5878     		ldrb	r0, [r3, #1]	@ zero_extendqisi2
- 294              		.loc 1 57 33 view .LVU59
+ 294              		.loc 1 56 33 view .LVU59
  295 0006 00EB0220 		add	r0, r0, r2, lsl #8
-  58:Core/Src/zigbee.c **** }
- 296              		.loc 1 58 1 view .LVU60
+  57:Core/Src/zigbee.c **** }
+ 296              		.loc 1 57 1 view .LVU60
  297 000a 80B2     		uxth	r0, r0
  298 000c 7047     		bx	lr
  299              	.L27:
@@ -410,24 +409,24 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  312              		.fpu softvfp
  314              	getGameState:
  315              	.LFB69:
-  59:Core/Src/zigbee.c **** 
-  60:Core/Src/zigbee.c **** uint8_t getGameState(void)
-  61:Core/Src/zigbee.c **** {
- 316              		.loc 1 61 1 is_stmt 1 view -0
+  58:Core/Src/zigbee.c **** 
+  59:Core/Src/zigbee.c **** uint8_t getGameState(void)
+  60:Core/Src/zigbee.c **** {
+ 316              		.loc 1 60 1 is_stmt 1 view -0
  317              		.cfi_startproc
  318              		@ args = 0, pretend = 0, frame = 0
  319              		@ frame_needed = 0, uses_anonymous_args = 0
  320              		@ link register save eliminated.
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 8
+  61:Core/Src/zigbee.c **** 	return (uint8_t)((zigbeeMessage[2] & 0xC0) >> 6);
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 8
 
 
-  62:Core/Src/zigbee.c **** 	return (uint8_t)((zigbeeMessage[2] & 0xC0) >> 6);
- 321              		.loc 1 62 2 view .LVU62
- 322              		.loc 1 62 33 is_stmt 0 view .LVU63
+ 321              		.loc 1 61 2 view .LVU62
+ 322              		.loc 1 61 33 is_stmt 0 view .LVU63
  323 0000 014B     		ldr	r3, .L29
  324 0002 9878     		ldrb	r0, [r3, #2]	@ zero_extendqisi2
-  63:Core/Src/zigbee.c **** }
- 325              		.loc 1 63 1 view .LVU64
+  62:Core/Src/zigbee.c **** }
+ 325              		.loc 1 62 1 view .LVU64
  326 0004 8009     		lsrs	r0, r0, #6
  327 0006 7047     		bx	lr
  328              	.L30:
@@ -445,21 +444,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  341              		.fpu softvfp
  343              	getCarTask:
  344              	.LFB70:
-  64:Core/Src/zigbee.c **** 
-  65:Core/Src/zigbee.c **** uint16_t getCarTask(void)
-  66:Core/Src/zigbee.c **** {
- 345              		.loc 1 66 1 is_stmt 1 view -0
+  63:Core/Src/zigbee.c **** 
+  64:Core/Src/zigbee.c **** uint16_t getCarTask(void)
+  65:Core/Src/zigbee.c **** {
+ 345              		.loc 1 65 1 is_stmt 1 view -0
  346              		.cfi_startproc
  347              		@ args = 0, pretend = 0, frame = 0
  348              		@ frame_needed = 0, uses_anonymous_args = 0
  349              		@ link register save eliminated.
-  67:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[2] & 0x20) >> 5);
- 350              		.loc 1 67 2 view .LVU66
- 351              		.loc 1 67 34 is_stmt 0 view .LVU67
+  66:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[2] & 0x20) >> 5);
+ 350              		.loc 1 66 2 view .LVU66
+ 351              		.loc 1 66 34 is_stmt 0 view .LVU67
  352 0000 024B     		ldr	r3, .L32
  353 0002 9878     		ldrb	r0, [r3, #2]	@ zero_extendqisi2
-  68:Core/Src/zigbee.c **** }
- 354              		.loc 1 68 1 view .LVU68
+  67:Core/Src/zigbee.c **** }
+ 354              		.loc 1 67 1 view .LVU68
  355 0004 C0F34010 		ubfx	r0, r0, #5, #1
  356 0008 7047     		bx	lr
  357              	.L33:
@@ -478,70 +477,70 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  372              	getIsMineIntensityValid:
  373              	.LVL19:
  374              	.LFB71:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 9
+  68:Core/Src/zigbee.c **** 
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 9
 
 
-  69:Core/Src/zigbee.c **** 
-  70:Core/Src/zigbee.c **** uint16_t getIsMineIntensityValid(int MineNo)
-  71:Core/Src/zigbee.c **** {
- 375              		.loc 1 71 1 is_stmt 1 view -0
+  69:Core/Src/zigbee.c **** uint16_t getIsMineIntensityValid(int MineNo)
+  70:Core/Src/zigbee.c **** {
+ 375              		.loc 1 70 1 is_stmt 1 view -0
  376              		.cfi_startproc
  377              		@ args = 0, pretend = 0, frame = 0
  378              		@ frame_needed = 0, uses_anonymous_args = 0
  379              		@ link register save eliminated.
-  72:Core/Src/zigbee.c **** 	if (MineNo == 0)
- 380              		.loc 1 72 2 view .LVU70
- 381              		.loc 1 72 5 is_stmt 0 view .LVU71
+  71:Core/Src/zigbee.c **** 	if (MineNo == 0)
+ 380              		.loc 1 71 2 view .LVU70
+ 381              		.loc 1 71 5 is_stmt 0 view .LVU71
  382 0000 20B1     		cbz	r0, .L38
-  73:Core/Src/zigbee.c **** 	{
-  74:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[2] & 0x10) >> 4);
-  75:Core/Src/zigbee.c **** 	}
-  76:Core/Src/zigbee.c **** 	else if (MineNo == 1)
- 383              		.loc 1 76 7 is_stmt 1 view .LVU72
- 384              		.loc 1 76 10 is_stmt 0 view .LVU73
+  72:Core/Src/zigbee.c **** 	{
+  73:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[2] & 0x10) >> 4);
+  74:Core/Src/zigbee.c **** 	}
+  75:Core/Src/zigbee.c **** 	else if (MineNo == 1)
+ 383              		.loc 1 75 7 is_stmt 1 view .LVU72
+ 384              		.loc 1 75 10 is_stmt 0 view .LVU73
  385 0002 0128     		cmp	r0, #1
  386 0004 07D0     		beq	.L39
-  77:Core/Src/zigbee.c **** 	{
-  78:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[2] & 0x08) >> 3);
-  79:Core/Src/zigbee.c **** 	}
-  80:Core/Src/zigbee.c **** 	else
-  81:Core/Src/zigbee.c **** 	{
-  82:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 387              		.loc 1 82 10 view .LVU74
+  76:Core/Src/zigbee.c **** 	{
+  77:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[2] & 0x08) >> 3);
+  78:Core/Src/zigbee.c **** 	}
+  79:Core/Src/zigbee.c **** 	else
+  80:Core/Src/zigbee.c **** 	{
+  81:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 387              		.loc 1 81 10 view .LVU74
  388 0006 4FF6FF70 		movw	r0, #65535
  389              	.LVL20:
-  83:Core/Src/zigbee.c **** 	}
-  84:Core/Src/zigbee.c **** }
- 390              		.loc 1 84 1 view .LVU75
+  82:Core/Src/zigbee.c **** 	}
+  83:Core/Src/zigbee.c **** }
+ 390              		.loc 1 83 1 view .LVU75
  391 000a 7047     		bx	lr
  392              	.LVL21:
  393              	.L38:
-  74:Core/Src/zigbee.c **** 	}
- 394              		.loc 1 74 3 is_stmt 1 view .LVU76
-  74:Core/Src/zigbee.c **** 	}
- 395              		.loc 1 74 35 is_stmt 0 view .LVU77
+  73:Core/Src/zigbee.c **** 	}
+ 394              		.loc 1 73 3 is_stmt 1 view .LVU76
+  73:Core/Src/zigbee.c **** 	}
+ 395              		.loc 1 73 35 is_stmt 0 view .LVU77
  396 000c 044B     		ldr	r3, .L40
  397 000e 9878     		ldrb	r0, [r3, #2]	@ zero_extendqisi2
  398              	.LVL22:
-  74:Core/Src/zigbee.c **** 	}
- 399              		.loc 1 74 10 view .LVU78
+  73:Core/Src/zigbee.c **** 	}
+ 399              		.loc 1 73 10 view .LVU78
  400 0010 C0F30010 		ubfx	r0, r0, #4, #1
  401 0014 7047     		bx	lr
  402              	.LVL23:
  403              	.L39:
-  78:Core/Src/zigbee.c **** 	}
- 404              		.loc 1 78 3 is_stmt 1 view .LVU79
-  78:Core/Src/zigbee.c **** 	}
- 405              		.loc 1 78 35 is_stmt 0 view .LVU80
+  77:Core/Src/zigbee.c **** 	}
+ 404              		.loc 1 77 3 is_stmt 1 view .LVU79
+  77:Core/Src/zigbee.c **** 	}
+ 405              		.loc 1 77 35 is_stmt 0 view .LVU80
  406 0016 024B     		ldr	r3, .L40
  407 0018 9878     		ldrb	r0, [r3, #2]	@ zero_extendqisi2
  408              	.LVL24:
-  78:Core/Src/zigbee.c **** 	}
- 409              		.loc 1 78 10 view .LVU81
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 10
-
-
+  77:Core/Src/zigbee.c **** 	}
+ 409              		.loc 1 77 10 view .LVU81
  410 001a C0F3C000 		ubfx	r0, r0, #3, #1
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 10
+
+
  411 001e 7047     		bx	lr
  412              	.L41:
  413              		.align	2
@@ -558,18 +557,18 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  425              		.fpu softvfp
  427              	getCarPosX:
  428              	.LFB72:
-  85:Core/Src/zigbee.c **** 
-  86:Core/Src/zigbee.c **** uint16_t getCarPosX()
-  87:Core/Src/zigbee.c **** {
- 429              		.loc 1 87 1 is_stmt 1 view -0
+  84:Core/Src/zigbee.c **** 
+  85:Core/Src/zigbee.c **** uint16_t getCarPosX()
+  86:Core/Src/zigbee.c **** {
+ 429              		.loc 1 86 1 is_stmt 1 view -0
  430              		.cfi_startproc
  431              		@ args = 0, pretend = 0, frame = 0
  432              		@ frame_needed = 0, uses_anonymous_args = 0
  433              		@ link register save eliminated.
-  88:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[3]);
- 434              		.loc 1 88 2 view .LVU83
-  89:Core/Src/zigbee.c **** }
- 435              		.loc 1 89 1 is_stmt 0 view .LVU84
+  87:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[3]);
+ 434              		.loc 1 87 2 view .LVU83
+  88:Core/Src/zigbee.c **** }
+ 435              		.loc 1 88 1 is_stmt 0 view .LVU84
  436 0000 014B     		ldr	r3, .L43
  437 0002 D878     		ldrb	r0, [r3, #3]	@ zero_extendqisi2
  438 0004 7047     		bx	lr
@@ -588,21 +587,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  452              		.fpu softvfp
  454              	getCarPosY:
  455              	.LFB73:
-  90:Core/Src/zigbee.c **** 
-  91:Core/Src/zigbee.c **** uint16_t getCarPosY()
-  92:Core/Src/zigbee.c **** {
- 456              		.loc 1 92 1 is_stmt 1 view -0
+  89:Core/Src/zigbee.c **** 
+  90:Core/Src/zigbee.c **** uint16_t getCarPosY()
+  91:Core/Src/zigbee.c **** {
+ 456              		.loc 1 91 1 is_stmt 1 view -0
  457              		.cfi_startproc
  458              		@ args = 0, pretend = 0, frame = 0
  459              		@ frame_needed = 0, uses_anonymous_args = 0
  460              		@ link register save eliminated.
-  93:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[4]);
- 461              		.loc 1 93 2 view .LVU86
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 11
+  92:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[4]);
+ 461              		.loc 1 92 2 view .LVU86
+  93:Core/Src/zigbee.c **** }
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 11
 
 
-  94:Core/Src/zigbee.c **** }
- 462              		.loc 1 94 1 is_stmt 0 view .LVU87
+ 462              		.loc 1 93 1 is_stmt 0 view .LVU87
  463 0000 014B     		ldr	r3, .L46
  464 0002 1879     		ldrb	r0, [r3, #4]	@ zero_extendqisi2
  465 0004 7047     		bx	lr
@@ -622,66 +621,66 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  481              	getMineArrayType:
  482              	.LVL25:
  483              	.LFB74:
-  95:Core/Src/zigbee.c **** 
-  96:Core/Src/zigbee.c **** uint16_t getMineArrayType(int MineNo)
-  97:Core/Src/zigbee.c **** {
- 484              		.loc 1 97 1 is_stmt 1 view -0
+  94:Core/Src/zigbee.c **** 
+  95:Core/Src/zigbee.c **** uint16_t getMineArrayType(int MineNo)
+  96:Core/Src/zigbee.c **** {
+ 484              		.loc 1 96 1 is_stmt 1 view -0
  485              		.cfi_startproc
  486              		@ args = 0, pretend = 0, frame = 0
  487              		@ frame_needed = 0, uses_anonymous_args = 0
  488              		@ link register save eliminated.
-  98:Core/Src/zigbee.c **** 	if (MineNo == 0)
- 489              		.loc 1 98 2 view .LVU89
- 490              		.loc 1 98 5 is_stmt 0 view .LVU90
+  97:Core/Src/zigbee.c **** 	if (MineNo == 0)
+ 489              		.loc 1 97 2 view .LVU89
+ 490              		.loc 1 97 5 is_stmt 0 view .LVU90
  491 0000 20B1     		cbz	r0, .L52
-  99:Core/Src/zigbee.c **** 	{
- 100:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[5] & 0xC0) >> 6);
- 101:Core/Src/zigbee.c **** 	}
- 102:Core/Src/zigbee.c **** 	else if (MineNo == 1)
- 492              		.loc 1 102 7 is_stmt 1 view .LVU91
- 493              		.loc 1 102 10 is_stmt 0 view .LVU92
+  98:Core/Src/zigbee.c **** 	{
+  99:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[5] & 0xC0) >> 6);
+ 100:Core/Src/zigbee.c **** 	}
+ 101:Core/Src/zigbee.c **** 	else if (MineNo == 1)
+ 492              		.loc 1 101 7 is_stmt 1 view .LVU91
+ 493              		.loc 1 101 10 is_stmt 0 view .LVU92
  494 0002 0128     		cmp	r0, #1
  495 0004 06D0     		beq	.L53
- 103:Core/Src/zigbee.c **** 	{
- 104:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[5] & 0x30) >> 4);
- 105:Core/Src/zigbee.c **** 	}
- 106:Core/Src/zigbee.c **** 	else
- 107:Core/Src/zigbee.c **** 	{
- 108:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 496              		.loc 1 108 10 view .LVU93
+ 102:Core/Src/zigbee.c **** 	{
+ 103:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[5] & 0x30) >> 4);
+ 104:Core/Src/zigbee.c **** 	}
+ 105:Core/Src/zigbee.c **** 	else
+ 106:Core/Src/zigbee.c **** 	{
+ 107:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 496              		.loc 1 107 10 view .LVU93
  497 0006 4FF6FF70 		movw	r0, #65535
  498              	.LVL26:
- 109:Core/Src/zigbee.c **** 	}
- 110:Core/Src/zigbee.c **** }
- 499              		.loc 1 110 1 view .LVU94
+ 108:Core/Src/zigbee.c **** 	}
+ 109:Core/Src/zigbee.c **** }
+ 499              		.loc 1 109 1 view .LVU94
  500 000a 7047     		bx	lr
  501              	.LVL27:
  502              	.L52:
- 100:Core/Src/zigbee.c **** 	}
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 12
+  99:Core/Src/zigbee.c **** 	}
+ 503              		.loc 1 99 3 is_stmt 1 view .LVU95
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 12
 
 
- 503              		.loc 1 100 3 is_stmt 1 view .LVU95
- 100:Core/Src/zigbee.c **** 	}
- 504              		.loc 1 100 35 is_stmt 0 view .LVU96
+  99:Core/Src/zigbee.c **** 	}
+ 504              		.loc 1 99 35 is_stmt 0 view .LVU96
  505 000c 044B     		ldr	r3, .L54
  506 000e 5879     		ldrb	r0, [r3, #5]	@ zero_extendqisi2
  507              	.LVL28:
- 100:Core/Src/zigbee.c **** 	}
- 508              		.loc 1 100 10 view .LVU97
+  99:Core/Src/zigbee.c **** 	}
+ 508              		.loc 1 99 10 view .LVU97
  509 0010 8009     		lsrs	r0, r0, #6
  510 0012 7047     		bx	lr
  511              	.LVL29:
  512              	.L53:
- 104:Core/Src/zigbee.c **** 	}
- 513              		.loc 1 104 3 is_stmt 1 view .LVU98
- 104:Core/Src/zigbee.c **** 	}
- 514              		.loc 1 104 35 is_stmt 0 view .LVU99
+ 103:Core/Src/zigbee.c **** 	}
+ 513              		.loc 1 103 3 is_stmt 1 view .LVU98
+ 103:Core/Src/zigbee.c **** 	}
+ 514              		.loc 1 103 35 is_stmt 0 view .LVU99
  515 0014 024B     		ldr	r3, .L54
  516 0016 5879     		ldrb	r0, [r3, #5]	@ zero_extendqisi2
  517              	.LVL30:
- 104:Core/Src/zigbee.c **** 	}
- 518              		.loc 1 104 10 view .LVU100
+ 103:Core/Src/zigbee.c **** 	}
+ 518              		.loc 1 103 10 view .LVU100
  519 0018 C0F30110 		ubfx	r0, r0, #4, #2
  520 001c 7047     		bx	lr
  521              	.L55:
@@ -699,29 +698,29 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  534              		.fpu softvfp
  536              	getCarMineSumNum:
  537              	.LFB75:
- 111:Core/Src/zigbee.c **** 
- 112:Core/Src/zigbee.c **** uint16_t getCarMineSumNum(void)
- 113:Core/Src/zigbee.c **** {
- 538              		.loc 1 113 1 is_stmt 1 view -0
+ 110:Core/Src/zigbee.c **** 
+ 111:Core/Src/zigbee.c **** uint16_t getCarMineSumNum(void)
+ 112:Core/Src/zigbee.c **** {
+ 538              		.loc 1 112 1 is_stmt 1 view -0
  539              		.cfi_startproc
  540              		@ args = 0, pretend = 0, frame = 0
  541              		@ frame_needed = 0, uses_anonymous_args = 0
  542              		@ link register save eliminated.
- 114:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[5] & 0x0F);
- 543              		.loc 1 114 2 view .LVU102
- 544              		.loc 1 114 33 is_stmt 0 view .LVU103
+ 113:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[5] & 0x0F);
+ 543              		.loc 1 113 2 view .LVU102
+ 544              		.loc 1 113 33 is_stmt 0 view .LVU103
  545 0000 024B     		ldr	r3, .L57
  546 0002 5879     		ldrb	r0, [r3, #5]	@ zero_extendqisi2
- 115:Core/Src/zigbee.c **** }
- 547              		.loc 1 115 1 view .LVU104
+ 114:Core/Src/zigbee.c **** }
+ 547              		.loc 1 114 1 view .LVU104
  548 0004 00F00F00 		and	r0, r0, #15
  549 0008 7047     		bx	lr
  550              	.L58:
  551 000a 00BF     		.align	2
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 13
-
-
  552              	.L57:
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 13
+
+
  553 000c 00000000 		.word	.LANCHOR2
  554              		.cfi_endproc
  555              	.LFE75:
@@ -734,21 +733,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  563              		.fpu softvfp
  565              	getCarMineANum:
  566              	.LFB76:
- 116:Core/Src/zigbee.c **** 
- 117:Core/Src/zigbee.c **** uint16_t getCarMineANum(void)
- 118:Core/Src/zigbee.c **** {
- 567              		.loc 1 118 1 is_stmt 1 view -0
+ 115:Core/Src/zigbee.c **** 
+ 116:Core/Src/zigbee.c **** uint16_t getCarMineANum(void)
+ 117:Core/Src/zigbee.c **** {
+ 567              		.loc 1 117 1 is_stmt 1 view -0
  568              		.cfi_startproc
  569              		@ args = 0, pretend = 0, frame = 0
  570              		@ frame_needed = 0, uses_anonymous_args = 0
  571              		@ link register save eliminated.
- 119:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[6] & 0xF0) >> 4);
- 572              		.loc 1 119 2 view .LVU106
- 573              		.loc 1 119 34 is_stmt 0 view .LVU107
+ 118:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[6] & 0xF0) >> 4);
+ 572              		.loc 1 118 2 view .LVU106
+ 573              		.loc 1 118 34 is_stmt 0 view .LVU107
  574 0000 014B     		ldr	r3, .L60
  575 0002 9879     		ldrb	r0, [r3, #6]	@ zero_extendqisi2
- 120:Core/Src/zigbee.c **** }
- 576              		.loc 1 120 1 view .LVU108
+ 119:Core/Src/zigbee.c **** }
+ 576              		.loc 1 119 1 view .LVU108
  577 0004 0009     		lsrs	r0, r0, #4
  578 0006 7047     		bx	lr
  579              	.L61:
@@ -766,24 +765,24 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  592              		.fpu softvfp
  594              	getCarMineBNum:
  595              	.LFB77:
- 121:Core/Src/zigbee.c **** 
- 122:Core/Src/zigbee.c **** uint16_t getCarMineBNum(void)
- 123:Core/Src/zigbee.c **** {
- 596              		.loc 1 123 1 is_stmt 1 view -0
+ 120:Core/Src/zigbee.c **** 
+ 121:Core/Src/zigbee.c **** uint16_t getCarMineBNum(void)
+ 122:Core/Src/zigbee.c **** {
+ 596              		.loc 1 122 1 is_stmt 1 view -0
  597              		.cfi_startproc
  598              		@ args = 0, pretend = 0, frame = 0
  599              		@ frame_needed = 0, uses_anonymous_args = 0
  600              		@ link register save eliminated.
- 124:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[6] & 0x0F);
- 601              		.loc 1 124 2 view .LVU110
- 602              		.loc 1 124 33 is_stmt 0 view .LVU111
+ 123:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[6] & 0x0F);
+ 601              		.loc 1 123 2 view .LVU110
+ 602              		.loc 1 123 33 is_stmt 0 view .LVU111
  603 0000 024B     		ldr	r3, .L63
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 14
-
-
  604 0002 9879     		ldrb	r0, [r3, #6]	@ zero_extendqisi2
- 125:Core/Src/zigbee.c **** }
- 605              		.loc 1 125 1 view .LVU112
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 14
+
+
+ 124:Core/Src/zigbee.c **** }
+ 605              		.loc 1 124 1 view .LVU112
  606 0004 00F00F00 		and	r0, r0, #15
  607 0008 7047     		bx	lr
  608              	.L64:
@@ -801,21 +800,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  621              		.fpu softvfp
  623              	getCarMineCNum:
  624              	.LFB78:
- 126:Core/Src/zigbee.c **** 
- 127:Core/Src/zigbee.c **** uint16_t getCarMineCNum(void)
- 128:Core/Src/zigbee.c **** {
- 625              		.loc 1 128 1 is_stmt 1 view -0
+ 125:Core/Src/zigbee.c **** 
+ 126:Core/Src/zigbee.c **** uint16_t getCarMineCNum(void)
+ 127:Core/Src/zigbee.c **** {
+ 625              		.loc 1 127 1 is_stmt 1 view -0
  626              		.cfi_startproc
  627              		@ args = 0, pretend = 0, frame = 0
  628              		@ frame_needed = 0, uses_anonymous_args = 0
  629              		@ link register save eliminated.
- 129:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[7] & 0xF0) >> 4);
- 630              		.loc 1 129 2 view .LVU114
- 631              		.loc 1 129 34 is_stmt 0 view .LVU115
+ 128:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[7] & 0xF0) >> 4);
+ 630              		.loc 1 128 2 view .LVU114
+ 631              		.loc 1 128 34 is_stmt 0 view .LVU115
  632 0000 014B     		ldr	r3, .L66
  633 0002 D879     		ldrb	r0, [r3, #7]	@ zero_extendqisi2
- 130:Core/Src/zigbee.c **** }
- 634              		.loc 1 130 1 view .LVU116
+ 129:Core/Src/zigbee.c **** }
+ 634              		.loc 1 129 1 view .LVU116
  635 0004 0009     		lsrs	r0, r0, #4
  636 0006 7047     		bx	lr
  637              	.L67:
@@ -833,24 +832,24 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  650              		.fpu softvfp
  652              	getCarMineDNum:
  653              	.LFB79:
- 131:Core/Src/zigbee.c **** 
- 132:Core/Src/zigbee.c **** uint16_t getCarMineDNum(void)
- 133:Core/Src/zigbee.c **** {
- 654              		.loc 1 133 1 is_stmt 1 view -0
+ 130:Core/Src/zigbee.c **** 
+ 131:Core/Src/zigbee.c **** uint16_t getCarMineDNum(void)
+ 132:Core/Src/zigbee.c **** {
+ 654              		.loc 1 132 1 is_stmt 1 view -0
  655              		.cfi_startproc
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 15
-
-
  656              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 15
+
+
  657              		@ frame_needed = 0, uses_anonymous_args = 0
  658              		@ link register save eliminated.
- 134:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[7] & 0x0F);
- 659              		.loc 1 134 2 view .LVU118
- 660              		.loc 1 134 33 is_stmt 0 view .LVU119
+ 133:Core/Src/zigbee.c **** 	return (uint16_t)(zigbeeMessage[7] & 0x0F);
+ 659              		.loc 1 133 2 view .LVU118
+ 660              		.loc 1 133 33 is_stmt 0 view .LVU119
  661 0000 024B     		ldr	r3, .L69
  662 0002 D879     		ldrb	r0, [r3, #7]	@ zero_extendqisi2
- 135:Core/Src/zigbee.c **** }
- 663              		.loc 1 135 1 view .LVU120
+ 134:Core/Src/zigbee.c **** }
+ 663              		.loc 1 134 1 view .LVU120
  664 0004 00F00F00 		and	r0, r0, #15
  665 0008 7047     		bx	lr
  666              	.L70:
@@ -869,87 +868,87 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  681              	getMyBeaconMineType:
  682              	.LVL31:
  683              	.LFB80:
- 136:Core/Src/zigbee.c **** 
- 137:Core/Src/zigbee.c **** uint16_t getMyBeaconMineType(int MineType)
- 138:Core/Src/zigbee.c **** {
- 684              		.loc 1 138 1 is_stmt 1 view -0
+ 135:Core/Src/zigbee.c **** 
+ 136:Core/Src/zigbee.c **** uint16_t getMyBeaconMineType(int MineType)
+ 137:Core/Src/zigbee.c **** {
+ 684              		.loc 1 137 1 is_stmt 1 view -0
  685              		.cfi_startproc
  686              		@ args = 0, pretend = 0, frame = 0
  687              		@ frame_needed = 0, uses_anonymous_args = 0
  688              		@ link register save eliminated.
- 139:Core/Src/zigbee.c **** 	if (MineType == 0)
- 689              		.loc 1 139 2 view .LVU122
- 690              		.loc 1 139 5 is_stmt 0 view .LVU123
+ 138:Core/Src/zigbee.c **** 	if (MineType == 0)
+ 689              		.loc 1 138 2 view .LVU122
+ 690              		.loc 1 138 5 is_stmt 0 view .LVU123
  691 0000 30B1     		cbz	r0, .L76
- 140:Core/Src/zigbee.c **** 	{
- 141:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0xC0) >> 6);
- 142:Core/Src/zigbee.c **** 	}
- 143:Core/Src/zigbee.c **** 	else if (MineType == 1)
- 692              		.loc 1 143 7 is_stmt 1 view .LVU124
- 693              		.loc 1 143 10 is_stmt 0 view .LVU125
+ 139:Core/Src/zigbee.c **** 	{
+ 140:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0xC0) >> 6);
+ 141:Core/Src/zigbee.c **** 	}
+ 142:Core/Src/zigbee.c **** 	else if (MineType == 1)
+ 692              		.loc 1 142 7 is_stmt 1 view .LVU124
+ 693              		.loc 1 142 10 is_stmt 0 view .LVU125
  694 0002 0128     		cmp	r0, #1
  695 0004 08D0     		beq	.L77
- 144:Core/Src/zigbee.c **** 	{
- 145:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0x30) >> 4);
- 146:Core/Src/zigbee.c **** 	}
- 147:Core/Src/zigbee.c **** 	else if (MineType == 2)
- 696              		.loc 1 147 7 is_stmt 1 view .LVU126
- 697              		.loc 1 147 10 is_stmt 0 view .LVU127
+ 143:Core/Src/zigbee.c **** 	{
+ 144:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0x30) >> 4);
+ 145:Core/Src/zigbee.c **** 	}
+ 146:Core/Src/zigbee.c **** 	else if (MineType == 2)
+ 696              		.loc 1 146 7 is_stmt 1 view .LVU126
+ 697              		.loc 1 146 10 is_stmt 0 view .LVU127
  698 0006 0228     		cmp	r0, #2
  699 0008 0BD0     		beq	.L78
- 148:Core/Src/zigbee.c **** 	{
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 16
+ 147:Core/Src/zigbee.c **** 	{
+ 148:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0x0C) >> 2);
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 16
 
 
- 149:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[8] & 0x0C) >> 2);
- 150:Core/Src/zigbee.c **** 	}
- 151:Core/Src/zigbee.c **** 	else
- 152:Core/Src/zigbee.c **** 	{
- 153:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 700              		.loc 1 153 10 view .LVU128
+ 149:Core/Src/zigbee.c **** 	}
+ 150:Core/Src/zigbee.c **** 	else
+ 151:Core/Src/zigbee.c **** 	{
+ 152:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 700              		.loc 1 152 10 view .LVU128
  701 000a 4FF6FF70 		movw	r0, #65535
  702              	.LVL32:
- 154:Core/Src/zigbee.c **** 	}
- 155:Core/Src/zigbee.c **** }
- 703              		.loc 1 155 1 view .LVU129
+ 153:Core/Src/zigbee.c **** 	}
+ 154:Core/Src/zigbee.c **** }
+ 703              		.loc 1 154 1 view .LVU129
  704 000e 7047     		bx	lr
  705              	.LVL33:
  706              	.L76:
- 141:Core/Src/zigbee.c **** 	}
- 707              		.loc 1 141 3 is_stmt 1 view .LVU130
- 141:Core/Src/zigbee.c **** 	}
- 708              		.loc 1 141 35 is_stmt 0 view .LVU131
+ 140:Core/Src/zigbee.c **** 	}
+ 707              		.loc 1 140 3 is_stmt 1 view .LVU130
+ 140:Core/Src/zigbee.c **** 	}
+ 708              		.loc 1 140 35 is_stmt 0 view .LVU131
  709 0010 064B     		ldr	r3, .L79
  710 0012 187A     		ldrb	r0, [r3, #8]	@ zero_extendqisi2
  711              	.LVL34:
- 141:Core/Src/zigbee.c **** 	}
- 712              		.loc 1 141 10 view .LVU132
+ 140:Core/Src/zigbee.c **** 	}
+ 712              		.loc 1 140 10 view .LVU132
  713 0014 8009     		lsrs	r0, r0, #6
  714 0016 7047     		bx	lr
  715              	.LVL35:
  716              	.L77:
- 145:Core/Src/zigbee.c **** 	}
- 717              		.loc 1 145 3 is_stmt 1 view .LVU133
- 145:Core/Src/zigbee.c **** 	}
- 718              		.loc 1 145 35 is_stmt 0 view .LVU134
+ 144:Core/Src/zigbee.c **** 	}
+ 717              		.loc 1 144 3 is_stmt 1 view .LVU133
+ 144:Core/Src/zigbee.c **** 	}
+ 718              		.loc 1 144 35 is_stmt 0 view .LVU134
  719 0018 044B     		ldr	r3, .L79
  720 001a 187A     		ldrb	r0, [r3, #8]	@ zero_extendqisi2
  721              	.LVL36:
- 145:Core/Src/zigbee.c **** 	}
- 722              		.loc 1 145 10 view .LVU135
+ 144:Core/Src/zigbee.c **** 	}
+ 722              		.loc 1 144 10 view .LVU135
  723 001c C0F30110 		ubfx	r0, r0, #4, #2
  724 0020 7047     		bx	lr
  725              	.LVL37:
  726              	.L78:
- 149:Core/Src/zigbee.c **** 	}
- 727              		.loc 1 149 3 is_stmt 1 view .LVU136
- 149:Core/Src/zigbee.c **** 	}
- 728              		.loc 1 149 35 is_stmt 0 view .LVU137
+ 148:Core/Src/zigbee.c **** 	}
+ 727              		.loc 1 148 3 is_stmt 1 view .LVU136
+ 148:Core/Src/zigbee.c **** 	}
+ 728              		.loc 1 148 35 is_stmt 0 view .LVU137
  729 0022 024B     		ldr	r3, .L79
  730 0024 187A     		ldrb	r0, [r3, #8]	@ zero_extendqisi2
  731              	.LVL38:
- 149:Core/Src/zigbee.c **** 	}
- 732              		.loc 1 149 10 view .LVU138
+ 148:Core/Src/zigbee.c **** 	}
+ 732              		.loc 1 148 10 view .LVU138
  733 0026 C0F38100 		ubfx	r0, r0, #2, #2
  734 002a 7047     		bx	lr
  735              	.L80:
@@ -958,10 +957,10 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  738 002c 00000000 		.word	.LANCHOR2
  739              		.cfi_endproc
  740              	.LFE80:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 17
-
-
  742              		.section	.text.getMineIntensity,"ax",%progbits
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 17
+
+
  743              		.align	1
  744              		.global	getMineIntensity
  745              		.syntax unified
@@ -971,68 +970,68 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  750              	getMineIntensity:
  751              	.LVL39:
  752              	.LFB81:
- 156:Core/Src/zigbee.c **** 
- 157:Core/Src/zigbee.c **** uint32_t getMineIntensity(int MineNo)
- 158:Core/Src/zigbee.c **** {
- 753              		.loc 1 158 1 is_stmt 1 view -0
+ 155:Core/Src/zigbee.c **** 
+ 156:Core/Src/zigbee.c **** uint32_t getMineIntensity(int MineNo)
+ 157:Core/Src/zigbee.c **** {
+ 753              		.loc 1 157 1 is_stmt 1 view -0
  754              		.cfi_startproc
  755              		@ args = 0, pretend = 0, frame = 0
  756              		@ frame_needed = 0, uses_anonymous_args = 0
  757              		@ link register save eliminated.
- 159:Core/Src/zigbee.c **** 	if (MineNo == 0 || MineNo == 1)
- 758              		.loc 1 159 2 view .LVU140
- 759              		.loc 1 159 5 is_stmt 0 view .LVU141
+ 158:Core/Src/zigbee.c **** 	if (MineNo == 0 || MineNo == 1)
+ 758              		.loc 1 158 2 view .LVU140
+ 759              		.loc 1 158 5 is_stmt 0 view .LVU141
  760 0000 0128     		cmp	r0, #1
  761 0002 14D8     		bhi	.L83
- 160:Core/Src/zigbee.c **** 	{
- 161:Core/Src/zigbee.c **** 		return (uint32_t)((zigbeeMessage[9 + 4 * MineNo] << 24) + (zigbeeMessage[10 + 4 * MineNo] << 16) 
- 762              		.loc 1 161 3 is_stmt 1 view .LVU142
- 763              		.loc 1 161 42 is_stmt 0 view .LVU143
+ 159:Core/Src/zigbee.c **** 	{
+ 160:Core/Src/zigbee.c **** 		return (uint32_t)((zigbeeMessage[9 + 4 * MineNo] << 24) + (zigbeeMessage[10 + 4 * MineNo] << 16) 
+ 762              		.loc 1 160 3 is_stmt 1 view .LVU142
+ 763              		.loc 1 160 42 is_stmt 0 view .LVU143
  764 0004 8200     		lsls	r2, r0, #2
- 765              		.loc 1 161 38 view .LVU144
+ 765              		.loc 1 160 38 view .LVU144
  766 0006 02F10903 		add	r3, r2, #9
- 767              		.loc 1 161 35 view .LVU145
+ 767              		.loc 1 160 35 view .LVU145
  768 000a 0A49     		ldr	r1, .L84
  769 000c 11F803C0 		ldrb	ip, [r1, r3]	@ zero_extendqisi2
- 770              		.loc 1 161 79 view .LVU146
+ 770              		.loc 1 160 79 view .LVU146
  771 0010 02F10A03 		add	r3, r2, #10
- 772              		.loc 1 161 75 view .LVU147
+ 772              		.loc 1 160 75 view .LVU147
  773 0014 CB5C     		ldrb	r3, [r1, r3]	@ zero_extendqisi2
- 774              		.loc 1 161 93 view .LVU148
+ 774              		.loc 1 160 93 view .LVU148
  775 0016 1B04     		lsls	r3, r3, #16
- 776              		.loc 1 161 59 view .LVU149
+ 776              		.loc 1 160 59 view .LVU149
  777 0018 03EB0C63 		add	r3, r3, ip, lsl #24
- 778              		.loc 1 161 120 view .LVU150
+ 778              		.loc 1 160 120 view .LVU150
  779 001c 0B32     		adds	r2, r2, #11
- 780              		.loc 1 161 116 view .LVU151
+ 780              		.loc 1 160 116 view .LVU151
  781 001e 8A5C     		ldrb	r2, [r1, r2]	@ zero_extendqisi2
- 782              		.loc 1 161 100 view .LVU152
+ 782              		.loc 1 160 100 view .LVU152
  783 0020 03EB0223 		add	r3, r3, r2, lsl #8
- 784              		.loc 1 161 160 view .LVU153
+ 784              		.loc 1 160 160 view .LVU153
  785 0024 0330     		adds	r0, r0, #3
  786              	.LVL40:
- 787              		.loc 1 161 156 view .LVU154
+ 787              		.loc 1 160 156 view .LVU154
  788 0026 11F82000 		ldrb	r0, [r1, r0, lsl #2]	@ zero_extendqisi2
  789              	.LVL41:
- 790              		.loc 1 161 140 view .LVU155
+ 790              		.loc 1 160 140 view .LVU155
  791 002a 1844     		add	r0, r0, r3
- 792              		.loc 1 161 10 view .LVU156
+ 792              		.loc 1 160 10 view .LVU156
  793 002c 7047     		bx	lr
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 18
-
-
  794              	.LVL42:
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 18
+
+
  795              	.L83:
- 162:Core/Src/zigbee.c **** 	}
- 163:Core/Src/zigbee.c **** 	else
- 164:Core/Src/zigbee.c **** 	{
- 165:Core/Src/zigbee.c **** 		return (uint32_t)INVALID_ARG;
- 796              		.loc 1 165 10 view .LVU157
+ 161:Core/Src/zigbee.c **** 	}
+ 162:Core/Src/zigbee.c **** 	else
+ 163:Core/Src/zigbee.c **** 	{
+ 164:Core/Src/zigbee.c **** 		return (uint32_t)INVALID_ARG;
+ 796              		.loc 1 164 10 view .LVU157
  797 002e 4FF0FF30 		mov	r0, #-1
  798              	.LVL43:
- 166:Core/Src/zigbee.c **** 	}
- 167:Core/Src/zigbee.c **** }
- 799              		.loc 1 167 1 view .LVU158
+ 165:Core/Src/zigbee.c **** 	}
+ 166:Core/Src/zigbee.c **** }
+ 799              		.loc 1 166 1 view .LVU158
  800 0032 7047     		bx	lr
  801              	.L85:
  802              		.align	2
@@ -1050,51 +1049,51 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  816              	getDistanceOfMyBeacon:
  817              	.LVL44:
  818              	.LFB82:
- 168:Core/Src/zigbee.c **** 
- 169:Core/Src/zigbee.c **** uint16_t getDistanceOfMyBeacon(int BeaconNo)
- 170:Core/Src/zigbee.c **** {
- 819              		.loc 1 170 1 is_stmt 1 view -0
+ 167:Core/Src/zigbee.c **** 
+ 168:Core/Src/zigbee.c **** uint16_t getDistanceOfMyBeacon(int BeaconNo)
+ 169:Core/Src/zigbee.c **** {
+ 819              		.loc 1 169 1 is_stmt 1 view -0
  820              		.cfi_startproc
  821              		@ args = 0, pretend = 0, frame = 0
  822              		@ frame_needed = 0, uses_anonymous_args = 0
  823              		@ link register save eliminated.
- 171:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 824              		.loc 1 171 2 view .LVU160
- 825              		.loc 1 171 5 is_stmt 0 view .LVU161
+ 170:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 824              		.loc 1 170 2 view .LVU160
+ 825              		.loc 1 170 5 is_stmt 0 view .LVU161
  826 0000 0228     		cmp	r0, #2
  827 0002 0AD8     		bhi	.L88
- 172:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 173:Core/Src/zigbee.c **** 	else
- 174:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[17 + 2 * BeaconNo] << 8) + zigbeeMessage[18 + 2 * BeaconNo]);
- 828              		.loc 1 174 3 is_stmt 1 view .LVU162
- 829              		.loc 1 174 43 is_stmt 0 view .LVU163
+ 171:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 172:Core/Src/zigbee.c **** 	else
+ 173:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[17 + 2 * BeaconNo] << 8) + zigbeeMessage[18 + 2 * BeaconNo]);
+ 828              		.loc 1 173 3 is_stmt 1 view .LVU162
+ 829              		.loc 1 173 43 is_stmt 0 view .LVU163
  830 0004 4300     		lsls	r3, r0, #1
- 831              		.loc 1 174 39 view .LVU164
+ 831              		.loc 1 173 39 view .LVU164
  832 0006 1133     		adds	r3, r3, #17
- 833              		.loc 1 174 35 view .LVU165
+ 833              		.loc 1 173 35 view .LVU165
  834 0008 054A     		ldr	r2, .L89
  835 000a D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
- 836              		.loc 1 174 80 view .LVU166
+ 836              		.loc 1 173 80 view .LVU166
  837 000c 0930     		adds	r0, r0, #9
  838              	.LVL45:
- 839              		.loc 1 174 76 view .LVU167
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 19
-
-
+ 839              		.loc 1 173 76 view .LVU167
  840 000e 12F81000 		ldrb	r0, [r2, r0, lsl #1]	@ zero_extendqisi2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 19
+
+
  841              	.LVL46:
- 842              		.loc 1 174 10 view .LVU168
+ 842              		.loc 1 173 10 view .LVU168
  843 0012 00EB0320 		add	r0, r0, r3, lsl #8
  844 0016 80B2     		uxth	r0, r0
  845 0018 7047     		bx	lr
  846              	.LVL47:
  847              	.L88:
- 172:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 848              		.loc 1 172 10 view .LVU169
+ 171:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 848              		.loc 1 171 10 view .LVU169
  849 001a 4FF6FF70 		movw	r0, #65535
  850              	.LVL48:
- 175:Core/Src/zigbee.c **** }
- 851              		.loc 1 175 1 view .LVU170
+ 174:Core/Src/zigbee.c **** }
+ 851              		.loc 1 174 1 view .LVU170
  852 001e 7047     		bx	lr
  853              	.L90:
  854              		.align	2
@@ -1112,51 +1111,51 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  868              	getDistanceOfRivalBeacon:
  869              	.LVL49:
  870              	.LFB83:
- 176:Core/Src/zigbee.c **** 
- 177:Core/Src/zigbee.c **** uint16_t getDistanceOfRivalBeacon(int BeaconNo)
- 178:Core/Src/zigbee.c **** {
- 871              		.loc 1 178 1 is_stmt 1 view -0
+ 175:Core/Src/zigbee.c **** 
+ 176:Core/Src/zigbee.c **** uint16_t getDistanceOfRivalBeacon(int BeaconNo)
+ 177:Core/Src/zigbee.c **** {
+ 871              		.loc 1 177 1 is_stmt 1 view -0
  872              		.cfi_startproc
  873              		@ args = 0, pretend = 0, frame = 0
  874              		@ frame_needed = 0, uses_anonymous_args = 0
  875              		@ link register save eliminated.
- 179:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 876              		.loc 1 179 2 view .LVU172
- 877              		.loc 1 179 5 is_stmt 0 view .LVU173
+ 178:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 876              		.loc 1 178 2 view .LVU172
+ 877              		.loc 1 178 5 is_stmt 0 view .LVU173
  878 0000 0228     		cmp	r0, #2
  879 0002 0AD8     		bhi	.L93
- 180:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 181:Core/Src/zigbee.c **** 	else
- 182:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[23 + 2 * BeaconNo] << 8) + zigbeeMessage[24 + 2 * BeaconNo]);
- 880              		.loc 1 182 3 is_stmt 1 view .LVU174
- 881              		.loc 1 182 43 is_stmt 0 view .LVU175
+ 179:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 180:Core/Src/zigbee.c **** 	else
+ 181:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[23 + 2 * BeaconNo] << 8) + zigbeeMessage[24 + 2 * BeaconNo]);
+ 880              		.loc 1 181 3 is_stmt 1 view .LVU174
+ 881              		.loc 1 181 43 is_stmt 0 view .LVU175
  882 0004 4300     		lsls	r3, r0, #1
- 883              		.loc 1 182 39 view .LVU176
+ 883              		.loc 1 181 39 view .LVU176
  884 0006 1733     		adds	r3, r3, #23
- 885              		.loc 1 182 35 view .LVU177
+ 885              		.loc 1 181 35 view .LVU177
  886 0008 054A     		ldr	r2, .L94
  887 000a D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
- 888              		.loc 1 182 80 view .LVU178
+ 888              		.loc 1 181 80 view .LVU178
  889 000c 0C30     		adds	r0, r0, #12
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 20
-
-
  890              	.LVL50:
- 891              		.loc 1 182 76 view .LVU179
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 20
+
+
+ 891              		.loc 1 181 76 view .LVU179
  892 000e 12F81000 		ldrb	r0, [r2, r0, lsl #1]	@ zero_extendqisi2
  893              	.LVL51:
- 894              		.loc 1 182 10 view .LVU180
+ 894              		.loc 1 181 10 view .LVU180
  895 0012 00EB0320 		add	r0, r0, r3, lsl #8
  896 0016 80B2     		uxth	r0, r0
  897 0018 7047     		bx	lr
  898              	.LVL52:
  899              	.L93:
- 180:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 900              		.loc 1 180 10 view .LVU181
+ 179:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 900              		.loc 1 179 10 view .LVU181
  901 001a 4FF6FF70 		movw	r0, #65535
  902              	.LVL53:
- 183:Core/Src/zigbee.c **** }
- 903              		.loc 1 183 1 view .LVU182
+ 182:Core/Src/zigbee.c **** }
+ 903              		.loc 1 182 1 view .LVU182
  904 001e 7047     		bx	lr
  905              	.L95:
  906              		.align	2
@@ -1174,179 +1173,175 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  920              	getParkDotMineType:
  921              	.LVL54:
  922              	.LFB84:
- 184:Core/Src/zigbee.c **** 
- 185:Core/Src/zigbee.c **** uint16_t getParkDotMineType(int ParkDotNo)
- 186:Core/Src/zigbee.c **** {
- 923              		.loc 1 186 1 is_stmt 1 view -0
+ 183:Core/Src/zigbee.c **** 
+ 184:Core/Src/zigbee.c **** uint16_t getParkDotMineType(int ParkDotNo)
+ 185:Core/Src/zigbee.c **** {
+ 923              		.loc 1 185 1 is_stmt 1 view -0
  924              		.cfi_startproc
  925              		@ args = 0, pretend = 0, frame = 0
  926              		@ frame_needed = 0, uses_anonymous_args = 0
  927              		@ link register save eliminated.
- 187:Core/Src/zigbee.c **** 	if (ParkDotNo < 0 || ParkDotNo > 7)
- 928              		.loc 1 187 2 view .LVU184
- 929              		.loc 1 187 5 is_stmt 0 view .LVU185
+ 186:Core/Src/zigbee.c **** 	if (ParkDotNo < 0 || ParkDotNo > 7)
+ 928              		.loc 1 186 2 view .LVU184
+ 929              		.loc 1 186 5 is_stmt 0 view .LVU185
  930 0000 0728     		cmp	r0, #7
  931 0002 2DD8     		bhi	.L107
- 188:Core/Src/zigbee.c **** 	{
- 189:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 190:Core/Src/zigbee.c **** 	}
- 191:Core/Src/zigbee.c **** 	else
- 192:Core/Src/zigbee.c **** 	{
- 193:Core/Src/zigbee.c **** 		switch (ParkDotNo)
- 932              		.loc 1 193 3 is_stmt 1 view .LVU186
+ 187:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 188:Core/Src/zigbee.c **** 	else
+ 189:Core/Src/zigbee.c **** 		switch (ParkDotNo)
+ 932              		.loc 1 189 3 is_stmt 1 view .LVU186
  933 0004 0728     		cmp	r0, #7
  934 0006 2ED8     		bhi	.L108
  935 0008 DFE800F0 		tbb	[pc, r0]
  936              	.L99:
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 21
-
-
  937 000c 04       		.byte	(.L106-.L99)/2
  938 000d 08       		.byte	(.L105-.L99)/2
  939 000e 0D       		.byte	(.L104-.L99)/2
  940 000f 12       		.byte	(.L103-.L99)/2
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 21
+
+
  941 0010 17       		.byte	(.L102-.L99)/2
  942 0011 1B       		.byte	(.L101-.L99)/2
  943 0012 20       		.byte	(.L100-.L99)/2
  944 0013 25       		.byte	(.L98-.L99)/2
  945              		.p2align 1
  946              	.L106:
- 194:Core/Src/zigbee.c **** 		{
- 195:Core/Src/zigbee.c **** 		case 0:
- 196:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0xC0) >> 6);
- 947              		.loc 1 196 4 view .LVU187
- 948              		.loc 1 196 36 is_stmt 0 view .LVU188
+ 190:Core/Src/zigbee.c **** 		{
+ 191:Core/Src/zigbee.c **** 		case 0:
+ 192:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0xC0) >> 6);
+ 947              		.loc 1 192 4 view .LVU187
+ 948              		.loc 1 192 36 is_stmt 0 view .LVU188
  949 0014 154B     		ldr	r3, .L109
  950 0016 587F     		ldrb	r0, [r3, #29]	@ zero_extendqisi2
  951              	.LVL55:
- 952              		.loc 1 196 11 view .LVU189
+ 952              		.loc 1 192 11 view .LVU189
  953 0018 8009     		lsrs	r0, r0, #6
  954 001a 7047     		bx	lr
  955              	.LVL56:
  956              	.L105:
- 197:Core/Src/zigbee.c **** 			break;
- 957              		.loc 1 197 4 is_stmt 1 view .LVU190
- 198:Core/Src/zigbee.c **** 		case 1:
- 199:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x30) >> 4);
- 958              		.loc 1 199 4 view .LVU191
- 959              		.loc 1 199 36 is_stmt 0 view .LVU192
+ 193:Core/Src/zigbee.c **** 			break;
+ 957              		.loc 1 193 4 is_stmt 1 view .LVU190
+ 194:Core/Src/zigbee.c **** 		case 1:
+ 195:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x30) >> 4);
+ 958              		.loc 1 195 4 view .LVU191
+ 959              		.loc 1 195 36 is_stmt 0 view .LVU192
  960 001c 134B     		ldr	r3, .L109
  961 001e 587F     		ldrb	r0, [r3, #29]	@ zero_extendqisi2
  962              	.LVL57:
- 963              		.loc 1 199 11 view .LVU193
+ 963              		.loc 1 195 11 view .LVU193
  964 0020 C0F30110 		ubfx	r0, r0, #4, #2
  965 0024 7047     		bx	lr
  966              	.LVL58:
  967              	.L104:
- 200:Core/Src/zigbee.c **** 			break;
- 968              		.loc 1 200 4 is_stmt 1 view .LVU194
- 201:Core/Src/zigbee.c **** 		case 2:
- 202:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x0C) >> 2);
- 969              		.loc 1 202 4 view .LVU195
- 970              		.loc 1 202 36 is_stmt 0 view .LVU196
+ 196:Core/Src/zigbee.c **** 			break;
+ 968              		.loc 1 196 4 is_stmt 1 view .LVU194
+ 197:Core/Src/zigbee.c **** 		case 2:
+ 198:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x0C) >> 2);
+ 969              		.loc 1 198 4 view .LVU195
+ 970              		.loc 1 198 36 is_stmt 0 view .LVU196
  971 0026 114B     		ldr	r3, .L109
  972 0028 587F     		ldrb	r0, [r3, #29]	@ zero_extendqisi2
  973              	.LVL59:
- 974              		.loc 1 202 11 view .LVU197
+ 974              		.loc 1 198 11 view .LVU197
  975 002a C0F38100 		ubfx	r0, r0, #2, #2
  976 002e 7047     		bx	lr
  977              	.LVL60:
  978              	.L103:
- 203:Core/Src/zigbee.c **** 			break;
- 979              		.loc 1 203 4 is_stmt 1 view .LVU198
- 204:Core/Src/zigbee.c **** 		case 3:
- 205:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x03));
- 980              		.loc 1 205 4 view .LVU199
- 981              		.loc 1 205 36 is_stmt 0 view .LVU200
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 22
-
-
+ 199:Core/Src/zigbee.c **** 			break;
+ 979              		.loc 1 199 4 is_stmt 1 view .LVU198
+ 200:Core/Src/zigbee.c **** 		case 3:
+ 201:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[29] & 0x03));
+ 980              		.loc 1 201 4 view .LVU199
+ 981              		.loc 1 201 36 is_stmt 0 view .LVU200
  982 0030 0E4B     		ldr	r3, .L109
  983 0032 587F     		ldrb	r0, [r3, #29]	@ zero_extendqisi2
  984              	.LVL61:
- 985              		.loc 1 205 11 view .LVU201
+ 985              		.loc 1 201 11 view .LVU201
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 22
+
+
  986 0034 00F00300 		and	r0, r0, #3
  987 0038 7047     		bx	lr
  988              	.LVL62:
  989              	.L102:
- 206:Core/Src/zigbee.c **** 			break;
- 990              		.loc 1 206 4 is_stmt 1 view .LVU202
- 207:Core/Src/zigbee.c **** 		case 4:
- 208:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0xC0) >> 6);
- 991              		.loc 1 208 4 view .LVU203
- 992              		.loc 1 208 36 is_stmt 0 view .LVU204
+ 202:Core/Src/zigbee.c **** 			break;
+ 990              		.loc 1 202 4 is_stmt 1 view .LVU202
+ 203:Core/Src/zigbee.c **** 		case 4:
+ 204:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0xC0) >> 6);
+ 991              		.loc 1 204 4 view .LVU203
+ 992              		.loc 1 204 36 is_stmt 0 view .LVU204
  993 003a 0C4B     		ldr	r3, .L109
  994 003c 987F     		ldrb	r0, [r3, #30]	@ zero_extendqisi2
  995              	.LVL63:
- 996              		.loc 1 208 11 view .LVU205
+ 996              		.loc 1 204 11 view .LVU205
  997 003e 8009     		lsrs	r0, r0, #6
  998 0040 7047     		bx	lr
  999              	.LVL64:
  1000              	.L101:
- 209:Core/Src/zigbee.c **** 			break;
- 1001              		.loc 1 209 4 is_stmt 1 view .LVU206
- 210:Core/Src/zigbee.c **** 		case 5:
- 211:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x30) >> 4);
- 1002              		.loc 1 211 4 view .LVU207
- 1003              		.loc 1 211 36 is_stmt 0 view .LVU208
+ 205:Core/Src/zigbee.c **** 			break;
+ 1001              		.loc 1 205 4 is_stmt 1 view .LVU206
+ 206:Core/Src/zigbee.c **** 		case 5:
+ 207:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x30) >> 4);
+ 1002              		.loc 1 207 4 view .LVU207
+ 1003              		.loc 1 207 36 is_stmt 0 view .LVU208
  1004 0042 0A4B     		ldr	r3, .L109
  1005 0044 987F     		ldrb	r0, [r3, #30]	@ zero_extendqisi2
  1006              	.LVL65:
- 1007              		.loc 1 211 11 view .LVU209
+ 1007              		.loc 1 207 11 view .LVU209
  1008 0046 C0F30110 		ubfx	r0, r0, #4, #2
  1009 004a 7047     		bx	lr
  1010              	.LVL66:
  1011              	.L100:
- 212:Core/Src/zigbee.c **** 			break;
- 1012              		.loc 1 212 4 is_stmt 1 view .LVU210
- 213:Core/Src/zigbee.c **** 		case 6:
- 214:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x0C) >> 2);
- 1013              		.loc 1 214 4 view .LVU211
- 1014              		.loc 1 214 36 is_stmt 0 view .LVU212
+ 208:Core/Src/zigbee.c **** 			break;
+ 1012              		.loc 1 208 4 is_stmt 1 view .LVU210
+ 209:Core/Src/zigbee.c **** 		case 6:
+ 210:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x0C) >> 2);
+ 1013              		.loc 1 210 4 view .LVU211
+ 1014              		.loc 1 210 36 is_stmt 0 view .LVU212
  1015 004c 074B     		ldr	r3, .L109
  1016 004e 987F     		ldrb	r0, [r3, #30]	@ zero_extendqisi2
  1017              	.LVL67:
- 1018              		.loc 1 214 11 view .LVU213
+ 1018              		.loc 1 210 11 view .LVU213
  1019 0050 C0F38100 		ubfx	r0, r0, #2, #2
  1020 0054 7047     		bx	lr
  1021              	.LVL68:
  1022              	.L98:
- 215:Core/Src/zigbee.c **** 			break;
- 1023              		.loc 1 215 4 is_stmt 1 view .LVU214
- 216:Core/Src/zigbee.c **** 		case 7:
- 217:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x03));
- 1024              		.loc 1 217 4 view .LVU215
- 1025              		.loc 1 217 36 is_stmt 0 view .LVU216
+ 211:Core/Src/zigbee.c **** 			break;
+ 1023              		.loc 1 211 4 is_stmt 1 view .LVU214
+ 212:Core/Src/zigbee.c **** 		case 7:
+ 213:Core/Src/zigbee.c **** 			return (uint16_t)((zigbeeMessage[30] & 0x03));
+ 1024              		.loc 1 213 4 view .LVU215
+ 1025              		.loc 1 213 36 is_stmt 0 view .LVU216
  1026 0056 054B     		ldr	r3, .L109
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 23
-
-
  1027 0058 987F     		ldrb	r0, [r3, #30]	@ zero_extendqisi2
  1028              	.LVL69:
- 1029              		.loc 1 217 11 view .LVU217
+ 1029              		.loc 1 213 11 view .LVU217
  1030 005a 00F00300 		and	r0, r0, #3
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 23
+
+
  1031 005e 7047     		bx	lr
  1032              	.LVL70:
  1033              	.L107:
- 189:Core/Src/zigbee.c **** 	}
- 1034              		.loc 1 189 10 view .LVU218
+ 187:Core/Src/zigbee.c **** 	else
+ 1034              		.loc 1 187 10 view .LVU218
  1035 0060 4FF6FF70 		movw	r0, #65535
  1036              	.LVL71:
- 189:Core/Src/zigbee.c **** 	}
- 1037              		.loc 1 189 10 view .LVU219
+ 187:Core/Src/zigbee.c **** 	else
+ 1037              		.loc 1 187 10 view .LVU219
  1038 0064 7047     		bx	lr
  1039              	.LVL72:
  1040              	.L108:
- 193:Core/Src/zigbee.c **** 		{
- 1041              		.loc 1 193 3 view .LVU220
+ 189:Core/Src/zigbee.c **** 		{
+ 1041              		.loc 1 189 3 view .LVU220
  1042 0066 0020     		movs	r0, #0
  1043              	.LVL73:
- 218:Core/Src/zigbee.c **** 			break;
- 219:Core/Src/zigbee.c **** 		}
- 220:Core/Src/zigbee.c **** 	}
- 221:Core/Src/zigbee.c **** 	return 0;
- 222:Core/Src/zigbee.c **** }
- 1044              		.loc 1 222 1 view .LVU221
+ 214:Core/Src/zigbee.c **** 			break;
+ 215:Core/Src/zigbee.c **** 		}
+ 216:Core/Src/zigbee.c **** 	return 0;
+ 217:Core/Src/zigbee.c **** }
+ 1044              		.loc 1 217 1 view .LVU221
  1045 0068 7047     		bx	lr
  1046              	.L110:
  1047 006a 00BF     		.align	2
@@ -1363,29 +1358,29 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1059              		.fpu softvfp
  1061              	getCarZone:
  1062              	.LFB85:
- 223:Core/Src/zigbee.c **** 
- 224:Core/Src/zigbee.c **** uint16_t getCarZone(void)
- 225:Core/Src/zigbee.c **** {
- 1063              		.loc 1 225 1 is_stmt 1 view -0
+ 218:Core/Src/zigbee.c **** 
+ 219:Core/Src/zigbee.c **** uint16_t getCarZone(void)
+ 220:Core/Src/zigbee.c **** {
+ 1063              		.loc 1 220 1 is_stmt 1 view -0
  1064              		.cfi_startproc
  1065              		@ args = 0, pretend = 0, frame = 0
  1066              		@ frame_needed = 0, uses_anonymous_args = 0
  1067              		@ link register save eliminated.
- 226:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[31] & 0x80) >> 7);
- 1068              		.loc 1 226 2 view .LVU223
- 1069              		.loc 1 226 34 is_stmt 0 view .LVU224
+ 221:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[31] & 0x80) >> 7);
+ 1068              		.loc 1 221 2 view .LVU223
+ 1069              		.loc 1 221 34 is_stmt 0 view .LVU224
  1070 0000 014B     		ldr	r3, .L112
  1071 0002 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
- 227:Core/Src/zigbee.c **** }
- 1072              		.loc 1 227 1 view .LVU225
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 24
-
-
+ 222:Core/Src/zigbee.c **** }
+ 1072              		.loc 1 222 1 view .LVU225
  1073 0004 C009     		lsrs	r0, r0, #7
  1074 0006 7047     		bx	lr
  1075              	.L113:
  1076              		.align	2
  1077              	.L112:
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 24
+
+
  1078 0008 00000000 		.word	.LANCHOR2
  1079              		.cfi_endproc
  1080              	.LFE85:
@@ -1398,21 +1393,21 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1088              		.fpu softvfp
  1090              	getIsCarPosValid:
  1091              	.LFB86:
- 228:Core/Src/zigbee.c **** 
- 229:Core/Src/zigbee.c **** uint16_t getIsCarPosValid(void)
- 230:Core/Src/zigbee.c **** {
- 1092              		.loc 1 230 1 is_stmt 1 view -0
+ 223:Core/Src/zigbee.c **** 
+ 224:Core/Src/zigbee.c **** uint16_t getIsCarPosValid(void)
+ 225:Core/Src/zigbee.c **** {
+ 1092              		.loc 1 225 1 is_stmt 1 view -0
  1093              		.cfi_startproc
  1094              		@ args = 0, pretend = 0, frame = 0
  1095              		@ frame_needed = 0, uses_anonymous_args = 0
  1096              		@ link register save eliminated.
- 231:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[31] & 0x40) >> 6);
- 1097              		.loc 1 231 2 view .LVU227
- 1098              		.loc 1 231 34 is_stmt 0 view .LVU228
+ 226:Core/Src/zigbee.c **** 	return (uint16_t)((zigbeeMessage[31] & 0x40) >> 6);
+ 1097              		.loc 1 226 2 view .LVU227
+ 1098              		.loc 1 226 34 is_stmt 0 view .LVU228
  1099 0000 024B     		ldr	r3, .L115
  1100 0002 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
- 232:Core/Src/zigbee.c **** }
- 1101              		.loc 1 232 1 view .LVU229
+ 227:Core/Src/zigbee.c **** }
+ 1101              		.loc 1 227 1 view .LVU229
  1102 0004 C0F38010 		ubfx	r0, r0, #6, #1
  1103 0008 7047     		bx	lr
  1104              	.L116:
@@ -1431,90 +1426,90 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1119              	getIsDistanceOfMyBeaconValid:
  1120              	.LVL74:
  1121              	.LFB87:
- 233:Core/Src/zigbee.c **** 
- 234:Core/Src/zigbee.c **** uint16_t getIsDistanceOfMyBeaconValid(int BeaconNo)
- 235:Core/Src/zigbee.c **** {
- 1122              		.loc 1 235 1 is_stmt 1 view -0
+ 228:Core/Src/zigbee.c **** 
+ 229:Core/Src/zigbee.c **** uint16_t getIsDistanceOfMyBeaconValid(int BeaconNo)
+ 230:Core/Src/zigbee.c **** {
+ 1122              		.loc 1 230 1 is_stmt 1 view -0
  1123              		.cfi_startproc
  1124              		@ args = 0, pretend = 0, frame = 0
  1125              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 25
-
-
  1126              		@ link register save eliminated.
- 236:Core/Src/zigbee.c **** 	if (BeaconNo == 0)
- 1127              		.loc 1 236 2 view .LVU231
- 1128              		.loc 1 236 5 is_stmt 0 view .LVU232
+ 231:Core/Src/zigbee.c **** 	if (BeaconNo == 0)
+ 1127              		.loc 1 231 2 view .LVU231
+ 1128              		.loc 1 231 5 is_stmt 0 view .LVU232
  1129 0000 30B1     		cbz	r0, .L122
- 237:Core/Src/zigbee.c **** 	{
- 238:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x20) >> 5);
- 239:Core/Src/zigbee.c **** 	}
- 240:Core/Src/zigbee.c **** 	else if (BeaconNo == 1)
- 1130              		.loc 1 240 7 is_stmt 1 view .LVU233
- 1131              		.loc 1 240 10 is_stmt 0 view .LVU234
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 25
+
+
+ 232:Core/Src/zigbee.c **** 	{
+ 233:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x20) >> 5);
+ 234:Core/Src/zigbee.c **** 	}
+ 235:Core/Src/zigbee.c **** 	else if (BeaconNo == 1)
+ 1130              		.loc 1 235 7 is_stmt 1 view .LVU233
+ 1131              		.loc 1 235 10 is_stmt 0 view .LVU234
  1132 0002 0128     		cmp	r0, #1
  1133 0004 09D0     		beq	.L123
- 241:Core/Src/zigbee.c **** 	{
- 242:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x10) >> 4);
- 243:Core/Src/zigbee.c **** 	}
- 244:Core/Src/zigbee.c **** 	else if (BeaconNo == 2)
- 1134              		.loc 1 244 7 is_stmt 1 view .LVU235
- 1135              		.loc 1 244 10 is_stmt 0 view .LVU236
+ 236:Core/Src/zigbee.c **** 	{
+ 237:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x10) >> 4);
+ 238:Core/Src/zigbee.c **** 	}
+ 239:Core/Src/zigbee.c **** 	else if (BeaconNo == 2)
+ 1134              		.loc 1 239 7 is_stmt 1 view .LVU235
+ 1135              		.loc 1 239 10 is_stmt 0 view .LVU236
  1136 0006 0228     		cmp	r0, #2
  1137 0008 0CD0     		beq	.L124
- 245:Core/Src/zigbee.c **** 	{
- 246:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x08) >> 3);
- 247:Core/Src/zigbee.c **** 	}
- 248:Core/Src/zigbee.c **** 	else
- 249:Core/Src/zigbee.c **** 	{
- 250:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 1138              		.loc 1 250 10 view .LVU237
+ 240:Core/Src/zigbee.c **** 	{
+ 241:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x08) >> 3);
+ 242:Core/Src/zigbee.c **** 	}
+ 243:Core/Src/zigbee.c **** 	else
+ 244:Core/Src/zigbee.c **** 	{
+ 245:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 1138              		.loc 1 245 10 view .LVU237
  1139 000a 4FF6FF70 		movw	r0, #65535
  1140              	.LVL75:
- 251:Core/Src/zigbee.c **** 	}
- 252:Core/Src/zigbee.c **** }
- 1141              		.loc 1 252 1 view .LVU238
+ 246:Core/Src/zigbee.c **** 	}
+ 247:Core/Src/zigbee.c **** }
+ 1141              		.loc 1 247 1 view .LVU238
  1142 000e 7047     		bx	lr
  1143              	.LVL76:
  1144              	.L122:
- 238:Core/Src/zigbee.c **** 	}
- 1145              		.loc 1 238 3 is_stmt 1 view .LVU239
- 238:Core/Src/zigbee.c **** 	}
- 1146              		.loc 1 238 35 is_stmt 0 view .LVU240
+ 233:Core/Src/zigbee.c **** 	}
+ 1145              		.loc 1 233 3 is_stmt 1 view .LVU239
+ 233:Core/Src/zigbee.c **** 	}
+ 1146              		.loc 1 233 35 is_stmt 0 view .LVU240
  1147 0010 074B     		ldr	r3, .L125
  1148 0012 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1149              	.LVL77:
- 238:Core/Src/zigbee.c **** 	}
- 1150              		.loc 1 238 10 view .LVU241
+ 233:Core/Src/zigbee.c **** 	}
+ 1150              		.loc 1 233 10 view .LVU241
  1151 0014 C0F34010 		ubfx	r0, r0, #5, #1
  1152 0018 7047     		bx	lr
  1153              	.LVL78:
  1154              	.L123:
- 242:Core/Src/zigbee.c **** 	}
- 1155              		.loc 1 242 3 is_stmt 1 view .LVU242
- 242:Core/Src/zigbee.c **** 	}
- 1156              		.loc 1 242 35 is_stmt 0 view .LVU243
+ 237:Core/Src/zigbee.c **** 	}
+ 1155              		.loc 1 237 3 is_stmt 1 view .LVU242
+ 237:Core/Src/zigbee.c **** 	}
+ 1156              		.loc 1 237 35 is_stmt 0 view .LVU243
  1157 001a 054B     		ldr	r3, .L125
  1158 001c D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1159              	.LVL79:
- 242:Core/Src/zigbee.c **** 	}
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 26
-
-
- 1160              		.loc 1 242 10 view .LVU244
+ 237:Core/Src/zigbee.c **** 	}
+ 1160              		.loc 1 237 10 view .LVU244
  1161 001e C0F30010 		ubfx	r0, r0, #4, #1
  1162 0022 7047     		bx	lr
  1163              	.LVL80:
  1164              	.L124:
- 246:Core/Src/zigbee.c **** 	}
- 1165              		.loc 1 246 3 is_stmt 1 view .LVU245
- 246:Core/Src/zigbee.c **** 	}
- 1166              		.loc 1 246 35 is_stmt 0 view .LVU246
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 26
+
+
+ 241:Core/Src/zigbee.c **** 	}
+ 1165              		.loc 1 241 3 is_stmt 1 view .LVU245
+ 241:Core/Src/zigbee.c **** 	}
+ 1166              		.loc 1 241 35 is_stmt 0 view .LVU246
  1167 0024 024B     		ldr	r3, .L125
  1168 0026 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1169              	.LVL81:
- 246:Core/Src/zigbee.c **** 	}
- 1170              		.loc 1 246 10 view .LVU247
+ 241:Core/Src/zigbee.c **** 	}
+ 1170              		.loc 1 241 10 view .LVU247
  1171 0028 C0F3C000 		ubfx	r0, r0, #3, #1
  1172 002c 7047     		bx	lr
  1173              	.L126:
@@ -1533,99 +1528,99 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1188              	getIsDistanceOfRivalBeaconValid:
  1189              	.LVL82:
  1190              	.LFB88:
- 253:Core/Src/zigbee.c **** 
- 254:Core/Src/zigbee.c **** uint16_t getIsDistanceOfRivalBeaconValid(int BeaconNo)
- 255:Core/Src/zigbee.c **** {
- 1191              		.loc 1 255 1 is_stmt 1 view -0
+ 248:Core/Src/zigbee.c **** 
+ 249:Core/Src/zigbee.c **** uint16_t getIsDistanceOfRivalBeaconValid(int BeaconNo)
+ 250:Core/Src/zigbee.c **** {
+ 1191              		.loc 1 250 1 is_stmt 1 view -0
  1192              		.cfi_startproc
  1193              		@ args = 0, pretend = 0, frame = 0
  1194              		@ frame_needed = 0, uses_anonymous_args = 0
  1195              		@ link register save eliminated.
- 256:Core/Src/zigbee.c **** 	if (BeaconNo == 0)
- 1196              		.loc 1 256 2 view .LVU249
- 1197              		.loc 1 256 5 is_stmt 0 view .LVU250
+ 251:Core/Src/zigbee.c **** 	if (BeaconNo == 0)
+ 1196              		.loc 1 251 2 view .LVU249
+ 1197              		.loc 1 251 5 is_stmt 0 view .LVU250
  1198 0000 30B1     		cbz	r0, .L132
- 257:Core/Src/zigbee.c **** 	{
- 258:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x04) >> 2);
- 259:Core/Src/zigbee.c **** 	}
- 260:Core/Src/zigbee.c **** 	else if (BeaconNo == 1)
- 1199              		.loc 1 260 7 is_stmt 1 view .LVU251
- 1200              		.loc 1 260 10 is_stmt 0 view .LVU252
+ 252:Core/Src/zigbee.c **** 	{
+ 253:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x04) >> 2);
+ 254:Core/Src/zigbee.c **** 	}
+ 255:Core/Src/zigbee.c **** 	else if (BeaconNo == 1)
+ 1199              		.loc 1 255 7 is_stmt 1 view .LVU251
+ 1200              		.loc 1 255 10 is_stmt 0 view .LVU252
  1201 0002 0128     		cmp	r0, #1
  1202 0004 09D0     		beq	.L133
- 261:Core/Src/zigbee.c **** 	{
- 262:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x02) >> 1);
- 263:Core/Src/zigbee.c **** 	}
- 264:Core/Src/zigbee.c **** 	else if (BeaconNo == 2)
- 1203              		.loc 1 264 7 is_stmt 1 view .LVU253
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 27
-
-
- 1204              		.loc 1 264 10 is_stmt 0 view .LVU254
+ 256:Core/Src/zigbee.c **** 	{
+ 257:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x02) >> 1);
+ 258:Core/Src/zigbee.c **** 	}
+ 259:Core/Src/zigbee.c **** 	else if (BeaconNo == 2)
+ 1203              		.loc 1 259 7 is_stmt 1 view .LVU253
+ 1204              		.loc 1 259 10 is_stmt 0 view .LVU254
  1205 0006 0228     		cmp	r0, #2
  1206 0008 0CD0     		beq	.L134
- 265:Core/Src/zigbee.c **** 	{
- 266:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x01));
- 267:Core/Src/zigbee.c **** 	}
- 268:Core/Src/zigbee.c **** 	else
- 269:Core/Src/zigbee.c **** 	{
- 270:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 1207              		.loc 1 270 10 view .LVU255
+ 260:Core/Src/zigbee.c **** 	{
+ 261:Core/Src/zigbee.c **** 		return (uint16_t)((zigbeeMessage[31] & 0x01));
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 27
+
+
+ 262:Core/Src/zigbee.c **** 	}
+ 263:Core/Src/zigbee.c **** 	else
+ 264:Core/Src/zigbee.c **** 	{
+ 265:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 1207              		.loc 1 265 10 view .LVU255
  1208 000a 4FF6FF70 		movw	r0, #65535
  1209              	.LVL83:
- 271:Core/Src/zigbee.c **** 	}
- 272:Core/Src/zigbee.c **** }
- 1210              		.loc 1 272 1 view .LVU256
+ 266:Core/Src/zigbee.c **** 	}
+ 267:Core/Src/zigbee.c **** }
+ 1210              		.loc 1 267 1 view .LVU256
  1211 000e 7047     		bx	lr
  1212              	.LVL84:
  1213              	.L132:
- 258:Core/Src/zigbee.c **** 	}
- 1214              		.loc 1 258 3 is_stmt 1 view .LVU257
- 258:Core/Src/zigbee.c **** 	}
- 1215              		.loc 1 258 35 is_stmt 0 view .LVU258
+ 253:Core/Src/zigbee.c **** 	}
+ 1214              		.loc 1 253 3 is_stmt 1 view .LVU257
+ 253:Core/Src/zigbee.c **** 	}
+ 1215              		.loc 1 253 35 is_stmt 0 view .LVU258
  1216 0010 074B     		ldr	r3, .L135
  1217 0012 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1218              	.LVL85:
- 258:Core/Src/zigbee.c **** 	}
- 1219              		.loc 1 258 10 view .LVU259
+ 253:Core/Src/zigbee.c **** 	}
+ 1219              		.loc 1 253 10 view .LVU259
  1220 0014 C0F38000 		ubfx	r0, r0, #2, #1
  1221 0018 7047     		bx	lr
  1222              	.LVL86:
  1223              	.L133:
- 262:Core/Src/zigbee.c **** 	}
- 1224              		.loc 1 262 3 is_stmt 1 view .LVU260
- 262:Core/Src/zigbee.c **** 	}
- 1225              		.loc 1 262 35 is_stmt 0 view .LVU261
+ 257:Core/Src/zigbee.c **** 	}
+ 1224              		.loc 1 257 3 is_stmt 1 view .LVU260
+ 257:Core/Src/zigbee.c **** 	}
+ 1225              		.loc 1 257 35 is_stmt 0 view .LVU261
  1226 001a 054B     		ldr	r3, .L135
  1227 001c D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1228              	.LVL87:
- 262:Core/Src/zigbee.c **** 	}
- 1229              		.loc 1 262 10 view .LVU262
+ 257:Core/Src/zigbee.c **** 	}
+ 1229              		.loc 1 257 10 view .LVU262
  1230 001e C0F34000 		ubfx	r0, r0, #1, #1
  1231 0022 7047     		bx	lr
  1232              	.LVL88:
  1233              	.L134:
- 266:Core/Src/zigbee.c **** 	}
- 1234              		.loc 1 266 3 is_stmt 1 view .LVU263
- 266:Core/Src/zigbee.c **** 	}
- 1235              		.loc 1 266 35 is_stmt 0 view .LVU264
+ 261:Core/Src/zigbee.c **** 	}
+ 1234              		.loc 1 261 3 is_stmt 1 view .LVU263
+ 261:Core/Src/zigbee.c **** 	}
+ 1235              		.loc 1 261 35 is_stmt 0 view .LVU264
  1236 0024 024B     		ldr	r3, .L135
  1237 0026 D87F     		ldrb	r0, [r3, #31]	@ zero_extendqisi2
  1238              	.LVL89:
- 266:Core/Src/zigbee.c **** 	}
- 1239              		.loc 1 266 10 view .LVU265
+ 261:Core/Src/zigbee.c **** 	}
+ 1239              		.loc 1 261 10 view .LVU265
  1240 0028 00F00100 		and	r0, r0, #1
  1241 002c 7047     		bx	lr
  1242              	.L136:
  1243 002e 00BF     		.align	2
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 28
-
-
  1244              	.L135:
  1245 0030 00000000 		.word	.LANCHOR2
  1246              		.cfi_endproc
  1247              	.LFE88:
  1249              		.section	.text.getCarScore,"ax",%progbits
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 28
+
+
  1250              		.align	1
  1251              		.global	getCarScore
  1252              		.syntax unified
@@ -1634,18 +1629,18 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1255              		.fpu softvfp
  1257              	getCarScore:
  1258              	.LFB89:
- 273:Core/Src/zigbee.c **** 
- 274:Core/Src/zigbee.c **** int16_t getCarScore(void)
- 275:Core/Src/zigbee.c **** {
- 1259              		.loc 1 275 1 is_stmt 1 view -0
+ 268:Core/Src/zigbee.c **** 
+ 269:Core/Src/zigbee.c **** int16_t getCarScore(void)
+ 270:Core/Src/zigbee.c **** {
+ 1259              		.loc 1 270 1 is_stmt 1 view -0
  1260              		.cfi_startproc
  1261              		@ args = 0, pretend = 0, frame = 0
  1262              		@ frame_needed = 0, uses_anonymous_args = 0
  1263              		@ link register save eliminated.
- 276:Core/Src/zigbee.c **** 	return (int16_t)((int8_t)(zigbeeMessage[32] << 8) + zigbeeMessage[33]);
- 1264              		.loc 1 276 2 view .LVU267
- 277:Core/Src/zigbee.c **** }
- 1265              		.loc 1 277 1 is_stmt 0 view .LVU268
+ 271:Core/Src/zigbee.c **** 	return (int16_t)((int8_t)(zigbeeMessage[32] << 8) + zigbeeMessage[33]);
+ 1264              		.loc 1 271 2 view .LVU267
+ 272:Core/Src/zigbee.c **** }
+ 1265              		.loc 1 272 1 is_stmt 0 view .LVU268
  1266 0000 014B     		ldr	r3, .L138
  1267 0002 93F82100 		ldrb	r0, [r3, #33]	@ zero_extendqisi2
  1268 0006 7047     		bx	lr
@@ -1665,47 +1660,47 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1284              	getMyBeaconPosX:
  1285              	.LVL90:
  1286              	.LFB90:
- 278:Core/Src/zigbee.c **** 
- 279:Core/Src/zigbee.c **** uint16_t getMyBeaconPosX(int BeaconNo)
- 280:Core/Src/zigbee.c **** {
- 1287              		.loc 1 280 1 is_stmt 1 view -0
+ 273:Core/Src/zigbee.c **** 
+ 274:Core/Src/zigbee.c **** uint16_t getMyBeaconPosX(int BeaconNo)
+ 275:Core/Src/zigbee.c **** {
+ 1287              		.loc 1 275 1 is_stmt 1 view -0
  1288              		.cfi_startproc
  1289              		@ args = 0, pretend = 0, frame = 0
  1290              		@ frame_needed = 0, uses_anonymous_args = 0
  1291              		@ link register save eliminated.
- 281:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 1292              		.loc 1 281 2 view .LVU270
- 1293              		.loc 1 281 5 is_stmt 0 view .LVU271
+ 276:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 1292              		.loc 1 276 2 view .LVU270
+ 1293              		.loc 1 276 5 is_stmt 0 view .LVU271
  1294 0000 0228     		cmp	r0, #2
  1295 0002 04D8     		bhi	.L142
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 29
+ 277:Core/Src/zigbee.c **** 	{
+ 278:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 279:Core/Src/zigbee.c **** 	}
+ 280:Core/Src/zigbee.c **** 	else
+ 281:Core/Src/zigbee.c **** 	{
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 29
 
 
- 282:Core/Src/zigbee.c **** 	{
- 283:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 284:Core/Src/zigbee.c **** 	}
- 285:Core/Src/zigbee.c **** 	else
- 286:Core/Src/zigbee.c **** 	{
- 287:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[34 + 2 * BeaconNo]);
- 1296              		.loc 1 287 3 is_stmt 1 view .LVU272
- 1297              		.loc 1 287 38 is_stmt 0 view .LVU273
+ 282:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[34 + 2 * BeaconNo]);
+ 1296              		.loc 1 282 3 is_stmt 1 view .LVU272
+ 1297              		.loc 1 282 38 is_stmt 0 view .LVU273
  1298 0004 1130     		adds	r0, r0, #17
  1299              	.LVL91:
- 1300              		.loc 1 287 10 view .LVU274
+ 1300              		.loc 1 282 10 view .LVU274
  1301 0006 034B     		ldr	r3, .L143
  1302 0008 13F81000 		ldrb	r0, [r3, r0, lsl #1]	@ zero_extendqisi2
  1303              	.LVL92:
- 1304              		.loc 1 287 10 view .LVU275
+ 1304              		.loc 1 282 10 view .LVU275
  1305 000c 7047     		bx	lr
  1306              	.LVL93:
  1307              	.L142:
- 283:Core/Src/zigbee.c **** 	}
- 1308              		.loc 1 283 10 view .LVU276
+ 278:Core/Src/zigbee.c **** 	}
+ 1308              		.loc 1 278 10 view .LVU276
  1309 000e 4FF6FF70 		movw	r0, #65535
  1310              	.LVL94:
- 288:Core/Src/zigbee.c **** 	}
- 289:Core/Src/zigbee.c **** }
- 1311              		.loc 1 289 1 view .LVU277
+ 283:Core/Src/zigbee.c **** 	}
+ 284:Core/Src/zigbee.c **** }
+ 1311              		.loc 1 284 1 view .LVU277
  1312 0012 7047     		bx	lr
  1313              	.L144:
  1314              		.align	2
@@ -1723,47 +1718,47 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1328              	getMyBeaconPosY:
  1329              	.LVL95:
  1330              	.LFB91:
- 290:Core/Src/zigbee.c **** 
- 291:Core/Src/zigbee.c **** uint16_t getMyBeaconPosY(int BeaconNo)
- 292:Core/Src/zigbee.c **** {
- 1331              		.loc 1 292 1 is_stmt 1 view -0
+ 285:Core/Src/zigbee.c **** 
+ 286:Core/Src/zigbee.c **** uint16_t getMyBeaconPosY(int BeaconNo)
+ 287:Core/Src/zigbee.c **** {
+ 1331              		.loc 1 287 1 is_stmt 1 view -0
  1332              		.cfi_startproc
  1333              		@ args = 0, pretend = 0, frame = 0
  1334              		@ frame_needed = 0, uses_anonymous_args = 0
  1335              		@ link register save eliminated.
- 293:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 1336              		.loc 1 293 2 view .LVU279
- 1337              		.loc 1 293 5 is_stmt 0 view .LVU280
+ 288:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 1336              		.loc 1 288 2 view .LVU279
+ 1337              		.loc 1 288 5 is_stmt 0 view .LVU280
  1338 0000 0228     		cmp	r0, #2
  1339 0002 04D8     		bhi	.L147
- 294:Core/Src/zigbee.c **** 	{
- 295:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 30
+ 289:Core/Src/zigbee.c **** 	{
+ 290:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 291:Core/Src/zigbee.c **** 	}
+ 292:Core/Src/zigbee.c **** 	else
+ 293:Core/Src/zigbee.c **** 	{
+ 294:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[35 + 2 * BeaconNo]);
+ 1340              		.loc 1 294 3 is_stmt 1 view .LVU281
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 30
 
 
- 296:Core/Src/zigbee.c **** 	}
- 297:Core/Src/zigbee.c **** 	else
- 298:Core/Src/zigbee.c **** 	{
- 299:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[35 + 2 * BeaconNo]);
- 1340              		.loc 1 299 3 is_stmt 1 view .LVU281
- 1341              		.loc 1 299 42 is_stmt 0 view .LVU282
+ 1341              		.loc 1 294 42 is_stmt 0 view .LVU282
  1342 0004 4000     		lsls	r0, r0, #1
  1343              	.LVL96:
- 1344              		.loc 1 299 38 view .LVU283
+ 1344              		.loc 1 294 38 view .LVU283
  1345 0006 2330     		adds	r0, r0, #35
- 1346              		.loc 1 299 10 view .LVU284
+ 1346              		.loc 1 294 10 view .LVU284
  1347 0008 024B     		ldr	r3, .L148
  1348 000a 185C     		ldrb	r0, [r3, r0]	@ zero_extendqisi2
  1349 000c 7047     		bx	lr
  1350              	.LVL97:
  1351              	.L147:
- 295:Core/Src/zigbee.c **** 	}
- 1352              		.loc 1 295 10 view .LVU285
+ 290:Core/Src/zigbee.c **** 	}
+ 1352              		.loc 1 290 10 view .LVU285
  1353 000e 4FF6FF70 		movw	r0, #65535
  1354              	.LVL98:
- 300:Core/Src/zigbee.c **** 	}
- 301:Core/Src/zigbee.c **** }
- 1355              		.loc 1 301 1 view .LVU286
+ 295:Core/Src/zigbee.c **** 	}
+ 296:Core/Src/zigbee.c **** }
+ 1355              		.loc 1 296 1 view .LVU286
  1356 0012 7047     		bx	lr
  1357              	.L149:
  1358              		.align	2
@@ -1781,47 +1776,47 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1372              	getRivalBeaconPosX:
  1373              	.LVL99:
  1374              	.LFB92:
- 302:Core/Src/zigbee.c **** 
- 303:Core/Src/zigbee.c **** uint16_t getRivalBeaconPosX(int BeaconNo)
- 304:Core/Src/zigbee.c **** {
- 1375              		.loc 1 304 1 is_stmt 1 view -0
+ 297:Core/Src/zigbee.c **** 
+ 298:Core/Src/zigbee.c **** uint16_t getRivalBeaconPosX(int BeaconNo)
+ 299:Core/Src/zigbee.c **** {
+ 1375              		.loc 1 299 1 is_stmt 1 view -0
  1376              		.cfi_startproc
  1377              		@ args = 0, pretend = 0, frame = 0
  1378              		@ frame_needed = 0, uses_anonymous_args = 0
  1379              		@ link register save eliminated.
- 305:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 1380              		.loc 1 305 2 view .LVU288
- 1381              		.loc 1 305 5 is_stmt 0 view .LVU289
+ 300:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 1380              		.loc 1 300 2 view .LVU288
+ 1381              		.loc 1 300 5 is_stmt 0 view .LVU289
  1382 0000 0228     		cmp	r0, #2
  1383 0002 04D8     		bhi	.L152
- 306:Core/Src/zigbee.c **** 	{
- 307:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 308:Core/Src/zigbee.c **** 	}
- 309:Core/Src/zigbee.c **** 	else
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 31
-
-
- 310:Core/Src/zigbee.c **** 	{
- 311:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[40 + 2 * BeaconNo]);
- 1384              		.loc 1 311 3 is_stmt 1 view .LVU290
- 1385              		.loc 1 311 38 is_stmt 0 view .LVU291
+ 301:Core/Src/zigbee.c **** 	{
+ 302:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 303:Core/Src/zigbee.c **** 	}
+ 304:Core/Src/zigbee.c **** 	else
+ 305:Core/Src/zigbee.c **** 	{
+ 306:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[40 + 2 * BeaconNo]);
+ 1384              		.loc 1 306 3 is_stmt 1 view .LVU290
+ 1385              		.loc 1 306 38 is_stmt 0 view .LVU291
  1386 0004 1430     		adds	r0, r0, #20
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 31
+
+
  1387              	.LVL100:
- 1388              		.loc 1 311 10 view .LVU292
+ 1388              		.loc 1 306 10 view .LVU292
  1389 0006 034B     		ldr	r3, .L153
  1390 0008 13F81000 		ldrb	r0, [r3, r0, lsl #1]	@ zero_extendqisi2
  1391              	.LVL101:
- 1392              		.loc 1 311 10 view .LVU293
+ 1392              		.loc 1 306 10 view .LVU293
  1393 000c 7047     		bx	lr
  1394              	.LVL102:
  1395              	.L152:
- 307:Core/Src/zigbee.c **** 	}
- 1396              		.loc 1 307 10 view .LVU294
+ 302:Core/Src/zigbee.c **** 	}
+ 1396              		.loc 1 302 10 view .LVU294
  1397 000e 4FF6FF70 		movw	r0, #65535
  1398              	.LVL103:
- 312:Core/Src/zigbee.c **** 	}
- 313:Core/Src/zigbee.c **** }
- 1399              		.loc 1 313 1 view .LVU295
+ 307:Core/Src/zigbee.c **** 	}
+ 308:Core/Src/zigbee.c **** }
+ 1399              		.loc 1 308 1 view .LVU295
  1400 0012 7047     		bx	lr
  1401              	.L154:
  1402              		.align	2
@@ -1839,47 +1834,47 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1416              	getRivalBeaconPosY:
  1417              	.LVL104:
  1418              	.LFB93:
- 314:Core/Src/zigbee.c **** 
- 315:Core/Src/zigbee.c **** uint16_t getRivalBeaconPosY(int BeaconNo)
- 316:Core/Src/zigbee.c **** {
- 1419              		.loc 1 316 1 is_stmt 1 view -0
+ 309:Core/Src/zigbee.c **** 
+ 310:Core/Src/zigbee.c **** uint16_t getRivalBeaconPosY(int BeaconNo)
+ 311:Core/Src/zigbee.c **** {
+ 1419              		.loc 1 311 1 is_stmt 1 view -0
  1420              		.cfi_startproc
  1421              		@ args = 0, pretend = 0, frame = 0
  1422              		@ frame_needed = 0, uses_anonymous_args = 0
  1423              		@ link register save eliminated.
- 317:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
- 1424              		.loc 1 317 2 view .LVU297
- 1425              		.loc 1 317 5 is_stmt 0 view .LVU298
+ 312:Core/Src/zigbee.c **** 	if (BeaconNo != 0 && BeaconNo != 1 && BeaconNo != 2)
+ 1424              		.loc 1 312 2 view .LVU297
+ 1425              		.loc 1 312 5 is_stmt 0 view .LVU298
  1426 0000 0228     		cmp	r0, #2
  1427 0002 04D8     		bhi	.L157
- 318:Core/Src/zigbee.c **** 	{
- 319:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
- 320:Core/Src/zigbee.c **** 	}
- 321:Core/Src/zigbee.c **** 	else
- 322:Core/Src/zigbee.c **** 	{
- 323:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[41 + 2 * BeaconNo]);
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 32
-
-
- 1428              		.loc 1 323 3 is_stmt 1 view .LVU299
- 1429              		.loc 1 323 42 is_stmt 0 view .LVU300
+ 313:Core/Src/zigbee.c **** 	{
+ 314:Core/Src/zigbee.c **** 		return (uint16_t)INVALID_ARG;
+ 315:Core/Src/zigbee.c **** 	}
+ 316:Core/Src/zigbee.c **** 	else
+ 317:Core/Src/zigbee.c **** 	{
+ 318:Core/Src/zigbee.c **** 		return (uint16_t)(zigbeeMessage[41 + 2 * BeaconNo]);
+ 1428              		.loc 1 318 3 is_stmt 1 view .LVU299
+ 1429              		.loc 1 318 42 is_stmt 0 view .LVU300
  1430 0004 4000     		lsls	r0, r0, #1
  1431              	.LVL105:
- 1432              		.loc 1 323 38 view .LVU301
+ 1432              		.loc 1 318 38 view .LVU301
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 32
+
+
  1433 0006 2930     		adds	r0, r0, #41
- 1434              		.loc 1 323 10 view .LVU302
+ 1434              		.loc 1 318 10 view .LVU302
  1435 0008 024B     		ldr	r3, .L158
  1436 000a 185C     		ldrb	r0, [r3, r0]	@ zero_extendqisi2
  1437 000c 7047     		bx	lr
  1438              	.LVL106:
  1439              	.L157:
- 319:Core/Src/zigbee.c **** 	}
- 1440              		.loc 1 319 10 view .LVU303
+ 314:Core/Src/zigbee.c **** 	}
+ 1440              		.loc 1 314 10 view .LVU303
  1441 000e 4FF6FF70 		movw	r0, #65535
  1442              	.LVL107:
- 324:Core/Src/zigbee.c **** 	}
- 325:Core/Src/zigbee.c **** }
- 1443              		.loc 1 325 1 view .LVU304
+ 319:Core/Src/zigbee.c **** 	}
+ 320:Core/Src/zigbee.c **** }
+ 1443              		.loc 1 320 1 view .LVU304
  1444 0012 7047     		bx	lr
  1445              	.L159:
  1446              		.align	2
@@ -1918,14 +1913,14 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1478 0000 00000000 		.space	48
  1478      00000000 
  1478      00000000 
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 33
-
-
  1478      00000000 
  1478      00000000 
  1479              		.section	.bss.zigbee_halfrecv_len,"aw",%nobits
  1480              		.set	.LANCHOR3,. + 0
  1483              	zigbee_halfrecv_len:
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 33
+
+
  1484 0000 00       		.space	1
  1485              		.section	.bss.zigbee_huart,"aw",%nobits
  1486              		.align	2
@@ -1936,7 +1931,7 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1493              		.align	2
  1494              		.set	.LANCHOR5,. + 0
  1497              	zigbeeMessageSend:
- 1498 0000 01020304 		.ascii	"\001\002\003\004"
+ 1498 0000 00010203 		.ascii	"\000\001\002\003"
  1499              		.text
  1500              	.Letext0:
  1501              		.file 2 "d:\\gnu arm embedded toolchain10\\10 2021.07\\arm-none-eabi\\include\\machine\\_default_t
@@ -1946,115 +1941,115 @@ ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 1
  1505              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
  1506              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h"
  1507              		.file 8 "<built-in>"
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 34
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 34
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 zigbee.c
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:16     .text.zigbee_Init:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:24     .text.zigbee_Init:00000000 zigbee_Init
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:57     .text.zigbee_Init:0000001c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:63     .text.zigbeeMessageRecord:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:70     .text.zigbeeMessageRecord:00000000 zigbeeMessageRecord
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:224    .text.zigbeeMessageRecord:000000a4 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:232    .text.zigbeeSend:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:239    .text.zigbeeSend:00000000 zigbeeSend
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:268    .text.zigbeeSend:00000018 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:274    .text.getGameTime:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:281    .text.getGameTime:00000000 getGameTime
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:302    .text.getGameTime:00000010 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:307    .text.getGameState:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:314    .text.getGameState:00000000 getGameState
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:331    .text.getGameState:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:336    .text.getCarTask:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:343    .text.getCarTask:00000000 getCarTask
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:360    .text.getCarTask:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:365    .text.getIsMineIntensityValid:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:372    .text.getIsMineIntensityValid:00000000 getIsMineIntensityValid
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:415    .text.getIsMineIntensityValid:00000020 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:420    .text.getCarPosX:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:427    .text.getCarPosX:00000000 getCarPosX
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:442    .text.getCarPosX:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:447    .text.getCarPosY:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:454    .text.getCarPosY:00000000 getCarPosY
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:469    .text.getCarPosY:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:474    .text.getMineArrayType:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:481    .text.getMineArrayType:00000000 getMineArrayType
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:524    .text.getMineArrayType:00000020 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:529    .text.getCarMineSumNum:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:536    .text.getCarMineSumNum:00000000 getCarMineSumNum
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:553    .text.getCarMineSumNum:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:558    .text.getCarMineANum:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:565    .text.getCarMineANum:00000000 getCarMineANum
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:582    .text.getCarMineANum:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:587    .text.getCarMineBNum:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:594    .text.getCarMineBNum:00000000 getCarMineBNum
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:611    .text.getCarMineBNum:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:616    .text.getCarMineCNum:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:623    .text.getCarMineCNum:00000000 getCarMineCNum
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:640    .text.getCarMineCNum:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:645    .text.getCarMineDNum:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:652    .text.getCarMineDNum:00000000 getCarMineDNum
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:669    .text.getCarMineDNum:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:674    .text.getMyBeaconMineType:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:681    .text.getMyBeaconMineType:00000000 getMyBeaconMineType
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:738    .text.getMyBeaconMineType:0000002c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:743    .text.getMineIntensity:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:750    .text.getMineIntensity:00000000 getMineIntensity
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:804    .text.getMineIntensity:00000034 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:809    .text.getDistanceOfMyBeacon:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:816    .text.getDistanceOfMyBeacon:00000000 getDistanceOfMyBeacon
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:856    .text.getDistanceOfMyBeacon:00000020 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:861    .text.getDistanceOfRivalBeacon:00000000 $t
-ARM GAS  C:\Users\86183\AppData\Local\Temp\ccjJELiD.s 			page 35
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:16     .text.zigbee_Init:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:24     .text.zigbee_Init:00000000 zigbee_Init
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:57     .text.zigbee_Init:0000001c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:63     .text.zigbeeMessageRecord:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:70     .text.zigbeeMessageRecord:00000000 zigbeeMessageRecord
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:224    .text.zigbeeMessageRecord:000000a4 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:232    .text.zigbeeSend:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:239    .text.zigbeeSend:00000000 zigbeeSend
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:268    .text.zigbeeSend:00000018 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:274    .text.getGameTime:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:281    .text.getGameTime:00000000 getGameTime
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:302    .text.getGameTime:00000010 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:307    .text.getGameState:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:314    .text.getGameState:00000000 getGameState
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:331    .text.getGameState:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:336    .text.getCarTask:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:343    .text.getCarTask:00000000 getCarTask
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:360    .text.getCarTask:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:365    .text.getIsMineIntensityValid:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:372    .text.getIsMineIntensityValid:00000000 getIsMineIntensityValid
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:415    .text.getIsMineIntensityValid:00000020 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:420    .text.getCarPosX:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:427    .text.getCarPosX:00000000 getCarPosX
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:442    .text.getCarPosX:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:447    .text.getCarPosY:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:454    .text.getCarPosY:00000000 getCarPosY
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:469    .text.getCarPosY:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:474    .text.getMineArrayType:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:481    .text.getMineArrayType:00000000 getMineArrayType
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:524    .text.getMineArrayType:00000020 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:529    .text.getCarMineSumNum:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:536    .text.getCarMineSumNum:00000000 getCarMineSumNum
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:553    .text.getCarMineSumNum:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:558    .text.getCarMineANum:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:565    .text.getCarMineANum:00000000 getCarMineANum
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:582    .text.getCarMineANum:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:587    .text.getCarMineBNum:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:594    .text.getCarMineBNum:00000000 getCarMineBNum
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:611    .text.getCarMineBNum:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:616    .text.getCarMineCNum:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:623    .text.getCarMineCNum:00000000 getCarMineCNum
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:640    .text.getCarMineCNum:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:645    .text.getCarMineDNum:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:652    .text.getCarMineDNum:00000000 getCarMineDNum
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:669    .text.getCarMineDNum:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:674    .text.getMyBeaconMineType:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:681    .text.getMyBeaconMineType:00000000 getMyBeaconMineType
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:738    .text.getMyBeaconMineType:0000002c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:743    .text.getMineIntensity:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:750    .text.getMineIntensity:00000000 getMineIntensity
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:804    .text.getMineIntensity:00000034 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:809    .text.getDistanceOfMyBeacon:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:816    .text.getDistanceOfMyBeacon:00000000 getDistanceOfMyBeacon
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:856    .text.getDistanceOfMyBeacon:00000020 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:861    .text.getDistanceOfRivalBeacon:00000000 $t
+ARM GAS  C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s 			page 35
 
 
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:868    .text.getDistanceOfRivalBeacon:00000000 getDistanceOfRivalBeacon
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:908    .text.getDistanceOfRivalBeacon:00000020 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:913    .text.getParkDotMineType:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:920    .text.getParkDotMineType:00000000 getParkDotMineType
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:937    .text.getParkDotMineType:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:945    .text.getParkDotMineType:00000014 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1049   .text.getParkDotMineType:0000006c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1054   .text.getCarZone:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1061   .text.getCarZone:00000000 getCarZone
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1078   .text.getCarZone:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1083   .text.getIsCarPosValid:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1090   .text.getIsCarPosValid:00000000 getIsCarPosValid
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1107   .text.getIsCarPosValid:0000000c $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1112   .text.getIsDistanceOfMyBeaconValid:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1119   .text.getIsDistanceOfMyBeaconValid:00000000 getIsDistanceOfMyBeaconValid
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1176   .text.getIsDistanceOfMyBeaconValid:00000030 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1181   .text.getIsDistanceOfRivalBeaconValid:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1188   .text.getIsDistanceOfRivalBeaconValid:00000000 getIsDistanceOfRivalBeaconValid
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1245   .text.getIsDistanceOfRivalBeaconValid:00000030 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1250   .text.getCarScore:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1257   .text.getCarScore:00000000 getCarScore
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1272   .text.getCarScore:00000008 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1277   .text.getMyBeaconPosX:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1284   .text.getMyBeaconPosX:00000000 getMyBeaconPosX
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1316   .text.getMyBeaconPosX:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1321   .text.getMyBeaconPosY:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1328   .text.getMyBeaconPosY:00000000 getMyBeaconPosY
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1360   .text.getMyBeaconPosY:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1365   .text.getRivalBeaconPosX:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1372   .text.getRivalBeaconPosX:00000000 getRivalBeaconPosX
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1404   .text.getRivalBeaconPosX:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1409   .text.getRivalBeaconPosY:00000000 $t
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1416   .text.getRivalBeaconPosY:00000000 getRivalBeaconPosY
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1448   .text.getRivalBeaconPosY:00000014 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1483   .bss.zigbee_halfrecv_len:00000000 zigbee_halfrecv_len
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1490   .bss.zigbee_huart:00000000 zigbee_huart
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1477   .bss.zigbee_halfrecv_buff:00000000 zigbee_halfrecv_buff
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1497   .data.zigbeeMessageSend:00000000 zigbeeMessageSend
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1470   .bss.zigbeeReceive:00000000 zigbeeReceive
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1463   .bss.zigbeeMessage:00000000 zigbeeMessage
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1459   .bss.zigbeeMessage:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1466   .bss.zigbeeReceive:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1473   .bss.zigbee_halfrecv_buff:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1484   .bss.zigbee_halfrecv_len:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1486   .bss.zigbee_huart:00000000 $d
-C:\Users\86183\AppData\Local\Temp\ccjJELiD.s:1493   .data.zigbeeMessageSend:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:868    .text.getDistanceOfRivalBeacon:00000000 getDistanceOfRivalBeacon
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:908    .text.getDistanceOfRivalBeacon:00000020 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:913    .text.getParkDotMineType:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:920    .text.getParkDotMineType:00000000 getParkDotMineType
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:937    .text.getParkDotMineType:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:945    .text.getParkDotMineType:00000014 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1049   .text.getParkDotMineType:0000006c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1054   .text.getCarZone:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1061   .text.getCarZone:00000000 getCarZone
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1078   .text.getCarZone:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1083   .text.getIsCarPosValid:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1090   .text.getIsCarPosValid:00000000 getIsCarPosValid
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1107   .text.getIsCarPosValid:0000000c $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1112   .text.getIsDistanceOfMyBeaconValid:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1119   .text.getIsDistanceOfMyBeaconValid:00000000 getIsDistanceOfMyBeaconValid
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1176   .text.getIsDistanceOfMyBeaconValid:00000030 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1181   .text.getIsDistanceOfRivalBeaconValid:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1188   .text.getIsDistanceOfRivalBeaconValid:00000000 getIsDistanceOfRivalBeaconValid
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1245   .text.getIsDistanceOfRivalBeaconValid:00000030 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1250   .text.getCarScore:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1257   .text.getCarScore:00000000 getCarScore
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1272   .text.getCarScore:00000008 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1277   .text.getMyBeaconPosX:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1284   .text.getMyBeaconPosX:00000000 getMyBeaconPosX
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1316   .text.getMyBeaconPosX:00000014 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1321   .text.getMyBeaconPosY:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1328   .text.getMyBeaconPosY:00000000 getMyBeaconPosY
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1360   .text.getMyBeaconPosY:00000014 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1365   .text.getRivalBeaconPosX:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1372   .text.getRivalBeaconPosX:00000000 getRivalBeaconPosX
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1404   .text.getRivalBeaconPosX:00000014 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1409   .text.getRivalBeaconPosY:00000000 $t
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1416   .text.getRivalBeaconPosY:00000000 getRivalBeaconPosY
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1448   .text.getRivalBeaconPosY:00000014 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1483   .bss.zigbee_halfrecv_len:00000000 zigbee_halfrecv_len
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1490   .bss.zigbee_huart:00000000 zigbee_huart
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1477   .bss.zigbee_halfrecv_buff:00000000 zigbee_halfrecv_buff
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1497   .data.zigbeeMessageSend:00000000 zigbeeMessageSend
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1470   .bss.zigbeeReceive:00000000 zigbeeReceive
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1463   .bss.zigbeeMessage:00000000 zigbeeMessage
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1459   .bss.zigbeeMessage:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1466   .bss.zigbeeReceive:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1473   .bss.zigbee_halfrecv_buff:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1484   .bss.zigbee_halfrecv_len:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1486   .bss.zigbee_huart:00000000 $d
+C:\Users\86183\AppData\Local\Temp\cc8DVoUv.s:1493   .data.zigbeeMessageSend:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_UART_Receive_DMA

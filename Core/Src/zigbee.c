@@ -1,15 +1,14 @@
 #include "zigbee.h"
 #include "string.h"
-
-uint8_t zigbeeMessage[ZIGBEE_MESSAGE_LENTH];			 //经过校验后确认无误的信息
-uint8_t zigbeeReceive[3 * ZIGBEE_MESSAGE_LENTH];		 //实时记录收到的信息
-uint8_t zigbeeMessageSend[4] = {0x01, 0x02, 0x03, 0x04}; //小车给上位机发送的信息
+#include "usart.h"
+uint8_t zigbeeMessage[ZIGBEE_MESSAGE_LENTH]; //经过校验后确认无误的信息
+uint8_t zigbeeReceive[3*ZIGBEE_MESSAGE_LENTH];   //实时记录收到的信息
+uint8_t zigbeeMessageSend[4] = {0x00, 0x01, 0x02, 0x03}; //小车给上位机发送的信息
 uint8_t zigbee_halfrecv_buff[ZIGBEE_MESSAGE_LENTH];		 //储存未全部被接收的消息
 UART_HandleTypeDef *zigbee_huart;
 uint8_t zigbee_halfrecv_len = 0; //储存未完全接收消息的长度
 
 /***********************接口****************************/
-
 void zigbee_Init(UART_HandleTypeDef *huart)
 {
 	zigbee_huart = huart;
@@ -185,11 +184,8 @@ uint16_t getDistanceOfRivalBeacon(int BeaconNo)
 uint16_t getParkDotMineType(int ParkDotNo)
 {
 	if (ParkDotNo < 0 || ParkDotNo > 7)
-	{
 		return (uint16_t)INVALID_ARG;
-	}
 	else
-	{
 		switch (ParkDotNo)
 		{
 		case 0:
@@ -217,7 +213,6 @@ uint16_t getParkDotMineType(int ParkDotNo)
 			return (uint16_t)((zigbeeMessage[30] & 0x03));
 			break;
 		}
-	}
 	return 0;
 }
 
