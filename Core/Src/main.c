@@ -350,6 +350,7 @@ void Calculate_Package_Position(void)
   uint32_t I[3][2];
   uint16_t A[2], B[2], C[2][2], invdet;
   Get_Survey_Data(&x[0], &y[0], I[0]);
+  // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
   Set_Speed(10, 0);
   Set_Speed(10, 1);
   Set_Speed(15, 2);
@@ -362,7 +363,6 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[1], &y[1], I[1]);
     A[0] = x[1] - x[0];
     B[0] = y[1] - y[0];
-    u3_printf("a %d, %d\n", x[1], y[1]);
   } while ((x[1] - x[0]) == 0 && (y[1] - y[0]) == 0);
   do
   {
@@ -370,7 +370,6 @@ void Calculate_Package_Position(void)
     Get_Survey_Data(&x[2], &y[2], I[2]);
     A[1] = x[2] - x[1];
     B[1] = y[2] - y[1];
-    u3_printf("b %d, %d\n", x[2], y[2]);
   } while ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]) == 0);
   for (int i = 0; i < 2; i++)
   {
@@ -382,6 +381,7 @@ void Calculate_Package_Position(void)
   for (int i = 0; i < 2; i++)
   {
     invdet = 1 / (A[0] * B[1] - A[1] * B[0]);
+    // u2_printf("test\n");
     packageX[i] = (B[1] * C[0][i] - B[0] * C[1][i]) * invdet;
     packageY[i] = (A[0] * C[1][i] - A[1] * C[0][i]) * invdet;
   }
@@ -432,11 +432,10 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   MX_TIM8_Init();
-  MX_USART3_UART_Init();
   MX_DMA_Init();
+  MX_USART3_UART_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  jy62_Init(&huart2);
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -446,36 +445,25 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
-  HAL_Delay(3000);
+  jy62_Init(&huart2);
   zigbee_Init(&huart3);
+  // HAL_Delay(3000);
   Calibrate_Angle();
   // Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // Turn(60);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    STATE = getGameState();
-    if (STATE == 1)
-    {
-      uint8_t x = getCarPosX();
-      uint8_t y = getCarPosY();
-      if (x > 150 && y > 150)
-      {
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
-      }
-      else
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
-    }
+     Calculate_Package_Position();
+     u2_printf("%f, %f, %f, %f\n", packageX[0], packageY[0], packageX[1], packageY[1]);
+    /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
 }
-
 /**
   * @brief System Clock Configuration
   * @retval None

@@ -128,7 +128,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart2_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_HIGH;
     if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
     {
       Error_Handler();
@@ -175,7 +175,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
     {
       Error_Handler();
@@ -276,26 +276,34 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   }
 }
 
-void USER_UART_IDLECallback(UART_HandleTypeDef* huart)
+// void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
+// {
+//   if (huart == &huart3)
+//   {
+//     zigbeeMessageRecord(size);
+//   }
+//   HAL_UARTEx_ReceiveToIdle_DMA(&huart3, zigbeeReceive, zigbeeReceiveLength);
+// }
+
+void USER_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
-	extern uint8_t zigbeeReceive[];
-	HAL_UART_DMAStop(&huart3); //停止DMA接收
-	uint8_t data_length = zigbeeReceiveLength - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);  //计算接收数据长度
-	zigbeeMessageRecord(data_length);  //处理数据
-	memset(zigbeeReceive, 0, zigbeeReceiveLength);        //清空缓冲�???
-	HAL_UART_Receive_DMA(&huart3, zigbeeReceive, zigbeeReceiveLength);
+  extern uint8_t zigbeeReceive[];
+  HAL_UART_DMAStop(&huart3);                                                          //ֹͣDMA����
+  uint8_t data_length = zigbeeReceiveLength - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx); //����������ݳ���??
+  zigbeeMessageRecord(data_length);                                                   //��������
+  HAL_UART_Receive_DMA(&huart3, zigbeeReceive, zigbeeReceiveLength);
 }
 
-void USER_UART_IRQHandler(UART_HandleTypeDef* huart)
+void USER_UART_IRQHandler(UART_HandleTypeDef *huart)
 {
-	if (USART3 == huart->Instance)
-	{
-		if (RESET != __HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) // 确认是否为空闲中�???
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(&huart3); // 清除空闲中断标志
-			USER_UART_IDLECallback(huart);      // 调用中断回调函数
-		}
-	}
+  if (USART3 == huart->Instance)
+  {
+    if (RESET != __HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE)) // ȷ���Ƿ�Ϊ�����ж�
+    {
+      __HAL_UART_CLEAR_IDLEFLAG(&huart3); // ��������жϱ��?
+      USER_UART_IDLECallback(huart);      // �����жϻص�����
+    }
+  }
 }
 
 /* USER CODE END 1 */

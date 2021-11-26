@@ -270,7 +270,7 @@ void USART3_IRQHandler(void)
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-  USER_UART_IDLECallback(&huart3); 
+  USER_UART_IRQHandler(&huart3);
   /* USER CODE END USART3_IRQn 1 */
 }
 

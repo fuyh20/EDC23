@@ -45,6 +45,7 @@ void MX_USART3_UART_Init(void);
 void u3_printf(char* fmt, ...);
 void u2_printf(char* fmt, ...);
 void USER_UART_IDLECallback(UART_HandleTypeDef* huart);
+void USER_UART_IRQHandler(UART_HandleTypeDef* huart);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
