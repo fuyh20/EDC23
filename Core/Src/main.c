@@ -62,6 +62,7 @@ void SystemClock_Config(void);
 #define PID_MIN 0
 #define GET_PACKAGE 0
 #define PUT_PACKAGE 1
+#define SET_BEACON 2
 
 float packageX[2], packageY[2];
 /*PID参数----------------------------------------------------------------------*/
@@ -70,10 +71,29 @@ const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100
 float pid[4] = {0, 0, 0, 0};
 float target[4] = {20, 20, 20, 20};
 
+float distance;
+
+uint16_t BeaconDir[3][2]; // 信标坐标
 uint8_t STATE;
 
 float angle0;
 float absoluteAngle;
+
+struct PARK
+{
+  uint16_t x, y, mineType;
+};
+
+struct PARK Park[8] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}};
+void clearDistance()
+{
+  distance = 0;
+}
+
+float getDistance()
+{
+  return distance;
+}
 
 float PID(float in, float target, int i)
 {
@@ -189,6 +209,7 @@ void Turn(float angle)
   Set_Right_Direction(0);
   Set_Left_Direction(0);
   float v;
+  angle0 = GetYaw();
   HAL_Delay(500);
   angle0 = Add_Angle(angle0, angle);
   if (getAngle() < 0)
@@ -198,10 +219,9 @@ void Turn(float angle)
     for (int i = 0; i < 4; i++)
       Set_Speed(6, i);
     while (getAngle() < -50)
-      u3_printf("%f, %f\n", GetYaw(), getAngle());
+      ;
     while (getAngle() < -5)
     {
-      u3_printf("%f, %f\n", GetYaw(), getAngle());
       v = 3;
       for (int i = 0; i < 4; i++)
         Set_Speed(v, i);
@@ -214,11 +234,9 @@ void Turn(float angle)
     for (int i = 0; i < 4; i++)
       Set_Speed(6, i);
     while (getAngle() > 50)
-      u3_printf("%f, %f\n", GetYaw(), getAngle());
-    ;
+      ;
     while (getAngle() > 5)
     {
-      u3_printf("%f, %f\n", GetYaw(), getAngle());
       v = 3;
       for (int i = 0; i < 4; i++)
         Set_Speed(v, i);
@@ -285,6 +303,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     float speed2 = (float)cnt2 * 20 / 531 * 20.4;
     float speed3 = (float)cnt3 * 20 / 530 * 20.4;
 
+    distance += (speed0 + speed1 + speed2 + speed3) * 0.0125;
+
     int pwm0 = (int)PID(speed0, target[0], 0);
     int pwm1 = (int)PID(speed1, target[1], 1);
     int pwm2 = (int)PID(speed2, target[2], 2);
@@ -297,35 +317,113 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
 }
 
+uint16_t getCarPosX2()
+{
+  uint16_t now_X, BeaDis[3];
+  for (int i = 0; i < 3; i++)
+    BeaDis[i] = getDistanceOfMyBeacon(i);
+  float k = 1.0 * (BeaDis[0] - BeaDis[1] + BeaconDir[1][1] * BeaconDir[1][1] - BeaconDir[0][1] * BeaconDir[0][1] + BeaconDir[1][0] * BeaconDir[1][0] - BeaconDir[0][0] * BeaconDir[0][0]) / 2.0 / (BeaconDir[1][1] - BeaconDir[0][1]);
+  float b = 1.0 * (BeaconDir[1][0] - BeaconDir[0][0]) / (BeaconDir[1][1] - BeaconDir[0][1]);
+  float delta = 1.0 * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) - 4 * (1 + b * b) * (BeaconDir[0][0] * BeaconDir[0][0] + k * k + BeaconDir[0][1] * BeaconDir[0][1] - 2 * k * BeaconDir[0][0] - BeaDis[0]);
+  now_X = 1.0 * (-(2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) + sqrt(delta)) / 2.0 / (1 + b * b);
+  return now_X;
+}
+
+uint16_t getCarPosY2()
+{
+  uint16_t now_X, BeaDis[3];
+  for (int i = 0; i < 3; i++)
+    BeaDis[i] = getDistanceOfMyBeacon(i);
+  float k = 1.0 * (BeaDis[0] - BeaDis[1] + BeaconDir[1][1] * BeaconDir[1][1] - BeaconDir[0][1] * BeaconDir[0][1] + BeaconDir[1][0] * BeaconDir[1][0] - BeaconDir[0][0] * BeaconDir[0][0]) / 2.0 / (BeaconDir[1][1] - BeaconDir[0][1]);
+  float b = 1.0 * (BeaconDir[1][0] - BeaconDir[0][0]) / (BeaconDir[1][1] - BeaconDir[0][1]);
+  float delta = 1.0 * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) - 4 * (1 + b * b) * (BeaconDir[0][0] * BeaconDir[0][0] + k * k + BeaconDir[0][1] * BeaconDir[0][1] - 2 * k * BeaconDir[0][0] - BeaDis[0]);
+  now_X = 1.0 * (-(2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) + sqrt(delta)) / 2.0 / (1 + b * b);
+  return k - b * now_X;
+}
+
+uint16_t userGetCarPosX()
+{
+  if (getCarTask() == 0)
+    return getCarPosX();
+  else
+    return getCarPosX2();
+}
+
+uint16_t userGetCarPosY()
+{
+  if (getCarTask() == 0)
+    return getCarPosY();
+  else
+    return getCarPosY2();
+}
+
+// void MoveTo(float x, float y)
+// {
+//   float TurningCoefficient = 1; //调参
+//   uint16_t errX = x - getCarPosX();
+//   uint16_t errY = y - getCarPosY();
+//   float targetAngle = (float)atan2(errY, errX) * 57.296, errAngle, velosity = 20;
+//   targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
+//   Turn(targetAngle);
+//   Set_Left_Direction(1);
+//   Set_Right_Direction(1);
+//   for (int i = 0; i < 4; i++)
+//     Set_Speed(10, i);
+//   while (1)
+//   {
+//     if (x * x + y * y < 25) //调参
+//       break;
+//     if (x * x + y * y < 200) //调参
+//       velosity = 5;          //调参
+//     errX = x - getCarPosX();
+//     errY = y - getCarPosY();
+//     errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
+//     Set_Speed(velosity + TurningCoefficient * errAngle, 0);
+//     Set_Speed(velosity + TurningCoefficient * errAngle, 1);
+//     Set_Speed(velosity - TurningCoefficient * errAngle, 2);
+//     Set_Speed(velosity - TurningCoefficient * errAngle, 3);
+//   }
+//   Set_Left_Direction(0);
+//   Set_Right_Direction(0);
+//   angle0 = GetYaw();
+// }
+
 void MoveTo(float x, float y)
 {
-  float TurningCoefficient = 1; //调参
-  uint16_t errX = x - getCarPosX();
-  uint16_t errY = y - getCarPosY();
-  float targetAngle = (float)atan2(errY, errX) * 57.296, errAngle, velosity = 20;
-  targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
-  Turn(targetAngle);
-  Set_Left_Direction(1);
-  Set_Right_Direction(1);
-  for (int i = 0; i < 4; i++)
-    Set_Speed(10, i);
-  while (1)
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  float velocity;
+  float errX = x - userGetCarPosX();
+  float errY = y - userGetCarPosY();
+  float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
+  clearDistance();
+  while (difference > 5)
   {
-    if (x * x + y * y < 25) //调参
-      break;
-    if (x * x + y * y < 200) //调参
-      velosity = 5;          //调参
-    errX = x - getCarPosX();
-    errY = y - getCarPosY();
-    errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
-    Set_Speed(velosity + TurningCoefficient * errAngle, 0);
-    Set_Speed(velosity + TurningCoefficient * errAngle, 1);
-    Set_Speed(velosity - TurningCoefficient * errAngle, 2);
-    Set_Speed(velosity - TurningCoefficient * errAngle, 3);
+    if (difference < 10)
+      velocity = 5;
+    else if (difference < 30)
+      velocity = 10;
+    else if (difference < 50)
+      velocity = 15;
+    else if (difference < 100)
+      velocity = 20;
+    else
+      velocity = 25;
+    targetAngle = Add_Angle(atan2(errX, errY) * 57.296, absoluteAngle - angle0);
+    Turn(targetAngle);
+    clearDistance();
+    Set_Left_Direction(1);
+    Set_Right_Direction(1);
+    for (int i = 0; i < 4; i++)
+      Set_Speed(velocity, i);
+    while (getDistance() < 0.8 * difference)
+      HAL_Delay(20);
+    Set_Left_Direction(0);
+    Set_Right_Direction(0);
+    HAL_Delay(1000);
+    errX = x - userGetCarPosX();
+    errY = y - userGetCarPosY();
+    difference = sqrt(errX * errX + errY * errY);
   }
-  Set_Left_Direction(0);
-  Set_Right_Direction(0);
-  angle0 = GetYaw();
 }
 
 void Init()
@@ -336,65 +434,85 @@ void Init()
   MoveTo(127, 127);
 }
 
-void Get_Survey_Data(uint16_t *x, uint16_t *y, uint32_t *I)
+void Get_Survey_Data(float *x, float *y, float *I)
 {
-  *x = getCarPosX();
-  *y = getCarPosY();
+  *x = userGetCarPosX();
+  *y = userGetCarPosY();
   I[0] = getMineIntensity(0);
   I[1] = getMineIntensity(1);
 }
 
 void Calculate_Package_Position(void)
 {
-  uint16_t x[3], y[3];
-  uint32_t I[3][2];
-  uint16_t A[2], B[2], C[2][2], invdet;
+  float x[3], y[3];
+  float I[3][2];
+  float A[2], B[2], C[2][2], invdet;
   Get_Survey_Data(&x[0], &y[0], I[0]);
+  do
+  {
+    Get_Survey_Data(&x[0], &y[0], I[0]);
+  } while (x[0] < 0 || y[0] < 0);
   // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
-  Set_Speed(10, 0);
-  Set_Speed(10, 1);
-  Set_Speed(15, 2);
-  Set_Speed(15, 3);
+  Set_Speed(5, 0);
+  Set_Speed(5, 1);
+  Set_Speed(10, 2);
+  Set_Speed(10, 3);
   Set_Left_Direction(-1);
   Set_Right_Direction(1);
   do
   {
     HAL_Delay(100);
     Get_Survey_Data(&x[1], &y[1], I[1]);
-    A[0] = x[1] - x[0];
-    B[0] = y[1] - y[0];
-  } while ((x[1] - x[0]) == 0 && (y[1] - y[0]) == 0);
+    if (x[1] < 0 || y[1] < 0)
+      continue;
+  } while (((int)x[1] - (int)x[0]) == 0 && ((int)y[1] - (int)y[0]) == 0);
   do
   {
     HAL_Delay(100);
     Get_Survey_Data(&x[2], &y[2], I[2]);
-    A[1] = x[2] - x[1];
-    B[1] = y[2] - y[1];
-  } while ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]) == 0);
-  for (int i = 0; i < 2; i++)
-  {
-    A[i] = x[i + 1] - x[i];
-    B[i] = y[i + 1] - y[i];
-    for (int j = 0; j < 2; j++)
-      C[i][j] = 2.0e9 * (I[i + 1][j] - I[i][j]) / (I[i + 1][j] + I[i][j]) / (I[i + 1][j] + I[i][j]) + (x[i + 1] + x[i]) / 2.0 * (x[i + 1] - x[i]) - (y[i + 1] + y[i]) / 2.0 * (y[i + 1] - y[i]);
-  }
-  for (int i = 0; i < 2; i++)
-  {
-    invdet = 1 / (A[0] * B[1] - A[1] * B[0]);
-    // u2_printf("test\n");
-    packageX[i] = (B[1] * C[0][i] - B[0] * C[1][i]) * invdet;
-    packageY[i] = (A[0] * C[1][i] - A[1] * C[0][i]) * invdet;
-  }
+    if (x[2] < 0 || y[2] < 0)
+      continue;
+  } while (((int)x[1] - (int)x[0]) * ((int)y[2] - (int)y[0]) - ((int)x[2] - (int)x[0]) * ((int)y[1] - (int)y[0]) == 0);
+  A[0] = (x[1] - x[0]);
+  A[1] = (x[2] - x[1]);
+  B[0] = (y[1] - y[0]);
+  B[1] = (y[2] - y[1]);
+  C[0][0] = 2.0e9 * (I[1][0] - I[0][0]) / (I[1][0] + I[0][0]) / (I[1][0] + I[0][0]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
+  C[1][0] = 2.0e9 * (I[2][0] - I[1][0]) / (I[2][0] + I[1][0]) / (I[2][0] + I[1][0]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
+  C[0][1] = 2.0e9 * (I[1][1] - I[0][1]) / (I[1][1] + I[0][1]) / (I[1][1] + I[0][1]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
+  C[1][1] = 2.0e9 * (I[2][1] - I[1][1]) / (I[2][1] + I[1][1]) / (I[2][1] + I[1][1]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
+  invdet = 1.0 / (A[0] * B[1] - A[1] * B[0]);
+  packageX[0] = (B[1] * C[0][0] - B[0] * C[1][0]) * invdet;
+  packageY[0] = (A[0] * C[1][0] - A[1] * C[0][0]) * invdet;
+  packageX[1] = (B[1] * C[0][1] - B[0] * C[1][1]) * invdet;
+  packageY[1] = (A[0] * C[1][1] - A[1] * C[0][1]) * invdet;
 }
 
-void Set_LED()
+void Set_Beacon()
 {
   Set_Right_Direction(0);
   Set_Left_Direction(0);
   HAL_Delay(500);
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
-  HAL_Delay(500);
+  HAL_Delay(1000);
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
+}
+
+uint8_t getNearestPark()
+{
+  uint8_t tmp = 0;
+  uint16_t x = userGetCarPosX(), y = userGetCarPosY();
+  float dist = 0, distMin = 0;
+  for (int i = 0; i < 8; i++)
+  {
+    dist = (Park[i].x - x) * (Park[i].x - x) + (Park[i].y - y) * (Park[i].y - Park[i].y);
+    if (dist < distMin)
+    {
+      distMin = dist;
+      tmp = i;
+    }
+  }
+  return tmp;
 }
 /* USER CODE END 0 */
 
@@ -445,11 +563,10 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim5, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
+  HAL_Delay(500);
   jy62_Init(&huart2);
   zigbee_Init(&huart3);
-  // HAL_Delay(3000);
   Calibrate_Angle();
-  // Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -459,8 +576,79 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-     Calculate_Package_Position();
-     u2_printf("%f, %f, %f, %f\n", packageX[0], packageY[0], packageX[1], packageY[1]);
+    // if (getGameState() == 1)
+    //   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    // HAL_Delay(500);
+    // for (int i = 0; i < 3; i++)
+    // {
+    //   BeaconDir[i][0] = getMyBeaconPosX(i);
+    //   BeaconDir[i][1] = getMyBeaconPosY(i);
+    // }
+    // CalculateNowDir();
+    // u2_printf("%d,%d,%d,%d\n", BeaconDir[0][0], BeaconDir[0][1], now_X, now_Y);
+    // HAL_Delay(1000);
+
+    // 测量资源位置 work了
+    // Calculate_Package_Position();
+    // u2_printf("%f, %f, %f, %f\n", packageX[0], packageY[0], packageX[1], packageY[1]);
+    // HAL_Delay(1000);
+
+    if (getGameState() == 1)
+    {
+      MoveTo(127, 127);
+      MoveTo(15, 15);
+      MoveTo(127, 127);
+      MoveTo(160, 170);
+    }
+    
+    // uint16_t x = getMyBeaconPosX(0), y = getMyBeaconPosY(0);
+    // u2_printf("%d, %d\n", x, y);
+    // HAL_Delay(500);
+    // Set_Right_Direction(0);
+    // Set_Left_Direction(0);
+    // u3_printf("%f\n", getDistance());
+    // HAL_Delay(500);
+    /*********************主逻辑******************/
+    // uint8_t nearParkId;
+    // while (getGameState() == 1)
+    // {
+    //   uint8_t ROUND = getCarTask();
+
+    //   if (ROUND == 0)
+    //   {
+    //     switch (STATE)
+    //     {
+    //     case GET_PACKAGE:
+    //       Calculate_Package_Position();
+    //       MoveTo(packageX[0], packageY[0]);
+    //       MoveTo(packageX[1], packageY[1]);
+    //       if (getCarMineSumNum() == 2)
+    //         STATE = Set_Beacon;
+    //       break;
+
+    //     case PUT_PACKAGE:
+    //       nearParkId = getNearestPark();
+    //       MoveTo(Park[nearParkId].x, Park[nearParkId].y);
+    //       break;
+
+    //     case SET_BEACON:
+    //       MoveTo(30, 30);
+    //       Set_Beacon();
+    //       MoveTo();
+    //       Set_Beacon();
+    //       MoveTo();
+    //       Set_Beacon();
+    //       STATE = PUT_PACKAGE;
+    //       break;
+
+    //     default:
+    //       break;
+    //     }
+    //   }
+    //   else
+    //   {
+    //   }
+    // }
     /* USER CODE END 3 */
   }
 }
