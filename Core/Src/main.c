@@ -88,7 +88,20 @@ struct PARK
   uint16_t mineType;
 };
 
-struct PARK Park[11] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+struct PARK Park[15] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+
+uint16_t userGetMineNum(uint16_t _mineType)
+{
+  if (_mineType == 0)
+    return getCarMineANum();
+  if (_mineType == 1)
+    return getCarMineBNum();
+  if (_mineType == 2)
+    return getCarMineCNum();
+  if (_mineType == 3)
+    return getCarMineDNum();
+  return 0;
+}
 
 void clearDistance()
 {
@@ -480,7 +493,7 @@ float userGetCarPosY()
 //   angle0 = GetYaw();
 // }
 
-void MoveTo(float x, float y)
+void MoveTo(float x, float y, uint16_t _mineType)
 {
   if (x < 7 || x > 248 || y < 7 || y > 248)
     return;
@@ -542,18 +555,12 @@ void MoveTo(float x, float y)
     Set_Left_Direction(0);
     Set_Right_Direction(0);
     HAL_Delay(400);
+    // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
+    //   HAL_Delay(100);
     errX = x - userGetCarPosX();
     errY = y - userGetCarPosY();
     difference = sqrt(errX * errX + errY * errY);
   }
-}
-
-void Init()
-{
-  while (getGameState() == 0)
-    ;
-  HAL_Delay(100);
-  MoveTo(127, 127);
 }
 
 void Get_Survey_Data(float *x, float *y, float *I)
@@ -620,9 +627,9 @@ void Set_Beacon()
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
 }
 
-uint8_t getNearestPark(uint8_t _mineType)
+uint16_t getNearestPark(uint16_t _mineType)
 {
-  uint8_t tmp = 1;
+  uint16_t tmp = 0;
   float x = userGetCarPosX(), y = userGetCarPosY();
   float dist = 0, distMin = 1e9;
   if (getCarTask() == 0)
@@ -661,13 +668,13 @@ void getPackage()
   float dist1 = sq(userGetCarPosX() - packageX[1]) + sq(userGetCarPosY() - packageY[1]);
   if (dist0 < dist1)
   {
-    MoveTo(packageX[0], packageY[0]);
-    MoveTo(packageX[1], packageY[1]);
+    MoveTo(packageX[0], packageY[0], 0);
+    MoveTo(packageX[1], packageY[1], 0);
   }
   else
   {
-    MoveTo(packageX[1], packageY[1]);
-    MoveTo(packageX[0], packageY[0]);
+    MoveTo(packageX[1], packageY[1], 0);
+    MoveTo(packageX[0], packageY[0], 0);
   }
 }
 
@@ -680,9 +687,8 @@ void SetBeacon()
     dist1[i] = sq(userGetCarPosX() - BeaconDir[i][0]) + sq(userGetCarPosY() - BeaconDir[i][1]);
   for (int i = 0; i < 3; i++)
     tmp = dist1[tmp] < dist1[i] ? tmp : i;
-  MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1]);
-  zigbeeSend(k);
-  k++;
+  MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1], 0);
+  zigbeeSend(k++);
   Set_Beacon();
   for (int i = 0; i < 3; i++)
   {
@@ -697,9 +703,9 @@ void SetBeacon()
     for (int i = 0; i < 3; i++)
       if (i != tmp)
       {
-        MoveTo(BeaconDir[i][0], BeaconDir[i][1]);
-        Set_Beacon();
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
         zigbeeSend(k++);
+        Set_Beacon();
       }
   }
   else
@@ -707,28 +713,16 @@ void SetBeacon()
     for (int i = 2; i >= 0; i--)
       if (i != tmp)
       {
-        MoveTo(BeaconDir[i][0], BeaconDir[i][1]);
-        Set_Beacon();
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
         zigbeeSend(k++);
+        Set_Beacon();
       }
   }
 }
 
-void initialParkMineType()
+uint16_t curMostMineType()
 {
-  for (int i = 0; i < 8; i++)
-    Park[i].mineType = (float)getMyBeaconMineType(i);
-  for (int i = 0; i < 3; i++)
-  {
-    Park[i + 8].x = (float)getMyBeaconPosX(i);
-    Park[i + 8].y = (float)getMyBeaconPosY(i);
-    Park[i + 8].mineType = (float)getMyBeaconMineType(i);
-  }
-}
-
-uint8_t curMostMineType()
-{
-  uint8_t tmp = 0, mineNum[4];
+  uint16_t tmp = 0, mineNum[4];
   mineNum[0] = getCarMineANum();
   mineNum[1] = getCarMineBNum();
   mineNum[2] = getCarMineCNum();
@@ -740,6 +734,19 @@ uint8_t curMostMineType()
   }
   return tmp;
 }
+
+void initialParkMineType()
+{
+  for (int i = 0; i < 8; i++)
+    Park[i].mineType = (uint16_t)getMyBeaconMineType(i);
+  for (int i = 0; i < 3; i++)
+  {
+    Park[i + 8].x = (float)getMyBeaconPosX(i);
+    Park[i + 8].y = (float)getMyBeaconPosY(i);
+    Park[i + 8].mineType = getMyBeaconMineType(i);
+  }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -852,7 +859,7 @@ int main(void)
 
         case PUT_PACKAGE:
           nearParkId = getNearestPark(0);
-          MoveTo(Park[nearParkId].x, Park[nearParkId].y);
+          MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
           STATE = (uint8_t)EMPTY_STATE;
           break;
 
@@ -867,16 +874,18 @@ int main(void)
           break;
         }
       }
+
       if (ROUND == 1)
       {
-        uint8_t t;
+        int m;
         if (!isInitialMinePark)
         {
           initialParkMineType();
           isInitialMinePark = 1;
+          STATE = (uint8_t)GET_PACKAGE;
         }
 
-        if (getGameTime() > 100 && getCarMineSumNum() != 0)
+        if (getGameTime() > 1000 && getCarMineSumNum() != 0)
           STATE = (uint8_t)PUT_PACKAGE;
         switch (STATE)
         {
@@ -888,12 +897,13 @@ int main(void)
           break;
 
         case PUT_PACKAGE:
-          t = getNearestPark(curMostMineType());
-          MoveTo(Park[t].x, Park[t].y);
+          m = (int)getNearestPark(curMostMineType());
+          MoveTo(Park[m].x, Park[m].y, Park[m].mineType);
           STATE = (uint8_t)GET_PACKAGE;
           break;
 
         default:
+          STATE = (uint8_t)GET_PACKAGE;
           break;
         }
       }
