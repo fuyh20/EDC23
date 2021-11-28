@@ -76,7 +76,7 @@ float target[4] = {20, 20, 20, 20};
 
 float distance;
 
-float BeaconDir[3][2] = {{64, 64}, {192, 64}, {128, 200}}; // 信标坐标
+float BeaconDir[3][2] = {{64, 64}, {192, 64}, {128, 190}}; // 信标坐标
 uint8_t STATE;
 uint8_t isInitialMinePark = 0;
 float angle0;
@@ -509,7 +509,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
   {
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
-    else if (STATE == (uint8_t)SET_BEACON && difference < 20)
+    else if (STATE == (uint8_t)SET_BEACON && difference < 15)
       break;
     if (difference < 10)
       velocity = 3;
@@ -584,8 +584,8 @@ void Calculate_Package_Position(void)
   // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
   Set_Speed(0, 0);
   Set_Speed(0, 1);
-  Set_Speed(5, 2);
-  Set_Speed(5, 3);
+  Set_Speed(7, 2);
+  Set_Speed(7, 3);
   Set_Left_Direction(-1);
   Set_Right_Direction(1);
   do
@@ -738,7 +738,7 @@ uint16_t curMostMineType()
 void initialParkMineType()
 {
   for (int i = 0; i < 8; i++)
-    Park[i].mineType = (uint16_t)getMyBeaconMineType(i);
+    Park[i].mineType = (uint16_t)getParkDotMineType(i);
   for (int i = 0; i < 3; i++)
   {
     Park[i + 8].x = (float)getMyBeaconPosX(i);
@@ -841,9 +841,30 @@ int main(void)
     // Set_Left_Direction(0);
     // u3_printf("%f\n", getDistance());
     // HAL_Delay(500);
+
+    // u2_printf("%d,%d,%d,%d\n", getCarMineANum(), getCarMineBNum(), getCarMineCNum(), getCarMineDNum());
+    // u2_printf("%d\n", curMostMineType());
+    // if (getCarTask() == 1 && getGameState() == 1)
+    //   if (!isInitialMinePark)
+    //   {
+    //     initialParkMineType();
+    //     isInitialMinePark = 1;
+    //   }
+    // u2_printf("%d,%d,%d\n", getParkDotMineType(0), getParkDotMineType(1), getParkDotMineType(2));
+    // u2_printf("%d,%d,%d\n", Park[0].mineType, Park[1].mineType, Park[2].mineType);
+    // HAL_Delay(500);
+
     /*********************主逻辑******************/
     uint8_t nearParkId;
-    while (getGameState() == 1)
+    uint8_t gameState = getGameState();
+
+    if (gameState == 0 || gameState == 2 || gameState == 3)
+    {
+      Set_Right_Direction(0);
+      Set_Left_Direction(0);
+    }
+
+    while (gameState == 1)
     {
       uint8_t ROUND = getCarTask();
       if (ROUND == 0)
@@ -885,19 +906,20 @@ int main(void)
           STATE = (uint8_t)GET_PACKAGE;
         }
 
-        if (getGameTime() > 1000 && getCarMineSumNum() != 0)
+        if (getGameTime() > 900 && getCarMineSumNum() != 0)
           STATE = (uint8_t)PUT_PACKAGE;
+
         switch (STATE)
         {
         case GET_PACKAGE:
           Calculate_Package_Position();
           getPackage();
-          if (getCarMineSumNum() > 9)
+          if (getCarMineSumNum() > 8)
             STATE = (uint8_t)PUT_PACKAGE;
           break;
 
         case PUT_PACKAGE:
-          m = (int)getNearestPark(curMostMineType());
+          m = getNearestPark(curMostMineType());
           MoveTo(Park[m].x, Park[m].y, Park[m].mineType);
           STATE = (uint8_t)GET_PACKAGE;
           break;
