@@ -106,12 +106,6 @@ int RivalBeaconNum = 0;
 
 struct PARK Park[15] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
-struct FORSAFE
-{
-  float distance;
-  int index;
-};
-
 uint16_t userGetMineNum(uint16_t _mineType)
 {
   if (_mineType == 0)
@@ -661,43 +655,6 @@ void Move(float velocity, float angle)
   }
 }
 
-float safeDistance(float angle, float carX, float carY, float safeRadius)
-{
-  struct FORSAFE for_return = {1.0e5, 0};
-  if (RivalBeaconNum == 0)
-  {
-    return for_return.distance;
-  }
-  for (int i = 0; i < RivalBeaconNum; i++)
-  {
-    if (sq(carX - RivalBeacon[0].x) + sq(carY - RivalBeacon[1].y) < sq(safeRadius))
-    {
-      for_return.distance = -1.0;
-      for_return.index = i;
-      return for_return.distance; // 快逃!!!
-    }
-  }
-  float tmp = 1.0e5, dx = 0, dy = 0, h = 0, l = 0;
-  float sinv = sin(angle * 0.017453), cosv = cos(angle * 0.017453);
-  for (int i = 0; i < RivalBeaconNum; i++)
-  {
-    dx = RivalBeacon[i].x - carX;
-    dy = RivalBeacon[i].y - carY;
-    l = -dx * sinv + dy * cosv;
-    h = dx * cosv + dy * sinv;
-    if (h < safeRadius && h > -safeRadius && l > 0)
-    {
-      tmp = l - sqrt(sq(safeRadius) - sq(h));
-      if (tmp < for_return.distance)
-      {
-        for_return.index = i;
-        for_return.distance = tmp;
-      }
-    }
-  }
-  return for_return.distance;
-}
-
 void SurveyTowards(float targetAngle)
 {
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
@@ -710,35 +667,6 @@ void SurveyTowards(float targetAngle)
     surveyDataCount[0] = 0;
   if (!isPackageValid[1])
     surveyDataCount[1] = 0;
-
-  struct MYCOORD coord = userGetCarPos();
-  struct FORSAFE safeD = safeDistance(target, coord.x, coord.y, 15);
-  int i = 0;
-  if (safeD.distance < -0.5)
-  {
-    targetAngle = atan2(coord.x - RivalBeacon[safeD.index].x, coord.y - RivalBeacon[safeD.index].y) * 57.296 + absoluteAngle - GetYaw();
-  }
-  while (safeD.distance < 15)
-  {
-    i += 20;
-    safeD = safeDistance(targetAngle + i, coord.x, coord.y, 15);
-    if (safeD.distance > 15)
-    {
-      targetAngle = targetAngle + i;
-      break;
-    }
-    safeD = safeDistance(targetAngle - i, coord.x, coord.y, 15);
-    if (safeD.distance > 15)
-    {
-      targetAngle = targetAngle - i;
-      break;
-    }
-    if (i > 180)
-    {
-      i = 0;
-      break;
-    }
-  }
   Move(10, targetAngle);
   int temp = surveyDataCount[0] + surveyDataCount[1];
   while (surveyDataCount[0] + surveyDataCount[1] == temp)
@@ -746,6 +674,7 @@ void SurveyTowards(float targetAngle)
     HAL_Delay(20);
     survey();
   }
+  Move(10, targetAngle - 30);
   temp = surveyDataCount[0] + surveyDataCount[1];
   while (surveyDataCount[0] + surveyDataCount[1] == temp)
   {
@@ -753,32 +682,7 @@ void SurveyTowards(float targetAngle)
     survey();
   }
   temp = surveyDataCount[0] + surveyDataCount[1];
-  safeD = safeDistance(target, coord.x, coord.y, 15.0);
-  if (safeD.distance < -0.5)
-    ;
-  i = 40;
-  while (safeD.distance < 10)
-  {
-    i += 20;
-    safeD = safeDistance(targetAngle + i, coord.x, coord.y, 15);
-    if (safeD.distance > 10)
-    {
-      targetAngle = targetAngle + i;
-      break;
-    }
-    safeD = safeDistance(targetAngle - i, coord.x, coord.y, 15);
-    if (safeD.distance > 10)
-    {
-      targetAngle = targetAngle - i;
-      break;
-    }
-    if (i > 140)
-    {
-      i = 0;
-      break;
-    }
-  }
-  Move(10, targetAngle);
+  Move(10, targetAngle + 30);
   while (surveyDataCount[0] + surveyDataCount[1] == temp)
   {
     HAL_Delay(20);
@@ -801,50 +705,8 @@ void MoveTo(float x, float y, uint16_t _mineType)
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   if (STATE == (uint8_t)GET_PACKAGE)
     flag = getCarMineSumNum();
-  if (STATE != SET_BEACON)
+  if (STATE != SET_BEACON && getCarTask() != 0)
     SurveyTowards(targetAngle);
-
-  struct FORSAFE safeD = safeDistance(targetAngle, x, y, 15);
-  if (safeD.distance < -0.5)
-  {
-    Move(10, atan2(coord.x - RivalBeacon[safeD.index].x, coord.y - RivalBeacon[safeD.index].y) * 57.296 + absoluteAngle - GetYaw());
-    while (sq(coord.x - RivalBeacon[safeD.index].x) + sq(coord.y - RivalBeacon[safeD.index].y) < 225) // 这儿也用到了安全半径的参数，调参一块调
-    {
-      coord = userGetCarPos();
-      HAL_Delay(20);
-    }
-    MoveTo(x, y, 0);
-    return;
-  }
-  else if (safeD.distance < difference)
-  {
-    int i = 0;
-    float midDistance = safeD.distance + 15;
-    while (safeD.distance < difference)
-    {
-      i += 10;
-      safeD = safeDistance(targetAngle + i, coord.x, coord.y, 15.0);
-      if (safeD.distance > midDistance)
-      {
-        targetAngle = targetAngle + i;
-        break;
-      }
-      safeD = safeDistance(targetAngle - i, coord.x, coord.y, 15.0);
-      if (safeD.distance > midDistance)
-      {
-        targetAngle = targetAngle - i;
-        break;
-      }
-      if (i > 120)
-      {
-        i = 0;
-        break;
-      }
-    }
-    MoveTo(coord.x + midDistance * sin(targetAngle * 0.17453), coord.y + midDistance * cos(targetAngle * 0.17453), 0);
-    MoveTo(x, y, 0);
-    return;
-  }
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   while (difference > 5)
   {
@@ -883,7 +745,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
 
     Move(velocity, targetAngle);
 
-    while (getDistance() < 0.75 * difference)
+    while (getDistance() < 0.7 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
@@ -902,116 +764,6 @@ void MoveTo(float x, float y, uint16_t _mineType)
     targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   }
 }
-
-// void SurveyTowards(float targetAngle)
-// {
-//   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
-//   if (isPackageValid[0] && isPackageValid[1])
-//   {
-//     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
-//     return;
-//   }
-//   if (!isPackageValid[0])
-//     surveyDataCount[0] = 0;
-//   if (!isPackageValid[1])
-//     surveyDataCount[1] = 0;
-//   Move(10, targetAngle);
-//   int temp = surveyDataCount[0] + surveyDataCount[1];
-//   while (surveyDataCount[0] + surveyDataCount[1] == temp)
-//   {
-//     HAL_Delay(20);
-//     survey();
-//   }
-//   Move(10, targetAngle - 30);
-//   temp = surveyDataCount[0] + surveyDataCount[1];
-//   while (surveyDataCount[0] + surveyDataCount[1] == temp)
-//   {
-//     HAL_Delay(20);
-//     survey();
-//   }
-//   temp = surveyDataCount[0] + surveyDataCount[1];
-//   Move(10, targetAngle + 30);
-//   while (surveyDataCount[0] + surveyDataCount[1] == temp)
-//   {
-//     HAL_Delay(20);
-//     survey();
-//   }
-//   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
-// }
-
-// void MoveTo(float x, float y, uint16_t _mineType)
-// {
-//   if (x < 7 || x > 248 || y < 7 || y > 248)
-//     return;
-//   float velocity;
-//   struct MYCOORD coord = userGetCarPos();
-//   float errX = x - coord.x;
-//   float errY = y - coord.y;
-//   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
-//   clearDistance();
-//   int flag = 0;
-//   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
-//   if (STATE == (uint8_t)GET_PACKAGE)
-//     flag = getCarMineSumNum();
-//   if (STATE != SET_BEACON && getCarTask() != 0)
-//     SurveyTowards(targetAngle);
-//   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
-//   while (difference > 5)
-//   {
-//     clearDistance();
-//     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
-//       break;
-//     else if (STATE == (uint8_t)SET_BEACON && difference < 15)
-//       break;
-//     if (difference < 10)
-//       velocity = 3;
-//     else if (difference < 20)
-//       velocity = 7;
-//     else if (difference < 30)
-//       velocity = 10;
-//     else if (difference < 50)
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 13;
-//       else
-//         velocity = 17;
-//     }
-//     else if (difference < 100)
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 17;
-//       else
-//         velocity = 23;
-//     }
-//     else
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 20;
-//       else
-//         velocity = 27;
-//     }
-
-//     Move(velocity, targetAngle);
-
-//     while (getDistance() < 0.7 * difference)
-//     {
-//       HAL_Delay(20);
-//       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
-//         break;
-//     }
-
-//     Set_LF_Direction(0);
-//     Set_RF_Direction(0);
-//     HAL_Delay(400);
-//     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
-//     //   HAL_Delay(100);
-//     coord = userGetCarPos();
-//     errX = x - coord.x;
-//     errY = y - coord.y;
-//     difference = sqrt(errX * errX + errY * errY);
-//     targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
-//   }
-// }
 
 // void Calculate_Package_Position(void)
 // {
