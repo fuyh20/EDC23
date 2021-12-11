@@ -75,12 +75,20 @@ float pid[4] = {0, 0, 0, 0};
 float target[4] = {0, 0, 0, 0};
 
 float distance;
-float distance1, distance2;
 float BeaconDir[3][2] = {{64, 64}, {192, 64}, {128, 190}}; // 信标坐标
 uint8_t STATE;
 uint8_t isInitialMinePark = 0;
 float angle0;
 float absoluteAngle;
+
+struct MYCOORD
+{
+  float x, y;
+  float I; //矿物强度
+};
+
+struct MYCOORD surveyData[2][3];
+int surveyDataCount[2]; // 0 ~ 4 4 代表坐标已经计算完成.
 
 struct PARK
 {
@@ -111,8 +119,7 @@ uint16_t userGetMineNum(uint16_t _mineType)
 
 void clearDistance()
 {
-  distance1 = 0;
-  distance2 = 0;
+  distance = 0;
 }
 
 float getDistance()
@@ -229,47 +236,6 @@ float Add_Angle(float angleA, float angleB)
                                                      : result;
 }
 
-// void Turn(float angle)
-// {
-//   Set_Right_Direction(0);
-//   Set_Left_Direction(0);
-//   float v;
-//   angle0 = GetYaw();
-//   angle0 = Add_Angle(angle0, angle);
-//   if (getAngle() < 0)
-//   {
-//     Set_Left_Direction(-1);
-//     Set_Right_Direction(1);
-//     for (int i = 0; i < 4; i++)
-//       Set_Speed(6, i);
-//     while (getAngle() < -50)
-//       ;
-//     while (getAngle() < -5)
-//     {
-//       v = 3;
-//       for (int i = 0; i < 4; i++)
-//         Set_Speed(v, i);
-//     }
-//   }
-//   else
-//   {
-//     Set_Left_Direction(1);
-//     Set_Right_Direction(-1);
-//     for (int i = 0; i < 4; i++)
-//       Set_Speed(6, i);
-//     while (getAngle() > 50)
-//       ;
-//     while (getAngle() > 5)
-//     {
-//       v = 3;
-//       for (int i = 0; i < 4; i++)
-//         Set_Speed(v, i);
-//     }
-//   }
-//   Set_Left_Direction(0);
-//   Set_Right_Direction(0);
-// }
-
 void Turn(float angle)
 {
   Set_Right_Direction(0);
@@ -358,9 +324,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     float speed3 = (float)cnt3 * 20 / 530 * 20.4 * 0.71;
 
     // distance += (speed0 + speed1 + speed2 + speed3) * 0.0125;
-    distance1 += (speed0 + speed2) * 0.025;
-    distance2 += (speed1 + speed3) * 0.025;
-    distance = sqrt(sq(distance1) + sq(distance2));
+    float distance1 = (speed0 + speed2) * 0.025;
+    float distance2 = (speed1 + speed3) * 0.025;
+    distance += sqrt(sq(distance1) + sq(distance2));
 
     int pwm0 = (int)PID(speed0, target[0], 0);
     int pwm1 = (int)PID(speed1, target[1], 1);
@@ -373,33 +339,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     __HAL_TIM_SetCompare(&htim1, TIM_CHANNEL_4, pwm3);
   }
 }
-
-// float getCarPosX2()
-// {
-//   float now_X, BeaDis[3];
-//   for (int i = 0; i < 3; i++)
-//     BeaDis[i] = (float)getDistanceOfMyBeacon(i);
-//   float k = 1.0 * (BeaDis[0] - BeaDis[1] + BeaconDir[1][1] * BeaconDir[1][1] - BeaconDir[0][1] * BeaconDir[0][1] + BeaconDir[1][0] * BeaconDir[1][0] - BeaconDir[0][0] * BeaconDir[0][0]) / 2.0 / (BeaconDir[1][1] - BeaconDir[0][1]);
-//   float b = 1.0 * (BeaconDir[1][0] - BeaconDir[0][0]) / (BeaconDir[1][1] - BeaconDir[0][1]);
-//   float delta = 1.0 * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) - 4 * (1 + b * b) * (BeaconDir[0][0] * BeaconDir[0][0] + k * k + BeaconDir[0][1] * BeaconDir[0][1] - 2 * k * BeaconDir[0][0] - BeaDis[0]);
-//   now_X = 1.0 * (-(2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) + sqrt(delta)) / 2.0 / (1 + b * b);
-//   return now_X;
-// }
-
-// float getCarPosY2()
-// {
-//   float now_X, BeaDis[3];
-//   for (int i = 0; i < 3; i++)
-//     BeaDis[i] = (float)getDistanceOfMyBeacon(i);
-//   float k = 1.0 * (BeaDis[0] - BeaDis[1] + BeaconDir[1][1] * BeaconDir[1][1] - BeaconDir[0][1] * BeaconDir[0][1] + BeaconDir[1][0] * BeaconDir[1][0] - BeaconDir[0][0] * BeaconDir[0][0]) / 2.0 / (BeaconDir[1][1] - BeaconDir[0][1]);
-//   float b = 1.0 * (BeaconDir[1][0] - BeaconDir[0][0]) / (BeaconDir[1][1] - BeaconDir[0][1]);
-//   float delta = 1.0 * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) * (2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) - 4 * (1 + b * b) * (BeaconDir[0][0] * BeaconDir[0][0] + k * k + BeaconDir[0][1] * BeaconDir[0][1] - 2 * k * BeaconDir[0][0] - BeaDis[0]);
-//   now_X = 1.0 * (-(2 * b * BeaconDir[0][1] - 2 * k * b - 2 * BeaconDir[0][0]) + sqrt(delta)) / 2.0 / (1 + b * b);
-//   return k - b * now_X;
-// }
-
-float getCarPosX2(void)
+struct MYCOORD userGetCarPos()
 {
+  struct MYCOORD coord = {0, 0, 0};
+  if (getIsCarPosValid())
+  {
+    coord.x = getCarPosX();
+    coord.y = getCarPosY();
+    return coord;
+  }
   int x[3], y[3], beaconD[3], xBase, yBase, cnt = 0;
   float A[2], B[2], C[2], xTemp[2], yTemp[2], xRes = 0, yRes = 0;
   for (int i = 0; i < 3; i++)
@@ -424,11 +372,20 @@ float getCarPosX2(void)
     for (int j = -1; j < 2; j++)
       if ((int)sqrt(sq(xBase - x[0] + i) + sq(yBase - y[0] + j)) == beaconD[0] && (int)sqrt(sq(xBase - x[1] + i) + sq(yBase - y[1] + j)) == beaconD[1] && (int)sqrt(sq(xBase - x[2] + i) + sq(yBase - y[2] + j)) == beaconD[2])
         xRes += i, yRes += j, cnt++;
-  return xBase + xRes / cnt;
+  coord.x = xBase + xRes / cnt;
+  coord.y = yBase + yRes / cnt;
+  return coord;
 }
 
-float getCarPosY2(void)
+struct MYCOORD surveyGetCarPos()
 {
+  struct MYCOORD coord = {0, 0, 0};
+  if (getIsCarPosValid())
+  {
+    coord.x = getCarPosX();
+    coord.y = getCarPosY();
+    return coord;
+  };
   int x[3], y[3], beaconD[3], xBase, yBase, cnt = 0;
   float A[2], B[2], C[2], xTemp[2], yTemp[2], xRes = 0, yRes = 0;
   for (int i = 0; i < 3; i++)
@@ -453,23 +410,75 @@ float getCarPosY2(void)
     for (int j = -1; j < 2; j++)
       if ((int)sqrt(sq(xBase - x[0] + i) + sq(yBase - y[0] + j)) == beaconD[0] && (int)sqrt(sq(xBase - x[1] + i) + sq(yBase - y[1] + j)) == beaconD[1] && (int)sqrt(sq(xBase - x[2] + i) + sq(yBase - y[2] + j)) == beaconD[2])
         xRes += i, yRes += j, cnt++;
-  return yBase + yRes / cnt;
+  if (cnt > 1)
+  {
+    coord.x = -1.0;
+    coord.y = -1.0;
+    coord.I = -1.0;
+  }
+  else
+  {
+    coord.x = xBase + xRes;
+    coord.y = yBase + yRes;
+  }
+  return coord;
 }
 
-float userGetCarPosX()
+void Calculate_Package_Position(int i)
 {
-  if (getCarTask() == 0)
-    return (float)getCarPosX();
-  else
-    return getCarPosX2();
+  float A[2], B[2], C[2], invdet;
+  A[0] = surveyData[i][1].x - surveyData[i][0].x;
+  A[1] = surveyData[i][2].x - surveyData[i][1].x;
+  B[0] = surveyData[i][1].y - surveyData[i][0].y;
+  B[1] = surveyData[i][2].y - surveyData[i][1].y;
+  C[0] = 2.0e9 * (surveyData[i][1].I - surveyData[i][0].I) / (surveyData[i][1].I + surveyData[i][0].I) / (surveyData[i][1].I + surveyData[i][0].I) + (surveyData[i][1].x + surveyData[i][0].x) * A[0] / 2.0 + (surveyData[i][1].y + surveyData[i][0].y) * B[0] / 2.0;
+  C[1] = 2.0e9 * (surveyData[i][2].I - surveyData[i][1].I) / (surveyData[i][2].I + surveyData[i][1].I) / (surveyData[i][2].I + surveyData[i][1].I) + (surveyData[i][2].x + surveyData[i][1].x) * A[1] / 2.0 + (surveyData[i][2].y + surveyData[i][1].y) * B[1] / 2.0;
+  invdet = 1.0 / (A[0] * B[1] - A[1] * B[0]);
+  packageX[i] = (B[1] * C[0] - B[0] * C[1]) * invdet;
+  packageY[i] = (A[0] * C[1] - A[1] * C[0]) * invdet;
 }
 
-float userGetCarPosY()
+void survey()
 {
-  if (getCarTask() == 0)
-    return (float)getCarPosY();
-  else
-    return getCarPosY2();
+  struct MYCOORD coord = surveyGetCarPos();
+  if(coord.I < -0.5)
+    return;
+  for (int i = 0; i < 2; i++)
+  {
+    if (surveyDataCount[i] == 0)
+    {
+      surveyData[i][0] = coord;
+      surveyData[i][0].I = getMineIntensity(i);
+      surveyDataCount[i] = 1;
+    }
+    else if (surveyDataCount[i] == 1)
+    {
+      if((int)coord.x == (int)surveyData[i][0].x && (int)coord.y == (int)surveyData[i][0].y)
+        continue;
+      surveyData[i][1] = coord;
+      surveyData[i][1].I = getMineIntensity(i);
+      surveyDataCount[i] = 2;
+    }
+    else if (surveyDataCount[i] == 2)
+    {
+      if (((int)surveyData[i][1].x - (int)surveyData[i][0].x) * ((int)coord.y - (int)surveyData[i][0].y) - ((int)coord.x - (int)surveyData[i][0].x) * ((int)surveyData[i][1].y - (int)surveyData[i][0].y) == 0)
+        continue;
+      surveyData[i][2] = coord;
+      surveyData[i][2].I = getMineIntensity(i);
+      surveyDataCount[i] = 3;
+    }
+    else if (surveyDataCount[i] == 3)
+    {
+      continue;
+    }
+    else if (surveyDataCount[i] == 4)
+      continue;
+  }
+  for (int i = 0; i < 2; i++)
+    if(surveyDataCount[i] == 3)
+    {
+      Calculate_Package_Position(i);
+    }
 }
 
 // void MoveTo(float x, float y)
@@ -614,15 +623,17 @@ void MoveTo(float x, float y, uint16_t _mineType)
   if (x < 7 || x > 248 || y < 7 || y > 248)
     return;
   float velocity;
-  float errX = x - userGetCarPosX();
-  float errY = y - userGetCarPosY();
+  struct MYCOORD coord = userGetCarPos();
+  float errX = x - coord.x;
+  float errY = y - coord.y;
   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
   clearDistance();
   int flag = 0;
   if (STATE == (uint8_t)GET_PACKAGE)
     flag = getCarMineSumNum();
-  while (difference > 5)
+  while (difference > 3)
   {
+    clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
     else if (STATE == (uint8_t)SET_BEACON && difference < 15)
@@ -654,84 +665,80 @@ void MoveTo(float x, float y, uint16_t _mineType)
       else
         velocity = 27;
     }
+
     targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
     Move(velocity, targetAngle);
+
     while (getDistance() < 0.70 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
         break;
     }
+
     Set_LF_Direction(0);
     Set_RF_Direction(0);
-    HAL_Delay(400);
+    HAL_Delay(200);
     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
     //   HAL_Delay(100);
-    errX = x - userGetCarPosX();
-    errY = y - userGetCarPosY();
+    coord = userGetCarPos();
+    errX = x - coord.x;
+    errY = y - coord.y;
     difference = sqrt(errX * errX + errY * errY);
   }
 }
 
-void Get_Survey_Data(float *x, float *y, float *I)
-{
-  *x = userGetCarPosX();
-  *y = userGetCarPosY();
-  I[0] = getMineIntensity(0);
-  I[1] = getMineIntensity(1);
-}
-
-void Calculate_Package_Position(void)
-{
-  float x[3], y[3];
-  float I[3][2];
-  float A[2], B[2], C[2][2], invdet;
-  Get_Survey_Data(&x[0], &y[0], I[0]);
-  do
-  {
-    Get_Survey_Data(&x[0], &y[0], I[0]);
-  } while (x[0] < 0 || y[0] < 0);
-  // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
-  Set_Speed(0, 0);
-  Set_Speed(0, 2);
-  Set_Speed(7, 1);
-  Set_Speed(7, 3);
-  Set_LF_Direction(0);
-  Set_RF_Direction(1);
-  do
-  {
-    HAL_Delay(100);
-    Get_Survey_Data(&x[1], &y[1], I[1]);
-    if (x[1] < 0 || y[1] < 0)
-      continue;
-  } while (((int)x[1] - (int)x[0]) == 0 && ((int)y[1] - (int)y[0]) == 0);
-  Set_Speed(7, 0);
-  Set_Speed(7, 2);
-  Set_Speed(0, 1);
-  Set_Speed(0, 3);
-  Set_LF_Direction(1);
-  Set_RF_Direction(0);
-  do
-  {
-    HAL_Delay(100);
-    Get_Survey_Data(&x[2], &y[2], I[2]);
-    if (x[2] < 0 || y[2] < 0)
-      continue;
-  } while (((int)x[1] - (int)x[0]) * ((int)y[2] - (int)y[0]) - ((int)x[2] - (int)x[0]) * ((int)y[1] - (int)y[0]) == 0);
-  A[0] = (x[1] - x[0]);
-  A[1] = (x[2] - x[1]);
-  B[0] = (y[1] - y[0]);
-  B[1] = (y[2] - y[1]);
-  C[0][0] = 2.0e9 * (I[1][0] - I[0][0]) / (I[1][0] + I[0][0]) / (I[1][0] + I[0][0]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
-  C[1][0] = 2.0e9 * (I[2][0] - I[1][0]) / (I[2][0] + I[1][0]) / (I[2][0] + I[1][0]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
-  C[0][1] = 2.0e9 * (I[1][1] - I[0][1]) / (I[1][1] + I[0][1]) / (I[1][1] + I[0][1]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
-  C[1][1] = 2.0e9 * (I[2][1] - I[1][1]) / (I[2][1] + I[1][1]) / (I[2][1] + I[1][1]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
-  invdet = 1.0 / (A[0] * B[1] - A[1] * B[0]);
-  packageX[0] = (B[1] * C[0][0] - B[0] * C[1][0]) * invdet;
-  packageY[0] = (A[0] * C[1][0] - A[1] * C[0][0]) * invdet;
-  packageX[1] = (B[1] * C[0][1] - B[0] * C[1][1]) * invdet;
-  packageY[1] = (A[0] * C[1][1] - A[1] * C[0][1]) * invdet;
-}
+// void Calculate_Package_Position(void)
+// {
+//   float x[3], y[3];
+//   float I[3][2];
+//   float A[2], B[2], C[2][2], invdet;
+//   Get_Survey_Data(&x[0], &y[0], I[0]);
+//   do
+//   {
+//     Get_Survey_Data(&x[0], &y[0], I[0]);
+//   } while (x[0] < 0 || y[0] < 0);
+//   // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
+//   Set_Speed(0, 0);
+//   Set_Speed(0, 2);
+//   Set_Speed(7, 1);
+//   Set_Speed(7, 3);
+//   Set_LF_Direction(0);
+//   Set_RF_Direction(1);
+//   do
+//   {
+//     HAL_Delay(100);
+//     Get_Survey_Data(&x[1], &y[1], I[1]);
+//     if (x[1] < 0 || y[1] < 0)
+//       continue;
+//   } while (((int)x[1] - (int)x[0]) == 0 && ((int)y[1] - (int)y[0]) == 0);
+//   Set_Speed(7, 0);
+//   Set_Speed(7, 2);
+//   Set_Speed(0, 1);
+//   Set_Speed(0, 3);
+//   Set_LF_Direction(1);
+//   Set_RF_Direction(0);
+//   do
+//   {
+//     HAL_Delay(100);
+//     Get_Survey_Data(&x[2], &y[2], I[2]);
+//     if (x[2] < 0 || y[2] < 0)
+//       continue;
+//   } while (((int)x[1] - (int)x[0]) * ((int)y[2] - (int)y[0]) - ((int)x[2] - (int)x[0]) * ((int)y[1] - (int)y[0]) == 0);
+//   A[0] = (x[1] - x[0]);
+//   A[1] = (x[2] - x[1]);
+//   B[0] = (y[1] - y[0]);
+//   B[1] = (y[2] - y[1]);
+//   C[0][0] = 2.0e9 * (I[1][0] - I[0][0]) / (I[1][0] + I[0][0]) / (I[1][0] + I[0][0]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
+//   C[1][0] = 2.0e9 * (I[2][0] - I[1][0]) / (I[2][0] + I[1][0]) / (I[2][0] + I[1][0]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
+//   C[0][1] = 2.0e9 * (I[1][1] - I[0][1]) / (I[1][1] + I[0][1]) / (I[1][1] + I[0][1]) + (x[1] + x[0]) * (x[1] - x[0]) / 2 + (y[1] + y[0]) * (y[1] - y[0]) / 2;
+//   C[1][1] = 2.0e9 * (I[2][1] - I[1][1]) / (I[2][1] + I[1][1]) / (I[2][1] + I[1][1]) + (x[2] + x[1]) * (x[2] - x[1]) / 2 + (y[2] + y[1]) * (y[2] - y[1]) / 2;
+//   invdet = 1.0 / (A[0] * B[1] - A[1] * B[0]);
+//   packageX[0] = (B[1] * C[0][0] - B[0] * C[1][0]) * invdet;
+//   packageY[0] = (A[0] * C[1][0] - A[1] * C[0][0]) * invdet;
+//   packageX[1] = (B[1] * C[0][1] - B[0] * C[1][1]) * invdet;
+//   packageY[1] = (A[0] * C[1][1] - A[1] * C[0][1]) * invdet;
+// }
 
 void Set_Beacon()
 {
@@ -746,7 +753,8 @@ void Set_Beacon()
 uint16_t getNearestPark(uint16_t _mineType)
 {
   uint16_t tmp = 0;
-  float x = userGetCarPosX(), y = userGetCarPosY();
+  struct MYCOORD coord = userGetCarPos();
+  float x = coord.x, y = coord.y;
   float dist = 0, distMin = 1e9;
   if (getCarTask() == 0)
   {
@@ -780,8 +788,9 @@ uint16_t getNearestPark(uint16_t _mineType)
 
 void getPackage()
 {
-  float dist0 = sq(userGetCarPosX() - packageX[0]) + sq(userGetCarPosY() - packageY[0]);
-  float dist1 = sq(userGetCarPosX() - packageX[1]) + sq(userGetCarPosY() - packageY[1]);
+  struct MYCOORD coord = userGetCarPos();
+  float dist0 = sq(coord.x - packageX[0]) + sq(coord.y - packageY[0]);
+  float dist1 = sq(coord.x - packageX[1]) + sq(coord.y - packageY[1]);
   if (dist0 < dist1)
   {
     MoveTo(packageX[0], packageY[0], 0);
@@ -796,11 +805,12 @@ void getPackage()
 
 void SetBeacon()
 {
+  struct MYCOORD coord = userGetCarPos();
   int k = 0;
   float dist1[3], dist2[2];
   int tmp = 0, j = 0;
   for (int i = 0; i < 3; i++)
-    dist1[i] = sq(userGetCarPosX() - BeaconDir[i][0]) + sq(userGetCarPosY() - BeaconDir[i][1]);
+    dist1[i] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
   for (int i = 0; i < 3; i++)
     tmp = dist1[tmp] < dist1[i] ? tmp : i;
   MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1], 0);
@@ -810,7 +820,8 @@ void SetBeacon()
   {
     if (i != tmp)
     {
-      dist2[j] = sq(userGetCarPosX() - BeaconDir[i][0]) + sq(userGetCarPosY() - BeaconDir[i][1]);
+      coord = userGetCarPos();
+      dist2[j] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
       j++;
     }
   }
@@ -1040,7 +1051,6 @@ int main(void)
         switch (STATE)
         {
         case GET_PACKAGE:
-          Calculate_Package_Position();
           getPackage();
           if (getCarMineSumNum() == 2)
             STATE = (uint8_t)SET_BEACON;
@@ -1080,7 +1090,6 @@ int main(void)
         switch (STATE)
         {
         case GET_PACKAGE:
-          Calculate_Package_Position();
           getPackage();
           if (getCarMineSumNum() > 8)
             STATE = (uint8_t)PUT_PACKAGE;
