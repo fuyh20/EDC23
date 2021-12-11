@@ -73,7 +73,7 @@ float INTEGRAL[4] = {0, 0, 0, 0}, pre_err[4] = {0, 0, 0, 0};
 const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100, 100, 100, 100};
 float pid[4] = {0, 0, 0, 0};
 float target[4] = {0, 0, 0, 0};
-
+int isPackageValid[2] = {0, 0};
 float distance;
 float BeaconDir[3][2] = {{64, 64}, {192, 64}, {128, 190}}; // 信标坐标
 uint8_t STATE;
@@ -467,6 +467,8 @@ void survey()
     return;
   for (int i = 0; i < 2; i++)
   {
+    if (isPackageValid[i])
+      continue;
     if (surveyDataCount[i] == 0)
     {
       surveyData[i][0] = coord;
@@ -500,6 +502,11 @@ void survey()
     if (surveyDataCount[i] == 3)
     {
       Calculate_Package_Position(i);
+      if (packageX[i] > 7 && packageX[i] < 248 && packageY[i] > 7 && packageY[i] < 248)
+        isPackageValid[i] = 1;
+      else
+        isPackageValid[i] = 0;
+      surveyDataCount[i] = 0;
     }
 }
 
@@ -640,6 +647,33 @@ void Move(float velocity, float angle)
   }
 }
 
+void SurveyTowards(float targetAngle)
+{
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
+  if (isPackageValid[0] && isPackageValid[1])
+    return; 
+  if (!isPackageValid[0])
+    surveyDataCount[0] = 0;
+  if (!isPackageValid[1])
+    surveyDataCount[1] = 0;
+  survey();
+  int temp = surveyDataCount[0] + surveyDataCount[1];
+  Move(10, targetAngle - 30);
+  while (surveyDataCount[0] + surveyDataCount[1] == temp)
+  {
+    HAL_Delay(20);
+    survey();
+  }
+  temp = surveyDataCount[0] + surveyDataCount[1];
+  Move(10, targetAngle + 30);
+  while (surveyDataCount[0] + surveyDataCount[1] == temp)
+  {
+    HAL_Delay(20);
+    survey();
+  }
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
+}
+
 void MoveTo(float x, float y, uint16_t _mineType)
 {
   if (x < 7 || x > 248 || y < 7 || y > 248)
@@ -651,9 +685,13 @@ void MoveTo(float x, float y, uint16_t _mineType)
   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
   clearDistance();
   int flag = 0;
+  targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   if (STATE == (uint8_t)GET_PACKAGE)
     flag = getCarMineSumNum();
-  while (difference > 3)
+  if (STATE != SET_BEACON)
+    SurveyTowards(targetAngle);
+  targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
+  while (difference > 5)
   {
     clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
@@ -688,10 +726,9 @@ void MoveTo(float x, float y, uint16_t _mineType)
         velocity = 27;
     }
 
-    targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
     Move(velocity, targetAngle);
 
-    while (getDistance() < 0.70 * difference)
+    while (getDistance() < 0.75 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
@@ -700,13 +737,14 @@ void MoveTo(float x, float y, uint16_t _mineType)
 
     Set_LF_Direction(0);
     Set_RF_Direction(0);
-    HAL_Delay(200);
+    HAL_Delay(400);
     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
     //   HAL_Delay(100);
     coord = userGetCarPos();
     errX = x - coord.x;
     errY = y - coord.y;
     difference = sqrt(errX * errX + errY * errY);
+    targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   }
 }
 
@@ -811,17 +849,44 @@ uint16_t getNearestPark(uint16_t _mineType)
 void getPackage()
 {
   struct MYCOORD coord = userGetCarPos();
-  float dist0 = sq(coord.x - packageX[0]) + sq(coord.y - packageY[0]);
-  float dist1 = sq(coord.x - packageX[1]) + sq(coord.y - packageY[1]);
-  if (dist0 < dist1)
+  if (!isPackageValid[0] && !isPackageValid[1])
   {
-    MoveTo(packageX[0], packageY[0], 0);
-    MoveTo(packageX[1], packageY[1], 0);
+    if (coord.x < 128 && coord.y < 128)
+      SurveyTowards(45);
+    else if (coord.x < 128 && coord.y >= 128)
+      SurveyTowards(135);
+    else if (coord.x >= 128 && coord.y < 128)
+      SurveyTowards(-45);
+    else
+      SurveyTowards(-135);
+  }
+  else if (isPackageValid[0] && isPackageValid[1])
+  {
+    float dist0 = sq(coord.x - packageX[0]) + sq(coord.y - packageY[0]);
+    float dist1 = sq(coord.x - packageX[1]) + sq(coord.y - packageY[1]);
+    if (dist0 < dist1)
+    {
+      MoveTo(packageX[0], packageY[0], 0);
+      isPackageValid[0] = 0;
+    }
+    else
+    {
+      MoveTo(packageX[1], packageY[1], 0);
+      isPackageValid[1] = 0;
+    }
   }
   else
   {
-    MoveTo(packageX[1], packageY[1], 0);
-    MoveTo(packageX[0], packageY[0], 0);
+    if (isPackageValid[0])
+    {
+      MoveTo(packageX[0], packageY[0], 0);
+      isPackageValid[0] = 0;
+    }
+    else
+    {
+      MoveTo(packageX[1], packageY[1], 0);
+      isPackageValid[1] = 0;
+    }
   }
 }
 
@@ -893,12 +958,12 @@ void initialParkMineType()
     Park[i + 8].x = (float)getMyBeaconPosX(i);
     Park[i + 8].y = (float)getMyBeaconPosY(i);
     Park[i + 8].mineType = getMyBeaconMineType(i);
-    if(getIsDistanceOfRivalBeaconValid(i))
+    if (getIsDistanceOfRivalBeaconValid(i))
     {
-        RivalBeacon[RivalBeaconNum].x = (float)getRivalBeaconPosX(i);
-        RivalBeacon[RivalBeaconNum].y = (float)getRivalBeaconPosY(i);
-        RivalBeacon[RivalBeaconNum].id = i;
-        RivalBeaconNum++;
+      RivalBeacon[RivalBeaconNum].x = (float)getRivalBeaconPosX(i);
+      RivalBeacon[RivalBeaconNum].y = (float)getRivalBeaconPosY(i);
+      RivalBeacon[RivalBeaconNum].id = i;
+      RivalBeaconNum++;
     }
   }
 }
@@ -1014,51 +1079,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // if (getGameState() == 1)
-    //   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    // HAL_Delay(500);
-    // for (int i = 0; i < 3; i++)
-    // {
-    //   BeaconDir[i][0] = getMyBeaconPosX(i);
-    //   BeaconDir[i][1] = getMyBeaconPosY(i);
-    // }
-    // CalculateNowDir();
-    // u2_printf("%d,%d,%d,%d\n", BeaconDir[0][0], BeaconDir[0][1], now_X, now_Y);
-    // HAL_Delay(1000);
-
-    // 测量资源位置 work了
-    // Calculate_Package_Position();
-    // u2_printf("%f, %f, %f, %f\n", packageX[0], packageY[0], packageX[1], packageY[1]);
-    // HAL_Delay(1000);
-
-    // if (getGameState() == 1)
-    // {
-    //   MoveTo(127, 127);
-    //   MoveTo(15, 15);
-    //   MoveTo(127, 127);
-    //   MoveTo(160, 170);
-    // }
-
-    // uint16_t x = getMyBeaconPosX(0), y = getMyBeaconPosY(0);
-    // u2_printf("%d, %d\n", x, y);
-    // HAL_Delay(500);
-    // Set_Right_Direction(0);
-    // Set_Left_Direction(0);
-    // u3_printf("%f\n", getDistance());
-    // HAL_Delay(500);
-
-    // u2_printf("%d,%d,%d,%d\n", getCarMineANum(), getCarMineBNum(), getCarMineCNum(), getCarMineDNum());
-    // u2_printf("%d\n", curMostMineType());
-    // if (getCarTask() == 1 && getGameState() == 1)
-    //   if (!isInitialMinePark)
-    //   {
-    //     initialParkMineType();
-    //     isInitialMinePark = 1;
-    //   }
-    // u2_printf("%d,%d,%d\n", getParkDotMineType(0), getParkDotMineType(1), getParkDotMineType(2));
-    // u2_printf("%d,%d,%d\n", Park[0].mineType, Park[1].mineType, Park[2].mineType);
-    // HAL_Delay(500);
-
     /*********************主逻辑******************/
     uint8_t nearParkId;
     uint8_t gameState = getGameState();
@@ -1077,6 +1097,7 @@ int main(void)
         switch (STATE)
         {
         case GET_PACKAGE:
+
           getPackage();
           if (getCarMineSumNum() == 2)
             STATE = (uint8_t)SET_BEACON;
