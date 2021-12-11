@@ -705,7 +705,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   if (STATE == (uint8_t)GET_PACKAGE)
     flag = getCarMineSumNum();
-  if (STATE != SET_BEACON && getCarTask() != 0)
+  if (STATE != SET_BEACON)
     SurveyTowards(targetAngle);
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   while (difference > 5)
@@ -868,7 +868,14 @@ void getPackage()
   struct MYCOORD coord = userGetCarPos();
   if (!isPackageValid[0] && !isPackageValid[1])
   {
-    SurveyTowards(atan2(127.5 - coord.x, 127.5 - coord.y) * 57.296 + absoluteAngle - GetYaw());
+    if (coord.x < 128 && coord.y < 128)
+      SurveyTowards(45);
+    else if (coord.x < 128 && coord.y >= 128)
+      SurveyTowards(135);
+    else if (coord.x >= 128 && coord.y < 128)
+      SurveyTowards(-45);
+    else
+      SurveyTowards(-135);
   }
   else if (isPackageValid[0] && isPackageValid[1])
   {
@@ -889,34 +896,58 @@ void getPackage()
   {
     if (isPackageValid[0])
     {
-      coord = userGetCarPos();
-      SurveyTowards(atan2(packageX[0] - coord.x, packageY[0] - coord.y) * 57.296 + absoluteAngle - GetYaw());
-      if (sqrt(sq(packageX[1] - coord.x) + sq(packageY[1] - coord.y)) < sqrt(sq(packageX[0] - coord.x) + sq(packageY[0] - coord.y)) - 10.0)
-      {
-        MoveTo(packageX[1], packageY[1], 0);
-        isPackageValid[1] = 0;
-      }
-      else
-      {
-        MoveTo(packageX[0], packageY[0], 0);
-        isPackageValid[0] = 0;
-      }
+      MoveTo(packageX[0], packageY[0], 0);
+      isPackageValid[0] = 0;
     }
     else
     {
-      coord = userGetCarPos();
-      SurveyTowards(atan2(packageX[1] - coord.x, packageY[1] - coord.y) * 57.296 + absoluteAngle - GetYaw());
-      if (sqrt(sq(packageX[0] - coord.x) + sq(packageY[0] - coord.y)) < sqrt(sq(packageX[1] - coord.x) + sq(packageY[1] - coord.y)) - 10.0)
-      {
-        MoveTo(packageX[0], packageY[0], 0);
-        isPackageValid[0] = 0;
-      }
-      else
-      {
-        MoveTo(packageX[1], packageY[1], 0);
-        isPackageValid[1] = 0;
-      }
+      MoveTo(packageX[1], packageY[1], 0);
+      isPackageValid[1] = 0;
     }
+  }
+}
+
+void SetBeacon()
+{
+  struct MYCOORD coord = userGetCarPos();
+  int k = 0;
+  float dist1[3], dist2[2];
+  int tmp = 0, j = 0;
+  for (int i = 0; i < 3; i++)
+    dist1[i] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+  for (int i = 0; i < 3; i++)
+    tmp = dist1[tmp] < dist1[i] ? tmp : i;
+  MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1], 0);
+  zigbeeSend(k++);
+  Set_Beacon();
+  for (int i = 0; i < 3; i++)
+  {
+    if (i != tmp)
+    {
+      coord = userGetCarPos();
+      dist2[j] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+      j++;
+    }
+  }
+  if (dist2[0] < dist2[1])
+  {
+    for (int i = 0; i < 3; i++)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
+  }
+  else
+  {
+    for (int i = 2; i >= 0; i--)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
   }
 }
 
@@ -1008,43 +1039,6 @@ void Set_RF_Direction(int direction)
   }
 }
 
-void Round0()
-{
-  if (getGameState() == 2 || getGameState == 3)
-    return;
-  uint16_t nearParkId;
-  int isComplete[4] = {0, 0, 0, 0};
-  float destination[4][2] = {{205, 50}, {128, 205}, {0, 0}, {0, 0}};
-  float dist[4] = {0, 0, 0, 0};
-  SurveyTowards(45);
-  destination[2][0] = packageX[0], destination[2][1] = packageY[0];
-  destination[3][0] = packageX[1], destination[3][1] = packageY[1];
-  MoveTo(50, 50, 0);
-  Set_Beacon();
-  struct MYCOORD coord = userGetCarPos();
-  int minD;
-  float min;
-  for (int i = 0; i < 4; i++)
-  {
-    min = 1e9;
-    for (int j = 0; j < 4; j++)
-    {
-      dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
-    }
-    for (int j = 0; j < 4; j++)
-    {
-      if (isComplete[j])
-        continue;
-      minD = min > dist[j] ? j : minD;
-    }
-    MoveTo(destination[minD][0], destination[minD][1], 0);
-    if (minD < 2)
-      Set_Beacon();
-  }
-  nearParkId = getNearestPark(0);
-  MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -1108,6 +1102,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     /*********************主逻辑******************/
+    uint8_t nearParkId;
     uint8_t gameState = getGameState();
 
     if (gameState == 0 || gameState == 2 || gameState == 3)
@@ -1121,7 +1116,30 @@ int main(void)
       uint8_t ROUND = getCarTask();
       if (ROUND == 0)
       {
-        Round0();
+        switch (STATE)
+        {
+        case GET_PACKAGE:
+          getPackage();
+          if (getCarMineSumNum() == 2)
+            STATE = (uint8_t)SET_BEACON;
+          break;
+
+        case PUT_PACKAGE:
+          nearParkId = getNearestPark(0);
+          MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
+          STATE = (uint8_t)EMPTY_STATE;
+          break;
+
+        case SET_BEACON:
+          SetBeacon();
+          STATE = (uint8_t)PUT_PACKAGE;
+          break;
+
+        default:
+          Set_Right_Direction(0);
+          Set_Left_Direction(0);
+          break;
+        }
       }
 
       if (ROUND == 1)
