@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -72,10 +72,10 @@ float packageX[2], packageY[2];
 float INTEGRAL[4] = {0, 0, 0, 0}, pre_err[4] = {0, 0, 0, 0};
 const float Kp[4] = {40, 40, 40, 40}, Ki[4] = {0.2, 0.2, 0.2, 0.2}, Kd[4] = {100, 100, 100, 100};
 float pid[4] = {0, 0, 0, 0};
-float target[4] = {20, 20, 20, 20};
+float target[4] = {0, 0, 0, 0};
 
 float distance;
-
+float distance1, distance2;
 float BeaconDir[3][2] = {{64, 64}, {192, 64}, {128, 190}}; // 信标坐标
 uint8_t STATE;
 uint8_t isInitialMinePark = 0;
@@ -88,7 +88,13 @@ struct PARK
   uint16_t mineType;
 };
 
+struct RIVALBEACON
+{
+  float x, y;
+};
+
 struct PARK Park[15] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+struct RIVALBEACON RivalBeacon[3] = {{0, 0}, {0, 0}, {0, 0}};
 
 uint16_t userGetMineNum(uint16_t _mineType)
 {
@@ -105,7 +111,8 @@ uint16_t userGetMineNum(uint16_t _mineType)
 
 void clearDistance()
 {
-  distance = 0;
+  distance1 = 0;
+  distance2 = 0;
 }
 
 float getDistance()
@@ -206,10 +213,10 @@ void Set_Right_Direction(int direction)
   }
   else
   {
-    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN3A_Pin, SET);
-    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN3B_Pin, SET);
-    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN4A_Pin, SET);
-    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN4B_Pin, SET);
+    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, SET);
+    HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, SET);
+    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
   }
 }
 
@@ -345,12 +352,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     __HAL_TIM_SetCounter(&htim5, 0);
     __HAL_TIM_SetCounter(&htim8, 0);
 
-    float speed0 = (float)cnt0 * 20 / 532 * 20.4;
-    float speed1 = (float)cnt1 * 20 / 531 * 20.4;
-    float speed2 = (float)cnt2 * 20 / 531 * 20.4;
-    float speed3 = (float)cnt3 * 20 / 530 * 20.4;
+    float speed0 = (float)cnt0 * 20 / 532 * 20.4 * 0.71;
+    float speed1 = (float)cnt1 * 20 / 531 * 20.4 * 0.71;
+    float speed2 = (float)cnt2 * 20 / 531 * 20.4 * 0.71;
+    float speed3 = (float)cnt3 * 20 / 530 * 20.4 * 0.71;
 
-    distance += (speed0 + speed1 + speed2 + speed3) * 0.0125;
+    // distance += (speed0 + speed1 + speed2 + speed3) * 0.0125;
+    distance1 += (speed0 + speed2) * 0.025;
+    distance2 += (speed1 + speed3) * 0.025;
+    distance = sqrt(sq(distance1) + sq(distance2));
 
     int pwm0 = (int)PID(speed0, target[0], 0);
     int pwm1 = (int)PID(speed1, target[1], 1);
@@ -493,6 +503,112 @@ float userGetCarPosY()
 //   angle0 = GetYaw();
 // }
 
+// void MoveTo(float x, float y, uint16_t _mineType)
+// {
+//   if (x < 7 || x > 248 || y < 7 || y > 248)
+//     return;
+//   float velocity;
+//   float errX = x - userGetCarPosX();
+//   float errY = y - userGetCarPosY();
+//   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
+//   clearDistance();
+//   int flag = 0;
+//   if (STATE == (uint8_t)GET_PACKAGE)
+//     flag = getCarMineSumNum();
+//   while (difference > 5)
+//   {
+//     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
+//       break;
+//     else if (STATE == (uint8_t)SET_BEACON && difference < 15)
+//       break;
+//     if (difference < 10)
+//       velocity = 3;
+//     else if (difference < 20)
+//       velocity = 7;
+//     else if (difference < 30)
+//       velocity = 10;
+//     else if (difference < 50)
+//     {
+//       if (STATE == (uint8_t)PUT_PACKAGE)
+//         velocity = 13;
+//       else
+//         velocity = 17;
+//     }
+//     else if (difference < 100)
+//     {
+//       if (STATE == (uint8_t)PUT_PACKAGE)
+//         velocity = 17;
+//       else
+//         velocity = 23;
+//     }
+//     else
+//     {
+//       if (STATE == (uint8_t)PUT_PACKAGE)
+//         velocity = 20;
+//       else
+//         velocity = 27;
+//     }
+//     angle0 = GetYaw();
+//     targetAngle = Add_Angle(atan2(errX, errY) * 57.296, absoluteAngle - angle0);
+//     Turn(targetAngle);
+//     clearDistance();
+//     Set_Left_Direction(1);
+//     Set_Right_Direction(1);
+//     for (int i = 0; i < 4; i++)
+//       Set_Speed(velocity, i);
+//     while (getDistance() < 0.70 * difference)
+//     {
+//       HAL_Delay(20);
+//       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
+//         break;
+//     }
+//     Set_Left_Direction(0);
+//     Set_Right_Direction(0);
+//     HAL_Delay(400);
+//     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
+//     //   HAL_Delay(100);
+//     errX = x - userGetCarPosX();
+//     errY = y - userGetCarPosY();
+//     difference = sqrt(errX * errX + errY * errY);
+//   }
+// }
+void Set_RF_Direction(int direction);
+void Set_LF_Direction(int direction);
+
+void Move(float velocity, float angle)
+{
+  angle *= 2 * 3.14159 / 360;
+  angle += 0.785398;
+  float v1, v2;
+  v1 = velocity * cos(angle);
+  v2 = velocity * sin(angle);
+  if (v1 >= 0)
+  {
+    Set_LF_Direction(1);
+    Set_Speed(v1, 0);
+    Set_Speed(v1, 2);
+  }
+  else
+  {
+    Set_LF_Direction(-1);
+    Set_Speed(-v1, 0);
+    Set_Speed(-v1, 2);
+  }
+
+  if (v2 >= 0)
+  {
+    Set_RF_Direction(1);
+    Set_Speed(v2, 1);
+    Set_Speed(v2, 3);
+  }
+  else
+  {
+    Set_RF_Direction(-1);
+    Set_Speed(-v2, 1);
+    Set_Speed(-v2, 3);
+  }
+}
+
 void MoveTo(float x, float y, uint16_t _mineType)
 {
   if (x < 7 || x > 248 || y < 7 || y > 248)
@@ -538,22 +654,16 @@ void MoveTo(float x, float y, uint16_t _mineType)
       else
         velocity = 27;
     }
-    angle0 = GetYaw();
-    targetAngle = Add_Angle(atan2(errX, errY) * 57.296, absoluteAngle - angle0);
-    Turn(targetAngle);
-    clearDistance();
-    Set_Left_Direction(1);
-    Set_Right_Direction(1);
-    for (int i = 0; i < 4; i++)
-      Set_Speed(velocity, i);
+    targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
+    Move(velocity, targetAngle);
     while (getDistance() < 0.70 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
         break;
     }
-    Set_Left_Direction(0);
-    Set_Right_Direction(0);
+    Set_LF_Direction(0);
+    Set_RF_Direction(0);
     HAL_Delay(400);
     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
     //   HAL_Delay(100);
@@ -583,11 +693,11 @@ void Calculate_Package_Position(void)
   } while (x[0] < 0 || y[0] < 0);
   // u2_printf("%d, %d, %d, %d\n", x[0], y[0], I[0][0], I[0][1]);
   Set_Speed(0, 0);
-  Set_Speed(0, 1);
-  Set_Speed(7, 2);
+  Set_Speed(0, 2);
+  Set_Speed(7, 1);
   Set_Speed(7, 3);
-  Set_Left_Direction(-1);
-  Set_Right_Direction(1);
+  Set_LF_Direction(0);
+  Set_RF_Direction(1);
   do
   {
     HAL_Delay(100);
@@ -595,6 +705,12 @@ void Calculate_Package_Position(void)
     if (x[1] < 0 || y[1] < 0)
       continue;
   } while (((int)x[1] - (int)x[0]) == 0 && ((int)y[1] - (int)y[0]) == 0);
+  Set_Speed(7, 0);
+  Set_Speed(7, 2);
+  Set_Speed(0, 1);
+  Set_Speed(0, 3);
+  Set_LF_Direction(1);
+  Set_RF_Direction(0);
   do
   {
     HAL_Delay(100);
@@ -744,15 +860,67 @@ void initialParkMineType()
     Park[i + 8].x = (float)getMyBeaconPosX(i);
     Park[i + 8].y = (float)getMyBeaconPosY(i);
     Park[i + 8].mineType = getMyBeaconMineType(i);
+    RivalBeacon[i].x = (float)getRivalBeaconPosX(i);
+    RivalBeacon[i].y = (float)getRivalBeaconPosY(i);
+  }
+}
+
+void Set_LF_Direction(int direction)
+{
+  HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, RESET);
+  HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, RESET);
+  HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, RESET);
+  HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, RESET);
+  if (direction == 1)
+  {
+    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
+  }
+  else if (direction == -1)
+  {
+    HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, SET);
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+  }
+  else
+  {
+    HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, SET);
+    HAL_GPIO_WritePin(IN3B_GPIO_Port, IN3B_Pin, SET);
+    HAL_GPIO_WritePin(IN1A_GPIO_Port, IN1A_Pin, SET);
+    HAL_GPIO_WritePin(IN1B_GPIO_Port, IN1B_Pin, SET);
+  }
+}
+
+void Set_RF_Direction(int direction)
+{
+  HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, RESET);
+  HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, RESET);
+  HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, RESET);
+  HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, RESET);
+  if (direction == 1)
+  {
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
+  }
+  else if (direction == -1)
+  {
+    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, SET);
+    HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, SET);
+  }
+  else
+  {
+    HAL_GPIO_WritePin(IN2A_GPIO_Port, IN2A_Pin, SET);
+    HAL_GPIO_WritePin(IN2B_GPIO_Port, IN2B_Pin, SET);
+    HAL_GPIO_WritePin(IN4A_GPIO_Port, IN4A_Pin, SET);
+    HAL_GPIO_WritePin(IN4B_GPIO_Port, IN4B_Pin, SET);
   }
 }
 
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -860,8 +1028,8 @@ int main(void)
 
     if (gameState == 0 || gameState == 2 || gameState == 3)
     {
-      Set_Right_Direction(0);
-      Set_Left_Direction(0);
+      Set_LF_Direction(0);
+      Set_RF_Direction(0);
     }
 
     while (gameState == 1)
@@ -935,17 +1103,17 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -958,7 +1126,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB buses clocks
-  */
+   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
@@ -976,9 +1144,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -992,12 +1160,12 @@ void Error_Handler(void)
 
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
