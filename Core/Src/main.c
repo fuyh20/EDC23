@@ -99,10 +99,12 @@ struct PARK
 struct RIVALBEACON
 {
   float x, y;
+  int id;
 };
+struct RIVALBEACON RivalBeacon[3] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+int RivalBeaconNum = 0;
 
 struct PARK Park[15] = {{15, 15, 0}, {127, 15, 0}, {239, 15, 0}, {239, 127, 0}, {239, 239, 0}, {127, 239, 0}, {15, 239, 0}, {15, 127, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-struct RIVALBEACON RivalBeacon[3] = {{0, 0}, {0, 0}, {0, 0}};
 
 uint16_t userGetMineNum(uint16_t _mineType)
 {
@@ -350,12 +352,15 @@ struct MYCOORD userGetCarPos()
   }
   int x[3], y[3], beaconD[3], xBase, yBase, cnt = 0;
   float A[2], B[2], C[2], xTemp[2], yTemp[2], xRes = 0, yRes = 0;
+  int rivalBeaconD[3];
   for (int i = 0; i < 3; i++)
   {
     x[i] = getMyBeaconPosX(i);
     y[i] = getMyBeaconPosY(i);
     beaconD[i] = getDistanceOfMyBeacon(i);
   }
+  for (int i = 0; i < RivalBeaconNum; i++)
+    rivalBeaconD[i] = getDistanceOfRivalBeacon(RivalBeacon[i].id);
   A[0] = x[1] - x[0];
   B[0] = y[1] - y[0];
   A[1] = x[2] - x[0];
@@ -371,7 +376,14 @@ struct MYCOORD userGetCarPos()
   for (int i = -1; i < 2; i++)
     for (int j = -1; j < 2; j++)
       if ((int)sqrt(sq(xBase - x[0] + i) + sq(yBase - y[0] + j)) == beaconD[0] && (int)sqrt(sq(xBase - x[1] + i) + sq(yBase - y[1] + j)) == beaconD[1] && (int)sqrt(sq(xBase - x[2] + i) + sq(yBase - y[2] + j)) == beaconD[2])
-        xRes += i, yRes += j, cnt++;
+      {
+        int flag = 1;
+        for (int k = 0; k < RivalBeaconNum; k++)
+          if ((int)sqrt(sq(xBase - RivalBeacon[k].x + i) + sq(yBase - RivalBeacon[k].y + j)) != rivalBeaconD[k])
+            flag = 0;
+        if (flag)
+          xRes += i, yRes += j, cnt++;
+      }
   coord.x = xBase + xRes / cnt;
   coord.y = yBase + yRes / cnt;
   return coord;
@@ -387,6 +399,7 @@ struct MYCOORD surveyGetCarPos()
     return coord;
   };
   int x[3], y[3], beaconD[3], xBase, yBase, cnt = 0;
+  int rivalBeaconD[3];
   float A[2], B[2], C[2], xTemp[2], yTemp[2], xRes = 0, yRes = 0;
   for (int i = 0; i < 3; i++)
   {
@@ -394,6 +407,8 @@ struct MYCOORD surveyGetCarPos()
     y[i] = getMyBeaconPosY(i);
     beaconD[i] = getDistanceOfMyBeacon(i);
   }
+  for (int i = 0; i < RivalBeaconNum; i++)
+    rivalBeaconD[i] = getDistanceOfRivalBeacon(RivalBeacon[i].id);
   A[0] = x[1] - x[0];
   B[0] = y[1] - y[0];
   A[1] = x[2] - x[0];
@@ -409,7 +424,14 @@ struct MYCOORD surveyGetCarPos()
   for (int i = -1; i < 2; i++)
     for (int j = -1; j < 2; j++)
       if ((int)sqrt(sq(xBase - x[0] + i) + sq(yBase - y[0] + j)) == beaconD[0] && (int)sqrt(sq(xBase - x[1] + i) + sq(yBase - y[1] + j)) == beaconD[1] && (int)sqrt(sq(xBase - x[2] + i) + sq(yBase - y[2] + j)) == beaconD[2])
-        xRes += i, yRes += j, cnt++;
+      {
+        int flag = 1;
+        for (int k = 0; k < RivalBeaconNum; k++)
+          if ((int)sqrt(sq(xBase - RivalBeacon[k].x + i) + sq(yBase - RivalBeacon[k].y + j)) != rivalBeaconD[k])
+            flag = 0;
+        if (flag)
+          xRes += i, yRes += j, cnt++;
+      }
   if (cnt > 1)
   {
     coord.x = -1.0;
@@ -441,7 +463,7 @@ void Calculate_Package_Position(int i)
 void survey()
 {
   struct MYCOORD coord = surveyGetCarPos();
-  if(coord.I < -0.5)
+  if (coord.I < -0.5)
     return;
   for (int i = 0; i < 2; i++)
   {
@@ -453,7 +475,7 @@ void survey()
     }
     else if (surveyDataCount[i] == 1)
     {
-      if((int)coord.x == (int)surveyData[i][0].x && (int)coord.y == (int)surveyData[i][0].y)
+      if ((int)coord.x == (int)surveyData[i][0].x && (int)coord.y == (int)surveyData[i][0].y)
         continue;
       surveyData[i][1] = coord;
       surveyData[i][1].I = getMineIntensity(i);
@@ -475,7 +497,7 @@ void survey()
       continue;
   }
   for (int i = 0; i < 2; i++)
-    if(surveyDataCount[i] == 3)
+    if (surveyDataCount[i] == 3)
     {
       Calculate_Package_Position(i);
     }
@@ -871,11 +893,15 @@ void initialParkMineType()
     Park[i + 8].x = (float)getMyBeaconPosX(i);
     Park[i + 8].y = (float)getMyBeaconPosY(i);
     Park[i + 8].mineType = getMyBeaconMineType(i);
-    RivalBeacon[i].x = (float)getRivalBeaconPosX(i);
-    RivalBeacon[i].y = (float)getRivalBeaconPosY(i);
+    if(getIsDistanceOfRivalBeaconValid(i))
+    {
+        RivalBeacon[RivalBeaconNum].x = (float)getRivalBeaconPosX(i);
+        RivalBeacon[RivalBeaconNum].y = (float)getRivalBeaconPosY(i);
+        RivalBeacon[RivalBeaconNum].id = i;
+        RivalBeaconNum++;
+    }
   }
 }
-
 void Set_LF_Direction(int direction)
 {
   HAL_GPIO_WritePin(IN3A_GPIO_Port, IN3A_Pin, RESET);
