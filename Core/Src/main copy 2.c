@@ -657,10 +657,8 @@ void Move(float velocity, float angle)
 
 void SurveyTowards(float targetAngle)
 {
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
   if (isPackageValid[0] && isPackageValid[1])
   {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
     return;
   }
   if (!isPackageValid[0])
@@ -688,7 +686,6 @@ void SurveyTowards(float targetAngle)
     HAL_Delay(20);
     survey();
   }
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
 }
 
 void MoveTo(float x, float y, uint16_t _mineType)
@@ -705,7 +702,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   if (STATE == (uint8_t)GET_PACKAGE)
     flag = getCarMineSumNum();
-  if (STATE != SET_BEACON && getCarTask() != 0)
+  if (STATE != SET_BEACON)
     SurveyTowards(targetAngle);
   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
   while (difference > 5)
@@ -713,39 +710,41 @@ void MoveTo(float x, float y, uint16_t _mineType)
     clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
-    else if (STATE == (uint8_t)SET_BEACON && difference < 15)
+    else if (_mineType == 10 && difference < 10)
+    {
       break;
+    }
     if (difference < 10)
-      velocity = 3;
-    else if (difference < 20)
       velocity = 7;
-    else if (difference < 30)
+    else if (difference < 20)
       velocity = 10;
+    else if (difference < 30)
+      velocity = 15;
     else if (difference < 50)
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 13;
+        velocity = 15;
       else
-        velocity = 17;
+        velocity = 20;
     }
     else if (difference < 100)
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 17;
+        velocity = 25;
       else
-        velocity = 23;
+        velocity = 30;
     }
     else
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 20;
-      else
         velocity = 27;
+      else
+        velocity = 33;
     }
 
     Move(velocity, targetAngle);
 
-    while (getDistance() < 0.7 * difference)
+    while (getDistance() < 0.75 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
@@ -868,7 +867,14 @@ void getPackage()
   struct MYCOORD coord = userGetCarPos();
   if (!isPackageValid[0] && !isPackageValid[1])
   {
-    SurveyTowards(atan2(127.5 - coord.x, 127.5 - coord.y) * 57.296 + absoluteAngle - GetYaw());
+    if (coord.x < 128 && coord.y < 128)
+      SurveyTowards(45);
+    else if (coord.x < 128 && coord.y >= 128)
+      SurveyTowards(135);
+    else if (coord.x >= 128 && coord.y < 128)
+      SurveyTowards(-45);
+    else
+      SurveyTowards(-135);
   }
   else if (isPackageValid[0] && isPackageValid[1])
   {
@@ -917,6 +923,50 @@ void getPackage()
         isPackageValid[1] = 0;
       }
     }
+  }
+}
+
+void SetBeacon()
+{
+  struct MYCOORD coord = userGetCarPos();
+  int k = 0;
+  float dist1[3], dist2[2];
+  int tmp = 0, j = 0;
+  for (int i = 0; i < 3; i++)
+    dist1[i] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+  for (int i = 0; i < 3; i++)
+    tmp = dist1[tmp] < dist1[i] ? tmp : i;
+  MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1], 0);
+  zigbeeSend(k++);
+  Set_Beacon();
+  for (int i = 0; i < 3; i++)
+  {
+    if (i != tmp)
+    {
+      coord = userGetCarPos();
+      dist2[j] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+      j++;
+    }
+  }
+  if (dist2[0] < dist2[1])
+  {
+    for (int i = 0; i < 3; i++)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
+  }
+  else
+  {
+    for (int i = 2; i >= 0; i--)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
   }
 }
 
@@ -1022,7 +1072,7 @@ void Round0()
   MoveTo(50, 50, 0);
   Set_Beacon();
   struct MYCOORD coord = userGetCarPos();
-  int minD;
+  int minD = 0;
   float min;
   for (int i = 0; i < 4; i++)
   {
@@ -1030,19 +1080,28 @@ void Round0()
     min = 1e9;
     for (int j = 0; j < 4; j++)
     {
-      dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
+      if (!isComplete[j])
+        dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
+      else
+        dist[j] = 1e9;
     }
 
     for (int j = 0; j < 4; j++)
     {
       if (isComplete[j])
         continue;
-      minD = min > dist[j] ? j : minD;
+      minD = min < dist[j] ? minD : j;
+      min = min < dist[j] ? min : dist[j];
     }
 
-    MoveTo(destination[minD][0], destination[minD][1], 0);
     if (minD < 2)
+    {
+      MoveTo(destination[minD][0], destination[minD][1], 10);
       Set_Beacon();
+    }
+    else
+      MoveTo(destination[minD][0], destination[minD][1], 0);
+
     isComplete[minD] = 1;
   }
   nearParkId = getNearestPark(0);
