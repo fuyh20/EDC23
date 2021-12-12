@@ -66,6 +66,7 @@ void SystemClock_Config(void);
 #define EMPTY_STATE 3
 #define TIME_UP 4
 #define sq(x) ((x) * (x))
+// #define ABS(x) ((x) > 0 ? (x) : (-(x)))
 
 float packageX[2], packageY[2];
 /*PID参数----------------------------------------------------------------------*/
@@ -517,107 +518,6 @@ void survey()
     }
 }
 
-// void MoveTo(float x, float y)
-// {
-//   float TurningCoefficient = 1; //调参
-//   uint16_t errX = x - getCarPosX();
-//   uint16_t errY = y - getCarPosY();
-//   float targetAngle = (float)atan2(errY, errX) * 57.296, errAngle, velosity = 20;
-//   targetAngle = Add_Angle(targetAngle, absoluteAngle - angle0);
-//   Turn(targetAngle);
-//   Set_Left_Direction(1);
-//   Set_Right_Direction(1);
-//   for (int i = 0; i < 4; i++)
-//     Set_Speed(10, i);
-//   while (1)
-//   {
-//     if (x * x + y * y < 25) //调参
-//       break;
-//     if (x * x + y * y < 200) //调参
-//       velosity = 5;          //调参
-//     errX = x - getCarPosX();
-//     errY = y - getCarPosY();
-//     errAngle = Add_Angle(atan2(errY, errX), absoluteAngle - GetYaw());
-//     Set_Speed(velosity + TurningCoefficient * errAngle, 0);
-//     Set_Speed(velosity + TurningCoefficient * errAngle, 1);
-//     Set_Speed(velosity - TurningCoefficient * errAngle, 2);
-//     Set_Speed(velosity - TurningCoefficient * errAngle, 3);
-//   }
-//   Set_Left_Direction(0);
-//   Set_Right_Direction(0);
-//   angle0 = GetYaw();
-// }
-
-// void MoveTo(float x, float y, uint16_t _mineType)
-// {
-//   if (x < 7 || x > 248 || y < 7 || y > 248)
-//     return;
-//   float velocity;
-//   float errX = x - userGetCarPosX();
-//   float errY = y - userGetCarPosY();
-//   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
-//   clearDistance();
-//   int flag = 0;
-//   if (STATE == (uint8_t)GET_PACKAGE)
-//     flag = getCarMineSumNum();
-//   while (difference > 5)
-//   {
-//     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
-//       break;
-//     else if (STATE == (uint8_t)SET_BEACON && difference < 15)
-//       break;
-//     if (difference < 10)
-//       velocity = 3;
-//     else if (difference < 20)
-//       velocity = 7;
-//     else if (difference < 30)
-//       velocity = 10;
-//     else if (difference < 50)
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 13;
-//       else
-//         velocity = 17;
-//     }
-//     else if (difference < 100)
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 17;
-//       else
-//         velocity = 23;
-//     }
-//     else
-//     {
-//       if (STATE == (uint8_t)PUT_PACKAGE)
-//         velocity = 20;
-//       else
-//         velocity = 27;
-//     }
-//     angle0 = GetYaw();
-//     targetAngle = Add_Angle(atan2(errX, errY) * 57.296, absoluteAngle - angle0);
-//     Turn(targetAngle);
-//     clearDistance();
-//     Set_Left_Direction(1);
-//     Set_Right_Direction(1);
-//     for (int i = 0; i < 4; i++)
-//       Set_Speed(velocity, i);
-//     while (getDistance() < 0.70 * difference)
-//     {
-//       HAL_Delay(20);
-//       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
-//         break;
-//     }
-//     Set_Left_Direction(0);
-//     Set_Right_Direction(0);
-//     HAL_Delay(400);
-//     // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
-//     //   HAL_Delay(100);
-//     errX = x - userGetCarPosX();
-//     errY = y - userGetCarPosY();
-//     difference = sqrt(errX * errX + errY * errY);
-//   }
-// }
-
 void Set_RF_Direction(int direction);
 void Set_LF_Direction(int direction);
 
@@ -715,29 +615,50 @@ int Avoidance(float x0, float y0, float x, float y)
   return 1;
 }
 
+void MoveToNonAvoid(float x, float y, uint16_t _mineType);
+
 void MoveTo(float x, float y, uint16_t _mineType)
 {
   if (x < 7 || x > 248 || y < 7 || y > 248)
     return;
   float velocity;
   struct MYCOORD coord = userGetCarPos();
+  float errX = x - coord.x;
+  float errY = y - coord.y;
+
   if (Avoidance(coord.x, coord.y, x, y) == 0)
   {
     if (Avoidance(coord.x, coord.y, coord.x, y) == 1 && Avoidance(coord.x, y, x, y) == 1)
     {
-      MoveTo(coord.x, y, _mineType);
-      MoveTo(x, y, _mineType);
+      MoveToNonAvoid(coord.x, y, _mineType);
+      MoveToNonAvoid(x, y, _mineType);
       return;
     }
     else if (Avoidance(coord.x, coord.y, x, coord.y) == 1 && Avoidance(x, coord.y, x, y) == 1)
     {
-      MoveTo(x, coord.y, _mineType);
+      MoveToNonAvoid(x, coord.y, _mineType);
+      MoveToNonAvoid(x, y, _mineType);
+      return;
+    }
+    /* if (ABS(coord.x - x) > ABS(coord.y - y))
+    {
+      if (coord.y > 127)
+        MoveToNonAvoid(coord.x, coord.y - 50, _mineType);
+      else
+        MoveToNonAvoid(coord.x, coord.y + 50, _mineType);
       MoveTo(x, y, _mineType);
       return;
     }
+    else
+    {
+      if (coord.x > 127)
+        MoveToNonAvoid(coord.x - 50, coord.y, _mineType);
+      else
+        MoveToNonAvoid(coord.x + 50, coord.y, _mineType);
+      MoveTo(x, y, _mineType);
+    } */
   }
-  float errX = x - coord.x;
-  float errY = y - coord.y;
+
   float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
   clearDistance();
   int flag = 0;
@@ -752,12 +673,85 @@ void MoveTo(float x, float y, uint16_t _mineType)
     clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
-    else if (STATE == (uint8_t)SET_BEACON && difference < 25)
-    {
+    else if (STATE == (uint8_t)SET_BEACON && difference < 20)
       break;
-    }
     if (difference < 10)
-      velocity = 5;
+      velocity = 3;
+    else if (difference < 20)
+      velocity = 7;
+    else if (difference < 30)
+      velocity = 10;
+    else if (difference < 50)
+    {
+      if (STATE == (uint8_t)PUT_PACKAGE)
+        velocity = 13;
+      else
+        velocity = 17;
+    }
+    else if (difference < 100)
+    {
+      if (STATE == (uint8_t)PUT_PACKAGE)
+        velocity = 17;
+      else
+        velocity = 23;
+    }
+    else
+    {
+      if (STATE == (uint8_t)PUT_PACKAGE)
+        velocity = 20;
+      else
+        velocity = 27;
+    }
+
+    Move(velocity, targetAngle);
+
+    while (getDistance() < 0.75 * difference)
+    {
+      HAL_Delay(20);
+      if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
+        break;
+    }
+
+    Set_LF_Direction(0);
+    Set_RF_Direction(0);
+    HAL_Delay(400);
+    // while (STATE == (uint8_t)PUT_PACKAGE && userGetMineNum(_mineType) != 0)
+    //   HAL_Delay(100);
+    coord = userGetCarPos();
+    errX = x - coord.x;
+    errY = y - coord.y;
+    difference = sqrt(errX * errX + errY * errY);
+    targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
+  }
+}
+
+void MoveToNonAvoid(float x, float y, uint16_t _mineType)
+{
+  if (x < 7 || x > 248 || y < 7 || y > 248)
+    return;
+  float velocity;
+  struct MYCOORD coord = userGetCarPos();
+  float errX = x - coord.x;
+  float errY = y - coord.y;
+
+  float targetAngle = 0, difference = sqrt(errX * errX + errY * errY);
+  clearDistance();
+  int flag = 0;
+  targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
+  if (STATE == (uint8_t)GET_PACKAGE)
+    flag = getCarMineSumNum();
+  if (STATE != SET_BEACON)
+    SurveyTowards(targetAngle);
+  targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
+  while (difference > 5)
+  {
+    clearDistance();
+    if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
+      break;
+    else if (STATE == (uint8_t)SET_BEACON && difference < 20)
+      break;
+    if (difference < 10)
+      velocity = 3;
     else if (difference < 20)
       velocity = 7;
     else if (difference < 30)
@@ -1102,6 +1096,7 @@ void Set_RF_Direction(int direction)
 
 void Round0()
 {
+  int k = 0;
   if (getGameState() == 2 || getGameState() == 3)
     return;
   uint16_t nearParkId;
@@ -1111,6 +1106,8 @@ void Round0()
   SurveyTowards(45);
   destination[2][0] = packageX[0], destination[2][1] = packageY[0];
   destination[3][0] = packageX[1], destination[3][1] = packageY[1];
+
+  STATE = (uint8_t)SET_BEACON;
   MoveTo(70, 70, 0);
   Set_Beacon();
   struct MYCOORD coord = userGetCarPos();
@@ -1140,6 +1137,7 @@ void Round0()
     {
       STATE = (uint8_t)SET_BEACON;
       MoveTo(destination[minD][0], destination[minD][1], 0);
+      zigbeeSend(k++);
       Set_Beacon();
     }
     else
@@ -1151,7 +1149,20 @@ void Round0()
     isComplete[minD] = 1;
   }
 
+  while (getCarMineSumNum() < 2)
+  {
+    if (getIsMineIntensityValid(0))
+    {
+      MoveTo(packageX[0], packageY[0], 0);
+    }
+    if (getIsMineIntensityValid(1))
+    {
+      MoveTo(packageX[1], packageY[1], 0);
+    }
+  }
+
   nearParkId = getNearestPark(0);
+  STATE = (uint8_t)PUT_PACKAGE;
   while (1)
     MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
 }
