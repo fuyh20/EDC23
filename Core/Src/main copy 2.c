@@ -1026,20 +1026,24 @@ void Round0()
   float min;
   for (int i = 0; i < 4; i++)
   {
+    coord = userGetCarPos();
     min = 1e9;
     for (int j = 0; j < 4; j++)
     {
       dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
     }
+
     for (int j = 0; j < 4; j++)
     {
       if (isComplete[j])
         continue;
       minD = min > dist[j] ? j : minD;
     }
+
     MoveTo(destination[minD][0], destination[minD][1], 0);
     if (minD < 2)
       Set_Beacon();
+    isComplete[minD] = 1;
   }
   nearParkId = getNearestPark(0);
   MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);

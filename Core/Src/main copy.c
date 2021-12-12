@@ -713,7 +713,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
     clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
-    else if (STATE == (uint8_t)SET_BEACON && difference < 15)
+    else if (STATE == (uint8_t)SET_BEACON && difference < 20)
       break;
     if (difference < 10)
       velocity = 3;
@@ -745,7 +745,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
 
     Move(velocity, targetAngle);
 
-    while (getDistance() < 0.7 * difference)
+    while (getDistance() < 0.75 * difference)
     {
       HAL_Delay(20);
       if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
@@ -1039,6 +1039,47 @@ void Set_RF_Direction(int direction)
   }
 }
 
+void Round0()
+{
+  if (getGameState() == 2 || getGameState() == 3)
+    return;
+  uint16_t nearParkId;
+  int isComplete[4] = {0, 0, 0, 0};
+  float destination[4][2] = {{205, 50}, {128, 205}, {0, 0}, {0, 0}};
+  float dist[4] = {0, 0, 0, 0};
+  SurveyTowards(45);
+  destination[2][0] = packageX[0], destination[2][1] = packageY[0];
+  destination[3][0] = packageX[1], destination[3][1] = packageY[1];
+  MoveTo(50, 50, 0);
+  Set_Beacon();
+  struct MYCOORD coord = userGetCarPos();
+  int minD = 0;
+  float min;
+  for (int i = 0; i < 4; i++)
+  {
+    coord = userGetCarPos();
+    min = 1e9;
+    for (int j = 0; j < 4; j++)
+    {
+      dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
+    }
+
+    for (int j = 0; j < 4; j++)
+    {
+      if (isComplete[j])
+        continue;
+      minD = min > dist[j] ? j : minD;
+    }
+
+    MoveTo(destination[minD][0], destination[minD][1], 0);
+    if (minD < 2)
+      Set_Beacon();
+    isComplete[minD] = 1;
+  }
+  nearParkId = getNearestPark(0);
+  MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -1102,7 +1143,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     /*********************主逻辑******************/
-    uint8_t nearParkId;
     uint8_t gameState = getGameState();
 
     if (gameState == 0 || gameState == 2 || gameState == 3)
@@ -1116,30 +1156,7 @@ int main(void)
       uint8_t ROUND = getCarTask();
       if (ROUND == 0)
       {
-        switch (STATE)
-        {
-        case GET_PACKAGE:
-          getPackage();
-          if (getCarMineSumNum() == 2)
-            STATE = (uint8_t)SET_BEACON;
-          break;
-
-        case PUT_PACKAGE:
-          nearParkId = getNearestPark(0);
-          MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
-          STATE = (uint8_t)EMPTY_STATE;
-          break;
-
-        case SET_BEACON:
-          SetBeacon();
-          STATE = (uint8_t)PUT_PACKAGE;
-          break;
-
-        default:
-          Set_Right_Direction(0);
-          Set_Left_Direction(0);
-          break;
-        }
+        Round0();
       }
 
       if (ROUND == 1)

@@ -624,6 +624,43 @@ void survey()
 //   }
 // }
 
+struct FORSAFE safeDistance(float angle, float carX, float carY, float safeRadius)
+{
+  struct FORSAFE for_return = {1.0e5, 0};
+  if (RivalBeaconNum == 0)
+  {
+    return for_return;
+  }
+  for (int i = 0; i < RivalBeaconNum; i++)
+  {
+    if (sq(carX - RivalBeacon[i].x) + sq(carY - RivalBeacon[i].y) < sq(safeRadius))
+    {
+      for_return.distance = -1.0;
+      for_return.index = i;
+      return for_return; // 快逃!!!
+    }
+  }
+  float tmp = 1.0e5, dx = 0, dy = 0, h = 0, l = 0;
+  float sinv = sin(angle * 0.017453), cosv = cos(angle * 0.017453);
+  for (int i = 0; i < RivalBeaconNum; i++)
+  {
+    dx = RivalBeacon[i].x - carX;
+    dy = RivalBeacon[i].y - carY;
+    l = -dx * sinv + dy * cosv;
+    h = dx * cosv + dy * sinv;
+    if (h < safeRadius && h > -safeRadius && l > 0)
+    {
+      tmp = l - sqrt(sq(safeRadius) - sq(h));
+      if (tmp < for_return.distance)
+      {
+        for_return.index = i;
+        for_return.distance = tmp;
+      }
+    }
+  }
+  return for_return;
+}
+
 void Set_RF_Direction(int direction);
 void Set_LF_Direction(int direction);
 
@@ -661,49 +698,10 @@ void Move(float velocity, float angle)
   }
 }
 
-float safeDistance(float angle, float carX, float carY, float safeRadius)
-{
-  struct FORSAFE for_return = {1.0e5, 0};
-  if (RivalBeaconNum == 0)
-  {
-    return for_return.distance;
-  }
-  for (int i = 0; i < RivalBeaconNum; i++)
-  {
-    if (sq(carX - RivalBeacon[0].x) + sq(carY - RivalBeacon[1].y) < sq(safeRadius))
-    {
-      for_return.distance = -1.0;
-      for_return.index = i;
-      return for_return.distance; // 快逃!!!
-    }
-  }
-  float tmp = 1.0e5, dx = 0, dy = 0, h = 0, l = 0;
-  float sinv = sin(angle * 0.017453), cosv = cos(angle * 0.017453);
-  for (int i = 0; i < RivalBeaconNum; i++)
-  {
-    dx = RivalBeacon[i].x - carX;
-    dy = RivalBeacon[i].y - carY;
-    l = -dx * sinv + dy * cosv;
-    h = dx * cosv + dy * sinv;
-    if (h < safeRadius && h > -safeRadius && l > 0)
-    {
-      tmp = l - sqrt(sq(safeRadius) - sq(h));
-      if (tmp < for_return.distance)
-      {
-        for_return.index = i;
-        for_return.distance = tmp;
-      }
-    }
-  }
-  return for_return.distance;
-}
-
 void SurveyTowards(float targetAngle)
 {
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, SET);
   if (isPackageValid[0] && isPackageValid[1])
   {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
     return;
   }
   if (!isPackageValid[0])
@@ -712,7 +710,7 @@ void SurveyTowards(float targetAngle)
     surveyDataCount[1] = 0;
 
   struct MYCOORD coord = userGetCarPos();
-  struct FORSAFE safeD = safeDistance(target, coord.x, coord.y, 15);
+  struct FORSAFE safeD = safeDistance(targetAngle, coord.x, coord.y, 15);
   int i = 0;
   if (safeD.distance < -0.5)
   {
@@ -753,7 +751,7 @@ void SurveyTowards(float targetAngle)
     survey();
   }
   temp = surveyDataCount[0] + surveyDataCount[1];
-  safeD = safeDistance(target, coord.x, coord.y, 15.0);
+  safeD = safeDistance(targetAngle, coord.x, coord.y, 15);
   if (safeD.distance < -0.5)
     ;
   i = 40;
@@ -784,7 +782,6 @@ void SurveyTowards(float targetAngle)
     HAL_Delay(20);
     survey();
   }
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, RESET);
 }
 
 void MoveTo(float x, float y, uint16_t _mineType)
@@ -823,13 +820,13 @@ void MoveTo(float x, float y, uint16_t _mineType)
     while (safeD.distance < difference)
     {
       i += 10;
-      safeD = safeDistance(targetAngle + i, coord.x, coord.y, 15.0);
+      safeD = safeDistance(targetAngle + i, coord.x, coord.y, 15);
       if (safeD.distance > midDistance)
       {
         targetAngle = targetAngle + i;
         break;
       }
-      safeD = safeDistance(targetAngle - i, coord.x, coord.y, 15.0);
+      safeD = safeDistance(targetAngle - i, coord.x, coord.y, 15);
       if (safeD.distance > midDistance)
       {
         targetAngle = targetAngle - i;
@@ -851,34 +848,34 @@ void MoveTo(float x, float y, uint16_t _mineType)
     clearDistance();
     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
       break;
-    else if (STATE == (uint8_t)SET_BEACON && difference < 15)
+    else if (STATE == (uint8_t)SET_BEACON && difference < 18)
       break;
     if (difference < 10)
-      velocity = 3;
+      velocity = 5;
     else if (difference < 20)
-      velocity = 7;
+      velocity = 8;
     else if (difference < 30)
-      velocity = 10;
+      velocity = 15;
     else if (difference < 50)
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 13;
+        velocity = 18;
       else
-        velocity = 17;
+        velocity = 20;
     }
     else if (difference < 100)
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 17;
+        velocity = 25;
       else
-        velocity = 23;
+        velocity = 26;
     }
     else
     {
       if (STATE == (uint8_t)PUT_PACKAGE)
-        velocity = 20;
+        velocity = 25;
       else
-        velocity = 27;
+        velocity = 30;
     }
 
     Move(velocity, targetAngle);
@@ -953,7 +950,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
 //   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
 //   if (STATE == (uint8_t)GET_PACKAGE)
 //     flag = getCarMineSumNum();
-//   if (STATE != SET_BEACON && getCarTask() != 0)
+//   if (STATE != SET_BEACON)
 //     SurveyTowards(targetAngle);
 //   targetAngle = atan2(errX, errY) * 57.296 + absoluteAngle - GetYaw();
 //   while (difference > 5)
@@ -961,7 +958,7 @@ void MoveTo(float x, float y, uint16_t _mineType)
 //     clearDistance();
 //     if (STATE == (uint8_t)GET_PACKAGE && flag < getCarMineSumNum())
 //       break;
-//     else if (STATE == (uint8_t)SET_BEACON && difference < 15)
+//     else if (STATE == (uint8_t)SET_BEACON && difference < 20)
 //       break;
 //     if (difference < 10)
 //       velocity = 3;
@@ -1116,7 +1113,14 @@ void getPackage()
   struct MYCOORD coord = userGetCarPos();
   if (!isPackageValid[0] && !isPackageValid[1])
   {
-    SurveyTowards(atan2(127.5 - coord.x, 127.5 - coord.y) * 57.296 + absoluteAngle - GetYaw());
+    if (coord.x < 128 && coord.y < 128)
+      SurveyTowards(45);
+    else if (coord.x < 128 && coord.y >= 128)
+      SurveyTowards(135);
+    else if (coord.x >= 128 && coord.y < 128)
+      SurveyTowards(-45);
+    else
+      SurveyTowards(-135);
   }
   else if (isPackageValid[0] && isPackageValid[1])
   {
@@ -1137,34 +1141,58 @@ void getPackage()
   {
     if (isPackageValid[0])
     {
-      coord = userGetCarPos();
-      SurveyTowards(atan2(packageX[0] - coord.x, packageY[0] - coord.y) * 57.296 + absoluteAngle - GetYaw());
-      if (sqrt(sq(packageX[1] - coord.x) + sq(packageY[1] - coord.y)) < sqrt(sq(packageX[0] - coord.x) + sq(packageY[0] - coord.y)) - 10.0)
-      {
-        MoveTo(packageX[1], packageY[1], 0);
-        isPackageValid[1] = 0;
-      }
-      else
-      {
-        MoveTo(packageX[0], packageY[0], 0);
-        isPackageValid[0] = 0;
-      }
+      MoveTo(packageX[0], packageY[0], 0);
+      isPackageValid[0] = 0;
     }
     else
     {
-      coord = userGetCarPos();
-      SurveyTowards(atan2(packageX[1] - coord.x, packageY[1] - coord.y) * 57.296 + absoluteAngle - GetYaw());
-      if (sqrt(sq(packageX[0] - coord.x) + sq(packageY[0] - coord.y)) < sqrt(sq(packageX[1] - coord.x) + sq(packageY[1] - coord.y)) - 10.0)
-      {
-        MoveTo(packageX[0], packageY[0], 0);
-        isPackageValid[0] = 0;
-      }
-      else
-      {
-        MoveTo(packageX[1], packageY[1], 0);
-        isPackageValid[1] = 0;
-      }
+      MoveTo(packageX[1], packageY[1], 0);
+      isPackageValid[1] = 0;
     }
+  }
+}
+
+void SetBeacon()
+{
+  struct MYCOORD coord = userGetCarPos();
+  int k = 0;
+  float dist1[3], dist2[2];
+  int tmp = 0, j = 0;
+  for (int i = 0; i < 3; i++)
+    dist1[i] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+  for (int i = 0; i < 3; i++)
+    tmp = dist1[tmp] < dist1[i] ? tmp : i;
+  MoveTo(BeaconDir[tmp][0], BeaconDir[tmp][1], 0);
+  zigbeeSend(k++);
+  Set_Beacon();
+  for (int i = 0; i < 3; i++)
+  {
+    if (i != tmp)
+    {
+      coord = userGetCarPos();
+      dist2[j] = sq(coord.x - BeaconDir[i][0]) + sq(coord.y - BeaconDir[i][1]);
+      j++;
+    }
+  }
+  if (dist2[0] < dist2[1])
+  {
+    for (int i = 0; i < 3; i++)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
+  }
+  else
+  {
+    for (int i = 2; i >= 0; i--)
+      if (i != tmp)
+      {
+        MoveTo(BeaconDir[i][0], BeaconDir[i][1], 0);
+        zigbeeSend(k++);
+        Set_Beacon();
+      }
   }
 }
 
@@ -1270,24 +1298,31 @@ void Round0()
   MoveTo(50, 50, 0);
   Set_Beacon();
   struct MYCOORD coord = userGetCarPos();
-  int minD;
+  int minD = 0;
   float min;
   for (int i = 0; i < 4; i++)
   {
+    coord = userGetCarPos();
     min = 1e9;
     for (int j = 0; j < 4; j++)
     {
-      dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
+      if (!isComplete[j])
+        dist[j] = sq(destination[j][0] - coord.x) + sq(destination[j][1] - coord.y);
+      else
+        dist[j] = 1e9;
     }
+
     for (int j = 0; j < 4; j++)
     {
       if (isComplete[j])
         continue;
       minD = min > dist[j] ? j : minD;
     }
+
     MoveTo(destination[minD][0], destination[minD][1], 0);
     if (minD < 2)
       Set_Beacon();
+    isComplete[minD] = 1;
   }
   nearParkId = getNearestPark(0);
   MoveTo(Park[nearParkId].x, Park[nearParkId].y, 0);
