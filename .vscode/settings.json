@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "stdarg.h": "c",
-        "string.h": "c",
-        "jy62.h": "c"
-    },
-    "C_Cpp.errorSquiggles": "Disabled"
-}
